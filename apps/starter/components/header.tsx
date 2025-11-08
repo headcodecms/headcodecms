@@ -3,7 +3,7 @@ import { Nav } from './nav'
 import { Badge } from '@/components/ui/badge'
 import { GitBranchIcon } from 'lucide-react'
 
-export const Header = ({ role }: { role: string }) => {
+export const Header = ({ role }: { role?: string }) => {
   return (
     <div className="flex items-center justify-between py-8">
       <Link
@@ -16,7 +16,7 @@ export const Header = ({ role }: { role: string }) => {
           v01
         </Badge>
       </Link>
-      <Nav role={role} />
+      {role && <Nav role={role} />}
     </div>
   )
 }

@@ -1,6 +1,10 @@
 import { Suspense } from 'react'
 import { SignInForm } from './form'
 import { Skeleton } from '@/components/ui/skeleton'
+import { getRolesCount } from '@/db'
+import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
+import { auth } from '@/lib/auth'
 
 export default function SignInPage() {
   return (
@@ -15,8 +19,17 @@ export default function SignInPage() {
 }
 
 async function SignIn() {
-  // check if user is logged in, if yes redirect to dashboard
-  // check if users table is empty, if yes redirect to users page
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+  if (session) {
+    redirect('/headcode')
+  }
+
+  const rolesCount = await getRolesCount()
+  if (rolesCount === 0) {
+    redirect('/headcode/users')
+  }
 
   return <SignInForm />
 }

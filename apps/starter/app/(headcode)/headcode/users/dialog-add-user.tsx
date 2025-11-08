@@ -25,12 +25,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Spinner } from '@/components/ui/spinner'
+import { AddRole } from '@/db/schema'
+import { authClient } from '@/lib/auth-client'
 import { useForm } from '@tanstack/react-form'
-import { PlusIcon } from 'lucide-react'
+import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
-import { addUser } from './actions'
-import { Spinner } from '@/components/ui/spinner'
+import { addRole } from './actions'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 const formSchema = z.object({
   email: z.email('Invalid email address'),
@@ -38,8 +41,10 @@ const formSchema = z.object({
   role: z.enum(['admin', 'editor']),
 })
 
-export function DialogAddUser() {
+export function DialogAddUser({ noUsers }: { noUsers: boolean }) {
   const [open, setOpen] = useState(false)
+  const [error, setError] = useState<boolean>(false)
+
   const form = useForm({
     defaultValues: {
       email: '',
@@ -51,26 +56,66 @@ export function DialogAddUser() {
     },
     onSubmit: async ({ value }) => {
       console.log('submitting form', value)
-      const result = await addUser(value)
-      console.log('user added successfully', result)
-      form.reset()
-      setOpen(false)
+      setError(false)
+
+      const { data, error: authError } = await authClient.signUp.email({
+        email: value.email,
+        password: value.password,
+        name: value.email,
+      })
+
+      if (authError) {
+        console.error('error signing up', authError)
+        setError(true)
+        return
+      }
+
+      if (data) {
+        const role: AddRole = {
+          email: value.email,
+          role: value.role,
+        }
+
+        try {
+          await addRole(role)
+
+          form.reset()
+          setOpen(false)
+        } catch (addRoleError) {
+          console.error('error adding role', addRoleError)
+          setError(true)
+        }
+      }
     },
   })
+
+  const title = noUsers ? 'Add admin user' : 'Add user'
+  const description = noUsers
+    ? 'Add yourself as an admin user to get started'
+    : 'Add a new user to Headcode CMS.'
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="secondary" size="sm">
           <PlusIcon className="size-4" />
-          Add user
+          {title}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add user</DialogTitle>
-          <DialogDescription>Add a new user to Headcode CMS.</DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle>Error adding user.</AlertTitle>
+            <AlertDescription>
+              <p>An error occurred while adding the user. Please try again.</p>
+            </AlertDescription>
+          </Alert>
+        )}
         <form
           id="add-user-form"
           onSubmit={(e) => {
@@ -135,6 +180,7 @@ export function DialogAddUser() {
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Role</FieldLabel>
                     <Select
+                      disabled={noUsers}
                       name={field.name}
                       value={field.state.value}
                       onValueChange={field.handleChange}

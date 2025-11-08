@@ -1,11 +1,11 @@
 'use client'
 
+import { Container } from '@/components/container'
+import { Header } from '@/components/header'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { AlertCircleIcon } from 'lucide-react'
 import { useEffect } from 'react'
-import { Header } from './header'
-import { Container } from '@/components/container'
 
 export default function Error({
   error,
@@ -25,12 +25,16 @@ export default function Error({
         <AlertCircleIcon />
         <AlertTitle>Something went wrong.</AlertTitle>
         <AlertDescription>
-          <p>{error.message}</p>
-          <ul className="list-inside list-disc text-sm">
-            <li>On a fresh installation, check your setup</li>
-            <li>Check your configuration</li>
-            <li>Check your database connection</li>
-          </ul>
+          {error.message.startsWith('DB_ERROR') && (
+            <>
+              <p>Database error</p>
+              <ul className="list-inside list-disc text-sm">
+                <li>On a fresh installation, check your setup</li>
+                <li>Check your configuration</li>
+                <li>Check your database connection</li>
+              </ul>
+            </>
+          )}
           <div className="flex justify-end">
             <Button
               variant="destructive"

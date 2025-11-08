@@ -1,13 +1,23 @@
 import { Container } from '@/components/container'
-import { Header } from './header'
-import { Suspense } from 'react'
+import { Header } from '@/components/header'
+import { DefaultSkeleton, PageSkeleton } from '@/components/skeletons'
 import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Entries } from './entries'
 import { requireRole } from '@/lib/auth'
+import { Suspense } from 'react'
+import { Entries } from './entries'
 
-export default async function DashboardPage() {
-  const { role } = await requireRole(['editor', 'admin'])
+export default function Page() {
+  return (
+    <Container>
+      <Suspense fallback={<PageSkeleton />}>
+        <EntriesPage />
+      </Suspense>
+    </Container>
+  )
+}
+
+async function EntriesPage() {
+  const { role } = await requireRole(['editor'])
 
   return (
     <Container>
@@ -31,7 +41,7 @@ export default async function DashboardPage() {
       <Separator className="mt-6" />
 
       <div className="my-6">
-        <Suspense fallback={<Skeleton className="h-36 w-full" />}>
+        <Suspense fallback={<DefaultSkeleton />}>
           <Entries />
         </Suspense>
       </div>

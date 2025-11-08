@@ -1,17 +1,13 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { AddRole } from '@/db/schema'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
-export async function addUser(values: unknown) {
-  console.log(values)
+export async function addRole(role: AddRole) {
   await new Promise((resolve) => setTimeout(resolve, 2000))
-  revalidatePath('/headcode/users')
+  revalidateTag('/headcode/users', 'max')
 
-  return {
-    id: '1',
-    email: 'matthew@example.com',
-    role: 'admin',
-  }
+  return { success: true }
 }
 
 export async function deleteUser(id: string) {

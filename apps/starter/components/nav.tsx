@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { ToggleTheme } from './toggle-theme'
 import { SignOutButton } from './sign-out'
 
-export function Nav({ role }: { role: string }) {
+export function Nav({ role }: { role?: string }) {
   const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL
   const storageTitle = process.env.NEXT_PUBLIC_STORAGE_TITLE ?? 'Storage'
 

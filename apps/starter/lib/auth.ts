@@ -1,4 +1,5 @@
 import { Role } from '@/components/headcode/types'
+import { getRole, getRolesCount } from '@/db'
 import { db, provider } from '@/db/db'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
@@ -21,22 +22,36 @@ export const auth = betterAuth({
 export async function requireRole(
   roles: Role[],
   skipWhenNoUsers = false,
-): Promise<{ role: Role; noUsers: boolean }> {
+): Promise<{
+  email: string | undefined
+  role: Role | undefined
+  noUsers: boolean
+}> {
+  await new Promise((resolve) => setTimeout(resolve, 2000))
+
   const session = await auth.api.getSession({
     headers: await headers(),
   })
 
   if (!session) {
     if (skipWhenNoUsers) {
-      // check if users table is empty
-      if (/* users table count > 0 */ true) {
+      const rolesCount = await getRolesCount()
+      if (rolesCount > 0) {
         redirect(signInUrl)
+      } else {
+        return { email: undefined, role: undefined, noUsers: true }
       }
     } else {
       redirect(signInUrl)
     }
   }
-  // get role of user
-  // check if role is in roles, otherwise redirect to unauthorized
-  return { role: 'admin', noUsers: false }
+
+  const email = session.user.email
+  const role = await getRole(email)
+
+  if (!role) {
+    throw new Error('Unauthorized')
+  }
+
+  return { email, role: role.role as Role, noUsers: false }
 }

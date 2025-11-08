@@ -1,8 +1,8 @@
-import { type User } from './users-columns'
+import type { User } from './users-columns'
 import { UsersTable } from './users-table'
 
 async function getUsers(): Promise<User[]> {
-  await new Promise((resolve) => setTimeout(resolve, 300))
+  await new Promise((resolve) => setTimeout(resolve, 2000))
   return [
     {
       id: '1',

@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
+import type { AddEntry } from '@/db/schema'
 import { useForm } from '@tanstack/react-form'
 import { FileStackIcon } from 'lucide-react'
 import { useState } from 'react'
@@ -33,28 +34,34 @@ import { z } from 'zod'
 import { addEntry } from './actions'
 
 const formSchema = z.object({
-  email: z.email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['admin', 'editor']),
+  namespace: z.string(),
+  key: z
+    .string()
+    .regex(
+      /^[a-zA-Z0-9-_]+$/,
+      'Key can only contain letters, numbers, dashes, and underscores',
+    ),
 })
 
-export function DialogAddEntry() {
+export function DialogAddEntry({ version = 'v01' }: { version: string }) {
   const [open, setOpen] = useState(false)
   const form = useForm({
     defaultValues: {
-      email: '',
-      password: '',
-      role: 'admin',
+      namespace: '', // first value from select options
+      key: '',
     },
     validators: {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
       console.log('submitting form', value)
-      const result = await addEntry(value)
+      const entry: AddEntry = {
+        version,
+        namespace: value.namespace,
+        key: value.key,
+      }
+      const result = await addEntry(entry)
       console.log('entry added successfully', result)
-      form.reset()
-      setOpen(false)
     },
   })
 
@@ -70,7 +77,7 @@ export function DialogAddEntry() {
         <DialogHeader>
           <DialogTitle>Add entry</DialogTitle>
           <DialogDescription>
-            Add a new entry to Headcode CMS.
+            Add a new dynamic entry to Headcode CMS.
           </DialogDescription>
         </DialogHeader>
         <form
@@ -82,60 +89,13 @@ export function DialogAddEntry() {
           }}
         >
           <FieldGroup>
-            <form.Field name="email">
+            <form.Field name="namespace">
               {(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      placeholder="john@example.com"
-                      autoComplete="off"
-                    />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                )
-              }}
-            </form.Field>
-            <form.Field name="password">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      autoComplete="off"
-                    />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                )
-              }}
-            </form.Field>
-            <form.Field name="role">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Role</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Namespace</FieldLabel>
                     <Select
                       name={field.name}
                       value={field.state.value}
@@ -143,13 +103,36 @@ export function DialogAddEntry() {
                       aria-invalid={isInvalid}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select role" />
+                        <SelectValue placeholder="Select namespace" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="editor">Editor</SelectItem>
+                        <SelectItem value="global">Global</SelectItem>
+                        <SelectItem value="user">User</SelectItem>
                       </SelectContent>
                     </Select>
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                )
+              }}
+            </form.Field>
+            <form.Field name="key">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Key</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      autoComplete="off"
+                    />
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
                     )}
@@ -168,9 +151,9 @@ export function DialogAddEntry() {
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
 
-              <Button type="submit" form="add-user-form" disabled={!canSubmit}>
+              <Button type="submit" form="add-entry-form" disabled={!canSubmit}>
                 {isSubmitting && <Spinner />}
-                Add User
+                Add Entry
               </Button>
             </DialogFooter>
           )}
