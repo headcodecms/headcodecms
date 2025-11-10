@@ -1,6 +1,6 @@
 'use server'
 
-import type { AddEntry } from '@/db/schema'
+import type { AddEntry } from '@/db'
 import { revalidatePath } from 'next/cache'
 
 export async function addEntry(values: AddEntry) {

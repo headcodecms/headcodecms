@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
-import type { AddEntry } from '@/db/schema'
+import type { AddEntry } from '@/db'
 import { useForm } from '@tanstack/react-form'
 import { FileStackIcon } from 'lucide-react'
 import { useState } from 'react'

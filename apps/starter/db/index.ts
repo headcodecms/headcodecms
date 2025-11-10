@@ -1,6 +1,20 @@
 import { count, eq } from 'drizzle-orm'
 import { db } from './db'
-import { AddRole, Role, roles, user } from './schema'
+import { entries, entriesToSections, sections, user } from './schema'
+import { headcodeConfig } from '@/headcode.config'
+
+export type Role = 'user' | 'admin'
+
+export type Entry = typeof entries.$inferSelect
+export type AddEntry = typeof entries.$inferInsert
+
+export type Section = typeof sections.$inferSelect
+export type AddSection = typeof sections.$inferInsert
+
+export type EntriesToSections = typeof entriesToSections.$inferSelect
+export type AddEntriesToSections = typeof entriesToSections.$inferInsert
+
+const version = headcodeConfig.version
 
 const DBError = (error: unknown) => {
   console.error(error)
@@ -18,30 +32,13 @@ export async function noUsers(): Promise<boolean> {
   }
 }
 
-export async function getRolesCount(): Promise<number> {
+export async function getEntries(): Promise<Entry[]> {
   try {
-    const result = await db.select({ count: count() }).from(roles)
-    return result[0].count
-  } catch (error) {
-    throw DBError(error)
-  }
-}
-
-export async function getRole(email: string): Promise<Role | undefined> {
-  try {
-    const result = await db.select().from(roles).where(eq(roles.email, email))
-    if (result.length === 0) {
-      return undefined
-    }
-    return result[0]
-  } catch (error) {
-    throw DBError(error)
-  }
-}
-
-export async function addRole(role: AddRole) {
-  try {
-    await db.insert(roles).values(role)
+    const result = await db
+      .select()
+      .from(entries)
+      .where(eq(entries.version, version))
+    return result
   } catch (error) {
     throw DBError(error)
   }

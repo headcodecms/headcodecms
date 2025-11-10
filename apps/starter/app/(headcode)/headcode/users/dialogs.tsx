@@ -28,14 +28,14 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
-import { UserRole } from '@/lib/auth'
+import { type Role } from '@/db'
 import { authClient } from '@/lib/auth-client'
 import { useForm } from '@tanstack/react-form'
+import { User } from 'better-auth'
 import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
 import { createInitialUser } from './actions'
-import { User } from 'better-auth'
 
 const passwordSchema = z
   .string()
@@ -73,7 +73,7 @@ export function DialogAddUser({
       await createInitialUser({
         email: value.email,
         password: value.password,
-        role: value.role as UserRole,
+        role: value.role as Role,
       })
 
       if (noUsers) {

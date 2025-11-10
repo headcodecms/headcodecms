@@ -1,6 +1,7 @@
 'use server'
 
-import { auth, UserRole } from '@/lib/auth'
+import { auth } from '@/lib/auth'
+import { type Role } from '@/db'
 import { revalidateTag } from 'next/cache'
 
 export async function createInitialUser({
@@ -10,7 +11,7 @@ export async function createInitialUser({
 }: {
   email: string
   password: string
-  role: UserRole
+  role: Role
 }) {
   await auth.api.createUser({
     body: {

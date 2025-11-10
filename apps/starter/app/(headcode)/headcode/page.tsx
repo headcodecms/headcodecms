@@ -2,9 +2,12 @@ import { Container } from '@/components/headcode/container'
 import { Header } from '@/components/headcode/header'
 import { DefaultSkeleton, PageSkeleton } from '@/components/headcode/skeletons'
 import { Separator } from '@/components/ui/separator'
+import { headcodeConfig } from '@/headcode.config'
 import { requireRole } from '@/lib/auth'
 import { Suspense } from 'react'
-import { Entries } from './entries'
+import { EntriesTable } from './table'
+import { getEntries } from '@/lib/headcode/entries'
+import { AlertClone } from './alerts'
 
 export default function Page() {
   return (
@@ -46,5 +49,19 @@ async function EntriesPage() {
         </Suspense>
       </div>
     </Container>
+  )
+}
+
+export async function Entries() {
+  const { entryTypes, entries, emptyEntries } = await getEntries()
+  const clone = headcodeConfig.clone
+
+  console.log('entries', entryTypes, entries, emptyEntries)
+
+  return (
+    <>
+      {emptyEntries && clone && <AlertClone clone={clone} />}
+      <EntriesTable data={entries} />
+    </>
   )
 }

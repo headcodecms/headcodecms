@@ -1,4 +1,4 @@
-import { noUsers } from '@/db'
+import { noUsers, type Role } from '@/db'
 import { db, provider } from '@/db/db'
 import * as schema from '@/db/schema'
 import { betterAuth } from 'better-auth'
@@ -10,8 +10,6 @@ import { redirect } from 'next/navigation'
 
 const signInUrl = '/headcode/sign-in'
 
-export type UserRole = 'user' | 'admin'
-
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider,
@@ -22,11 +20,11 @@ export const auth = betterAuth({
 })
 
 export async function requireRole(
-  roles: UserRole[],
+  roles: Role[],
   skipWhenNoUsers = false,
 ): Promise<{
   email: string | undefined
-  role: UserRole | undefined
+  role: Role | undefined
   noUsers: boolean
 }> {
   const session = await auth.api.getSession({
@@ -46,7 +44,7 @@ export async function requireRole(
   }
 
   const email = session.user.email
-  const role = session.user.role as UserRole
+  const role = session.user.role as Role
 
   if (!role || !roles.includes(role)) {
     throw new Error('UNAUTHORIZED')
