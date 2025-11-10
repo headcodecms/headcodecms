@@ -17,7 +17,7 @@ export default function Page() {
 }
 
 async function EntriesPage() {
-  const { role } = await requireRole(['editor'])
+  const { role } = await requireRole(['user', 'admin'])
 
   return (
     <Container>

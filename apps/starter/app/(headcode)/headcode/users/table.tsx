@@ -1,5 +1,6 @@
 'use client'
 
+import { ConfirmationDialog } from '@/components/headcode/dialogs'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -7,13 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  Empty,
-  EmptyContent,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty'
 import {
   Pagination,
   PaginationContent,
@@ -30,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { authClient } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
 import {
   ColumnDef,
@@ -40,20 +35,16 @@ import {
   SortingState,
   useReactTable,
 } from '@tanstack/react-table'
-import {
-  ArrowUpDown,
-  MoreHorizontal,
-  PlusIcon,
-  UserRoundPlusIcon,
-} from 'lucide-react'
-import { useState } from 'react'
-import { deleteUser } from './actions'
-import { Role } from '@/db/schema'
-import { ConfirmationDialog } from '@/components/headcode/dialogs'
+import { User } from 'better-auth'
+import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { DialogChangePassword } from './dialogs'
 
 const getUsersColumns = (
-  handleDelete: (user: Role) => void,
-): ColumnDef<Role>[] => [
+  handleChangePassword: (user: User) => void,
+  handleDelete: (user: User) => void,
+  currentUserEmail: string | undefined,
+): ColumnDef<User>[] => [
   {
     accessorKey: 'email',
     header: ({ column }) => {
@@ -97,9 +88,14 @@ const getUsersColumns = (
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleDelete(user)}>
-                Delete user
+              <DropdownMenuItem onClick={() => handleChangePassword(user)}>
+                Change password
               </DropdownMenuItem>
+              {user.email !== currentUserEmail && (
+                <DropdownMenuItem onClick={() => handleDelete(user)}>
+                  Delete user
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </>
@@ -108,27 +104,63 @@ const getUsersColumns = (
   },
 ]
 
-export function UsersTable({ data }: { data: Role[] }) {
+export function UsersTable({
+  update,
+  setUpdate,
+}: {
+  update: boolean
+  setUpdate: (update: boolean) => void
+}) {
   const [open, setOpen] = useState(false)
-  const [userToDelete, setUserToDelete] = useState<Role | null>(null)
+  const [openChangePassword, setOpenChangePassword] = useState(false)
+  const [userToChangePassword, setUserToChangePassword] = useState<User | null>(
+    null,
+  )
+  const [userToDelete, setUserToDelete] = useState<User | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const { data: session } = authClient.useSession()
+  const [data, setData] = useState<User[]>([])
 
-  const handleDelete = (user: Role) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      const userData = await authClient.admin.listUsers({
+        query: { limit: 1000 },
+      })
+
+      setData(userData.data?.users ?? [])
+      setUpdate(false)
+    }
+
+    if (update) {
+      fetchData()
+    }
+  }, [update, setUpdate])
+
+  const handleChangePassword = (user: User) => {
+    setOpenChangePassword(true)
+    setUserToChangePassword(user)
+  }
+
+  const handleDelete = (user: User) => {
     setUserToDelete(user)
     setOpen(true)
+    setUpdate(true)
   }
-  const columns = getUsersColumns(handleDelete)
+  const columns = getUsersColumns(
+    handleChangePassword,
+    handleDelete,
+    session?.user.email,
+  )
 
   const handleConfirmDelete = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
     if (userToDelete) {
-      console.log('deleting user', userToDelete)
       setIsDeleting(true)
       try {
-        const result = await deleteUser(userToDelete.id)
-        console.log('user deleted successfully', result)
+        await authClient.admin.removeUser({ userId: userToDelete.id })
+        setUpdate(true)
       } catch (error) {
         console.error('error deleting user', error)
       } finally {
@@ -142,6 +174,11 @@ export function UsersTable({ data }: { data: Role[] }) {
   return (
     <>
       <UsersDataTable columns={columns} data={data} />
+      <DialogChangePassword
+        user={userToChangePassword}
+        open={openChangePassword}
+        setOpen={setOpenChangePassword}
+      />
       <ConfirmationDialog
         open={open}
         setOpen={setOpen}
@@ -198,48 +235,24 @@ function UsersDataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className={cn(
-                        'px-6',
-                        cell.column.id === 'email' && 'w-full',
-                      )}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length}>
-                  <Empty>
-                    <EmptyHeader>
-                      <EmptyMedia variant="icon">
-                        <UserRoundPlusIcon />
-                      </EmptyMedia>
-                      <EmptyTitle>Add an admin user to get started</EmptyTitle>
-                    </EmptyHeader>
-                    <EmptyContent>
-                      <Button>
-                        <PlusIcon className="size-4" />
-                        Add admin user
-                      </Button>
-                    </EmptyContent>
-                  </Empty>
-                </TableCell>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className={cn(
+                      'px-6',
+                      cell.column.id === 'email' && 'w-full',
+                    )}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
               </TableRow>
-            )}
+            ))}
           </TableBody>
         </Table>
       </div>

@@ -28,16 +28,18 @@ export function Nav({ role }: { role?: string }) {
             </NavigationMenuLink>
           </NavigationMenuItem>
         )}
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild>
-            <Link href="/headcode/users">
-              <span className="hidden sm:inline">Users</span>
-              <span className="inline sm:hidden">
-                <UsersIcon className="size-4" />
-              </span>
-            </Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
+        {role === 'admin' && (
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <Link href="/headcode/users">
+                <span className="hidden sm:inline">Users</span>
+                <span className="inline sm:hidden">
+                  <UsersIcon className="size-4" />
+                </span>
+              </Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        )}
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
             <ToggleTheme />
