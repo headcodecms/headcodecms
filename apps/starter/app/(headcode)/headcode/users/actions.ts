@@ -1,10 +1,13 @@
 'use server'
 
+import { addRole as addDBRole } from '@/db'
 import { AddRole, Role } from '@/db/schema'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { requireRole } from '@/lib/auth'
+import { revalidateTag } from 'next/cache'
 
 export async function addRole(role: AddRole) {
-  await new Promise((resolve) => setTimeout(resolve, 2000))
+  requireRole(['admin'], true)
+  await addDBRole(role)
   revalidateTag('/headcode/users', 'max')
 
   return { success: true }
@@ -13,7 +16,7 @@ export async function addRole(role: AddRole) {
 export async function deleteUser(id: number) {
   console.log('deleting user', id)
   await new Promise((resolve) => setTimeout(resolve, 2000))
-  revalidatePath('/headcode/users')
+  revalidateTag('/headcode/users', 'max')
 
   return { success: true }
 }

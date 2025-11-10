@@ -1,6 +1,6 @@
 import { count, eq } from 'drizzle-orm'
 import { db } from './db'
-import { Role, roles } from './schema'
+import { AddRole, Role, roles } from './schema'
 
 const DBError = (error: unknown) => {
   console.error(error)
@@ -25,6 +25,14 @@ export async function getRole(email: string): Promise<Role | undefined> {
       return undefined
     }
     return result[0]
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function addRole(role: AddRole) {
+  try {
+    await db.insert(roles).values(role)
   } catch (error) {
     throw DBError(error)
   }

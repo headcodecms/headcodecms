@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -34,16 +35,21 @@ import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
 import { addRole } from './actions'
+import { useRouter } from 'next/navigation'
 
 const formSchema = z.object({
   email: z.email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password must be less than 128 characters'),
   role: z.enum(['admin', 'editor']),
 })
 
 export function DialogAddUser({ noUsers }: { noUsers: boolean }) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<boolean>(false)
+  const router = useRouter()
 
   const form = useForm({
     defaultValues: {
@@ -63,6 +69,7 @@ export function DialogAddUser({ noUsers }: { noUsers: boolean }) {
         password: value.password,
         name: value.email,
       })
+      console.log('auth data', data, authError)
 
       if (authError) {
         console.error('error signing up', authError)
@@ -77,7 +84,16 @@ export function DialogAddUser({ noUsers }: { noUsers: boolean }) {
         }
 
         try {
+          console.log('adding role', role)
           await addRole(role)
+
+          if (noUsers) {
+            await authClient.signIn.email({
+              email: value.email,
+              password: value.password,
+            })
+            router.push('/headcode')
+          }
 
           form.reset()
           setOpen(false)
@@ -165,6 +181,9 @@ export function DialogAddUser({ noUsers }: { noUsers: boolean }) {
                       aria-invalid={isInvalid}
                       autoComplete="off"
                     />
+                    <FieldDescription>
+                      Password must be at least 8 characters.
+                    </FieldDescription>
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
                     )}

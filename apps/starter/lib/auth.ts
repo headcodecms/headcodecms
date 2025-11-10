@@ -1,6 +1,7 @@
 import { UserRole } from '@/components/headcode/types'
 import { getRole, getRolesCount } from '@/db'
 import { db, provider } from '@/db/db'
+import * as schema from '@/db/schema'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { nextCookies } from 'better-auth/next-js'
@@ -12,9 +13,12 @@ const signInUrl = '/headcode/sign-in'
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider,
+    schema,
   }),
   emailAndPassword: {
     enabled: true,
+    autoLogin: false,
+    requireEmailVerification: false,
   },
   plugins: [nextCookies()],
 })
@@ -50,7 +54,7 @@ export async function requireRole(
   const role = await getRole(email)
 
   if (!role) {
-    throw new Error('Unauthorized')
+    throw new Error('UNAUTHORIZED')
   }
 
   return { email, role: role.role as UserRole, noUsers: false }

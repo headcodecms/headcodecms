@@ -35,6 +35,15 @@ export default function Error({
               </ul>
             </>
           )}
+          {error.message.startsWith('UNAUTHORIZED') && (
+            <>
+              <p>Unauthorized</p>
+              <ul className="list-inside list-disc text-sm">
+                <li>You are not authorized to access this page</li>
+                <li>Please contact your administrator</li>
+              </ul>
+            </>
+          )}
           <div className="flex justify-end">
             <Button
               variant="destructive"
