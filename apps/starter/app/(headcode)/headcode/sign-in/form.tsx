@@ -1,5 +1,6 @@
 'use client'
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -19,19 +20,25 @@ import { Spinner } from '@/components/ui/spinner'
 import { authClient } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
 import { useForm } from '@tanstack/react-form'
+import { AlertCircleIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { z } from 'zod'
 
-// share with sign up
 const formSchema = z.object({
   email: z.email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password must be less than 128 characters'),
 })
 
 export function SignInForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const [error, setError] = useState<string | null>(null)
+
   const router = useRouter()
   const form = useForm({
     defaultValues: {
@@ -42,21 +49,19 @@ export function SignInForm({
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log('submitting form', value)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const { data, error } = await authClient.signUp.email({
-        email: 'test@test.com',
-        password: 'test',
-        name: 'Test User',
+      setError(null)
+      const { data, error } = await authClient.signIn.email({
+        email: value.email,
+        password: value.password,
       })
 
-      if (error) {
-        console.log('error signing in', error)
-      }
-
+      if (error)
+        setError(
+          error.message ??
+            'An error occurred while signing in. Please try again.',
+        )
       if (data) {
-        console.log('signed in data', data)
+        form.reset()
         router.push('/headcode')
       }
     },
@@ -76,6 +81,12 @@ export function SignInForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <Alert className="mb-4" variant="destructive">
+              <AlertCircleIcon />
+              <AlertTitle>{error}</AlertTitle>
+            </Alert>
+          )}
           <form
             id="sign-in-form"
             onSubmit={(e) => {
@@ -120,6 +131,7 @@ export function SignInForm({
                         id={field.name}
                         name={field.name}
                         value={field.state.value}
+                        type="password"
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}

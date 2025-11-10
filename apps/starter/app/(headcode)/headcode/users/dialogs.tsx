@@ -28,28 +28,35 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
-import { AddRole } from '@/db/schema'
+import { UserRole } from '@/lib/auth'
 import { authClient } from '@/lib/auth-client'
 import { useForm } from '@tanstack/react-form'
 import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
-import { addRole } from './actions'
-import { useRouter } from 'next/navigation'
+import { createInitialUser } from './actions'
+import { User } from 'better-auth'
+
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .max(128, 'Password must be less than 128 characters')
 
 const formSchema = z.object({
   email: z.email('Invalid email address'),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .max(128, 'Password must be less than 128 characters'),
-  role: z.enum(['admin', 'editor']),
+  password: passwordSchema,
+  role: z.enum(['admin', 'user']),
 })
 
-export function DialogAddUser({ noUsers }: { noUsers: boolean }) {
+export function DialogAddUser({
+  noUsers,
+  setUpdate,
+}: {
+  noUsers: boolean
+  setUpdate: (update: boolean) => void
+}) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<boolean>(false)
-  const router = useRouter()
 
   const form = useForm({
     defaultValues: {
@@ -61,47 +68,25 @@ export function DialogAddUser({ noUsers }: { noUsers: boolean }) {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log('submitting form', value)
       setError(false)
 
-      const { data, error: authError } = await authClient.signUp.email({
+      await createInitialUser({
         email: value.email,
         password: value.password,
-        name: value.email,
+        role: value.role as UserRole,
       })
-      console.log('auth data', data, authError)
 
-      if (authError) {
-        console.error('error signing up', authError)
-        setError(true)
-        return
-      }
-
-      if (data) {
-        const role: AddRole = {
+      if (noUsers) {
+        await authClient.signIn.email({
           email: value.email,
-          role: value.role,
-        }
-
-        try {
-          console.log('adding role', role)
-          await addRole(role)
-
-          if (noUsers) {
-            await authClient.signIn.email({
-              email: value.email,
-              password: value.password,
-            })
-            router.push('/headcode')
-          }
-
-          form.reset()
-          setOpen(false)
-        } catch (addRoleError) {
-          console.error('error adding role', addRoleError)
-          setError(true)
-        }
+          password: value.password,
+          callbackURL: '/headcode',
+        })
       }
+
+      form.reset()
+      setOpen(false)
+      setUpdate(true)
     },
   })
 
@@ -210,7 +195,7 @@ export function DialogAddUser({ noUsers }: { noUsers: boolean }) {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="editor">Editor</SelectItem>
+                        <SelectItem value="user">User</SelectItem>
                       </SelectContent>
                     </Select>
                     {isInvalid && (
@@ -234,6 +219,130 @@ export function DialogAddUser({ noUsers }: { noUsers: boolean }) {
               <Button type="submit" form="add-user-form" disabled={!canSubmit}>
                 {isSubmitting && <Spinner />}
                 Add User
+              </Button>
+            </DialogFooter>
+          )}
+        </form.Subscribe>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export function DialogChangePassword({
+  user,
+  open,
+  setOpen,
+}: {
+  user: User | null
+  open: boolean
+  setOpen: (open: boolean) => void
+}) {
+  const [error, setError] = useState<boolean>(false)
+
+  const form = useForm({
+    defaultValues: {
+      password: '',
+    },
+    validators: {
+      onSubmit: z.object({
+        password: passwordSchema,
+      }),
+    },
+    onSubmit: async ({ value }) => {
+      if (!user) return
+      setError(false)
+
+      const { error } = await authClient.admin.setUserPassword({
+        newPassword: value.password,
+        userId: user.id,
+      })
+
+      if (error) {
+        setError(true)
+      }
+
+      form.reset()
+      setOpen(false)
+    },
+  })
+
+  if (!user) {
+    return null
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Change password</DialogTitle>
+          <DialogDescription>
+            Change the password for {user.email}.
+          </DialogDescription>
+        </DialogHeader>
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle>Error changing password.</AlertTitle>
+            <AlertDescription>
+              <p>
+                An error occurred while changing the password. Please try again.
+              </p>
+            </AlertDescription>
+          </Alert>
+        )}
+        <form
+          id="change-password-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            form.handleSubmit()
+          }}
+        >
+          <FieldGroup>
+            <form.Field name="password">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      autoComplete="off"
+                    />
+                    <FieldDescription>
+                      Password must be at least 8 characters.
+                    </FieldDescription>
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                )
+              }}
+            </form.Field>
+          </FieldGroup>
+        </form>
+        <form.Subscribe
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
+        >
+          {([canSubmit, isSubmitting]) => (
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+
+              <Button
+                type="submit"
+                form="change-password-form"
+                disabled={!canSubmit}
+              >
+                {isSubmitting && <Spinner />}
+                Change Password
               </Button>
             </DialogFooter>
           )}

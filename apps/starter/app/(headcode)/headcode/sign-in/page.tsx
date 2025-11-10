@@ -1,10 +1,10 @@
+import { Skeleton } from '@/components/ui/skeleton'
+import { auth } from '@/lib/auth'
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { SignInForm } from './form'
-import { Skeleton } from '@/components/ui/skeleton'
-import { getRolesCount } from '@/db'
-import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
-import { auth } from '@/lib/auth'
+import { noUsers } from '@/db'
 
 export default function SignInPage() {
   return (
@@ -26,8 +26,7 @@ async function SignIn() {
     redirect('/headcode')
   }
 
-  const rolesCount = await getRolesCount()
-  if (rolesCount === 0) {
+  if (await noUsers()) {
     redirect('/headcode/users')
   }
 

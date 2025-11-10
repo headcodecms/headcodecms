@@ -1,12 +1,21 @@
 import { count, eq } from 'drizzle-orm'
 import { db } from './db'
-import { AddRole, Role, roles } from './schema'
+import { AddRole, Role, roles, user } from './schema'
 
 const DBError = (error: unknown) => {
   console.error(error)
   return new Error(
     `DB_ERROR: ${error instanceof Error ? error.message : error}`,
   )
+}
+
+export async function noUsers(): Promise<boolean> {
+  try {
+    const result = await db.select({ count: count() }).from(user)
+    return result[0].count === 0 ? true : false
+  } catch (error) {
+    throw DBError(error)
+  }
 }
 
 export async function getRolesCount(): Promise<number> {
