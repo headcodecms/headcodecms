@@ -1,16 +1,12 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import {
-  ColumnDef,
-  SortingState,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
-
-import { Button, buttonVariants } from '@/components/ui/button'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Empty,
   EmptyContent,
@@ -34,29 +30,90 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { PlusIcon, UserRoundPlusIcon } from 'lucide-react'
-import { useState } from 'react'
-import { getUsersColumns, User } from './users-columns'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Spinner } from '@/components/ui/spinner'
-import { deleteUser } from './actions'
 import { cn } from '@/lib/utils'
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+} from '@tanstack/react-table'
+import {
+  ArrowUpDown,
+  MoreHorizontal,
+  PlusIcon,
+  UserRoundPlusIcon,
+} from 'lucide-react'
+import { useState } from 'react'
+import { deleteUser } from './actions'
+import { Role } from '@/db/schema'
+import { ConfirmationDialog } from '@/components/headcode/dialogs'
 
-export function UsersTable({ data }: { data: User[] }) {
+const getUsersColumns = (
+  handleDelete: (user: Role) => void,
+): ColumnDef<Role>[] => [
+  {
+    accessorKey: 'email',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Email
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+  },
+  {
+    accessorKey: 'role',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Role
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => {
+      const user = row.original
+
+      return (
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleDelete(user)}>
+                Delete user
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </>
+      )
+    },
+  },
+]
+
+export function UsersTable({ data }: { data: Role[] }) {
   const [open, setOpen] = useState(false)
-  const [userToDelete, setUserToDelete] = useState<User | null>(null)
+  const [userToDelete, setUserToDelete] = useState<Role | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const handleDelete = (user: User) => {
+  const handleDelete = (user: Role) => {
     setUserToDelete(user)
     setOpen(true)
   }
@@ -85,29 +142,15 @@ export function UsersTable({ data }: { data: User[] }) {
   return (
     <>
       <UsersDataTable columns={columns} data={data} />
-      <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Delete user {userToDelete?.email}?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              user {userToDelete?.email} from Headcode CMS.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className={buttonVariants({ variant: 'destructive' })}
-              onClick={handleConfirmDelete}
-            >
-              {isDeleting && <Spinner />}
-              Delete user
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={open}
+        setOpen={setOpen}
+        title={`Delete user ${userToDelete?.email ?? ''}?`}
+        description={`This action cannot be undone. This will permanently delete the user ${userToDelete?.email ?? ''} from Headcode CMS.`}
+        buttonText="Delete user"
+        isSubmitting={isDeleting}
+        handleSubmit={handleConfirmDelete}
+      />
     </>
   )
 }

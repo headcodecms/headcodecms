@@ -1,5 +1,6 @@
 'use client'
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -33,7 +34,6 @@ import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
 import { addRole } from './actions'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 const formSchema = z.object({
   email: z.email('Invalid email address'),

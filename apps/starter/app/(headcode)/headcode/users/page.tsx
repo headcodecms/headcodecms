@@ -1,6 +1,6 @@
-import { Container } from '@/components/container'
-import { Header } from '@/components/header'
-import { DefaultSkeleton, PageSkeleton } from '@/components/skeletons'
+import { Container } from '@/components/headcode/container'
+import { Header } from '@/components/headcode/header'
+import { DefaultSkeleton, PageSkeleton } from '@/components/headcode/skeletons'
 import {
   Empty,
   EmptyContent,
@@ -12,8 +12,9 @@ import { Separator } from '@/components/ui/separator'
 import { requireRole } from '@/lib/auth'
 import { UserRoundPlusIcon } from 'lucide-react'
 import { Suspense } from 'react'
-import { DialogAddUser } from './dialog-add-user'
-import { Users } from './users'
+import { DialogAddUser } from './dialogs'
+import { UsersTable } from './table'
+import { getRoles } from './actions'
 
 export default function Page() {
   return (
@@ -69,4 +70,10 @@ async function UsersPage() {
       </div>
     </Container>
   )
+}
+
+export async function Users() {
+  const data = await getRoles()
+
+  return <UsersTable data={data} />
 }

@@ -1,4 +1,4 @@
-import { Role } from '@/components/headcode/types'
+import { UserRole } from '@/components/headcode/types'
 import { getRole, getRolesCount } from '@/db'
 import { db, provider } from '@/db/db'
 import { betterAuth } from 'better-auth'
@@ -20,11 +20,11 @@ export const auth = betterAuth({
 })
 
 export async function requireRole(
-  roles: Role[],
+  roles: UserRole[],
   skipWhenNoUsers = false,
 ): Promise<{
   email: string | undefined
-  role: Role | undefined
+  role: UserRole | undefined
   noUsers: boolean
 }> {
   await new Promise((resolve) => setTimeout(resolve, 2000))
@@ -53,5 +53,5 @@ export async function requireRole(
     throw new Error('Unauthorized')
   }
 
-  return { email, role: role.role as Role, noUsers: false }
+  return { email, role: role.role as UserRole, noUsers: false }
 }
