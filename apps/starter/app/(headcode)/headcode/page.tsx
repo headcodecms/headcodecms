@@ -41,8 +41,6 @@ export async function Entries() {
   const version = headcodeConfig.version
   const clone = headcodeConfig.clone
 
-  console.log('entries', entryTypes, entries, emptyEntries)
-
   return (
     <>
       <div className="flex items-end justify-between gap-12">

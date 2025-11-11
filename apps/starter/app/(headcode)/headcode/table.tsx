@@ -70,13 +70,14 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Entry, EntryType } from '@/lib/headcode/entries'
+import { UIEntry, UIEntryType } from '@/lib/headcode/entries'
 import { addEntry, deleteEntry } from './actions'
+import { toast } from 'sonner'
 
 const getEntriesColumns = (
-  handleEdit: (entry: Entry) => void,
-  handleDelete: (entry: Entry) => void,
-): ColumnDef<Entry>[] => [
+  handleEdit: (entry: UIEntry) => void,
+  handleDelete: (entry: UIEntry) => void,
+): ColumnDef<UIEntry>[] => [
   {
     accessorKey: 'isDynamic',
     header: '',
@@ -161,31 +162,38 @@ export function EntriesTable({
   entryTypes,
 }: {
   version: string
-  data: Entry[]
-  entryTypes: EntryType[]
+  data: UIEntry[]
+  entryTypes: UIEntryType[]
 }) {
   const [open, setOpen] = useState(false)
-  const [entryToDelete, setEntryToDelete] = useState<Entry | null>(null)
+  const [entryToDelete, setEntryToDelete] = useState<UIEntry | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
 
-  const handleDelete = (entry: Entry) => {
+  const handleDelete = (entry: UIEntry) => {
     setEntryToDelete(entry)
     setOpen(true)
   }
 
-  const handleEdit = async (entry: Entry) => {
+  const handleEdit = async (entry: UIEntry) => {
     let id = entry.id
     if (!id) {
-      const newEntry = await addEntry({
+      const { entry: newEntry, error } = await addEntry({
         version,
         namespace: entry.namespace,
         key: entry.key,
       })
-      id = newEntry.id
+
+      if (newEntry) {
+        id = newEntry.id
+      } else if (error) {
+        toast.warning(error)
+      }
     }
 
-    router.push(`/headcode/section/${id}`)
+    if (id) {
+      router.push(`/headcode/section/${id}`)
+    }
   }
 
   const columns = getEntriesColumns(handleEdit, handleDelete)
@@ -197,20 +205,18 @@ export function EntriesTable({
     if (entryToDelete) {
       console.log('deleting entry', entryToDelete)
       setIsDeleting(true)
-      try {
-        if (entryToDelete.id) {
-          const result = await deleteEntry(entryToDelete.id)
-          // show toast notification
-          // standardize results from actions
-          console.log('entry deleted successfully', result)
+      if (entryToDelete.id) {
+        const { success, error } = await deleteEntry(entryToDelete.id)
+        if (success) {
+          toast.success('Entry deleted successfully')
+        } else if (error) {
+          toast.warning(error)
         }
-      } catch (error) {
-        console.error('error deleting entry', error)
-      } finally {
-        setIsDeleting(false)
-        setOpen(false)
-        setEntryToDelete(null)
       }
+
+      setIsDeleting(false)
+      setOpen(false)
+      setEntryToDelete(null)
     }
   }
 
@@ -258,7 +264,7 @@ export function EntriesDataTable<TData, TValue>({
 }: {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  entryTypes: EntryType[]
+  entryTypes: UIEntryType[]
   handleEdit: (entry: TData) => void
 }) {
   const [sorting, setSorting] = useState<SortingState>([])

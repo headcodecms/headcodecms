@@ -12,7 +12,7 @@ const timestamps = {
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
-    .$onUpdate(() => new Date())
+    .$onUpdate(() => sql`CURRENT_TIMESTAMP`)
     .notNull(),
 }
 

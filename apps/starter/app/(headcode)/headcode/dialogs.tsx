@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import type { AddEntry } from '@/db'
-import { EntryType } from '@/lib/headcode/entries'
+import { UIEntryType } from '@/lib/headcode/entries'
 import { useForm } from '@tanstack/react-form'
 import { FileStackIcon } from 'lucide-react'
 import { useState } from 'react'
@@ -50,7 +50,7 @@ export function DialogAddEntry({
   dynamicEntries,
 }: {
   version: string
-  dynamicEntries: EntryType[]
+  dynamicEntries: UIEntryType[]
 }) {
   const [open, setOpen] = useState(false)
   const form = useForm({

@@ -6,10 +6,9 @@ import { getSchema } from '@/lib/headcode/form'
 import { HeroClient } from './hero-client'
 import { SelectField } from '@/components/headcode/form/select-field'
 
-// reserved words for field keys: title,
 export const heroSection = {
   name: 'hero',
-  title: 'Hero Section', // label
+  label: 'Hero Section',
   fields: {
     title: TextField({
       label: 'Title Mex',

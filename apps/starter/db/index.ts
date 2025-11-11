@@ -95,3 +95,23 @@ export async function deleteEntry(id: number): Promise<void> {
     throw DBError(error)
   }
 }
+
+export async function addSection(values: AddSection): Promise<Section> {
+  try {
+    const result = await db.insert(sections).values(values).returning()
+    return result[0]
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function addSectionToEntry(
+  values: AddEntriesToSections,
+): Promise<EntriesToSections> {
+  try {
+    const result = await db.insert(entriesToSections).values(values).returning()
+    return result[0]
+  } catch (error) {
+    throw DBError(error)
+  }
+}

@@ -44,7 +44,7 @@ export type Section<T extends { fields: Fields }> = InferSectionData<
 
 export type SectionDefinition = {
   name: string
-  title: string
+  label: string
   fields: Fields
 }
 

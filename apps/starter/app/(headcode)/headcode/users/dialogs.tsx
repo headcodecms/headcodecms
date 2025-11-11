@@ -76,22 +76,13 @@ export function DialogAddUser({
         role: value.role as Role,
       })
 
-      if (!success) {
-        setError(error ?? 'An unknown error occurred')
-        return
+      if (success) {
+        form.reset()
+        setOpen(false)
+        setUpdate(true)
+      } else if (error) {
+        setError(error)
       }
-
-      if (noUsers) {
-        await authClient.signIn.email({
-          email: value.email,
-          password: value.password,
-          callbackURL: '/headcode',
-        })
-      }
-
-      form.reset()
-      setOpen(false)
-      setUpdate(true)
     },
   })
 
@@ -264,10 +255,10 @@ export function DialogChangePassword({
 
       if (error) {
         setError(true)
+      } else {
+        form.reset()
+        setOpen(false)
       }
-
-      form.reset()
-      setOpen(false)
     },
   })
 

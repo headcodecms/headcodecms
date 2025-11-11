@@ -5,14 +5,19 @@ import {
   deleteEntriesToSections,
   deleteSections,
   deleteEntry,
+  addEntry,
+  AddEntry,
+  Entry,
+  addSection,
+  addSectionToEntry,
 } from '@/db'
 
-export type EntryType = {
+export type UIEntryType = {
   namespace: string
   dynamic: boolean
 }
 
-export type Entry = {
+export type UIEntry = {
   id?: number
   namespace: string
   key: string
@@ -20,8 +25,8 @@ export type Entry = {
 }
 
 export async function getEntries() {
-  const entryTypes: EntryType[] = []
-  const entries: Entry[] = []
+  const entryTypes: UIEntryType[] = []
+  const entries: UIEntry[] = []
 
   for (const entry of headcodeConfig.entries) {
     const namespace = entry.namespace
@@ -90,4 +95,35 @@ export async function deleteEntryAndSections(id: number): Promise<void> {
   await deleteEntriesToSections(id)
   await deleteSections(sectionIds)
   await deleteEntry(id)
+}
+
+export async function addEntryAndSections(values: AddEntry): Promise<Entry> {
+  const entry = await addEntry(values)
+  const pinnedSections = []
+  const configEntry = headcodeConfig.entries.find(
+    (entry) => entry.namespace === values.namespace && entry.key === values.key,
+  )
+
+  if (configEntry && configEntry.sections.length > 0) {
+    for (const section of configEntry.sections) {
+      if (section.pinned) {
+        pinnedSections.push(section.section.name)
+      }
+    }
+  }
+
+  for (let i = 0; i < pinnedSections.length; i++) {
+    const newSection = await addSection({
+      name: pinnedSections[i],
+      data: null,
+    })
+    await addSectionToEntry({
+      entryId: entry.id,
+      sectionId: newSection.id,
+      pos: i,
+      pinned: true,
+    })
+  }
+
+  return entry
 }

@@ -12,7 +12,7 @@ export async function createInitialUser({
   email: string
   password: string
   role: Role
-}) {
+}): Promise<{ success?: boolean; error?: string }> {
   try {
     await auth.api.createUser({
       body: {
@@ -28,7 +28,6 @@ export async function createInitialUser({
   } catch (error) {
     console.error('Error creating initial user', error)
     return {
-      success: false,
       error: (error as Error).message ?? 'Error creating initial user',
     }
   }
