@@ -18,6 +18,10 @@ export default function Error({
     console.error(error)
   }, [error])
 
+  const dbError = error.message.startsWith('DB_ERROR')
+  const unauthorizedError = error.message.startsWith('UNAUTHORIZED')
+  const otherError = !dbError && !unauthorizedError
+
   return (
     <Container>
       <Header />
@@ -25,7 +29,7 @@ export default function Error({
         <AlertCircleIcon />
         <AlertTitle>Something went wrong.</AlertTitle>
         <AlertDescription>
-          {error.message.startsWith('DB_ERROR') && (
+          {dbError && (
             <>
               <p>Database error</p>
               <ul className="list-inside list-disc text-sm">
@@ -35,7 +39,7 @@ export default function Error({
               </ul>
             </>
           )}
-          {error.message.startsWith('UNAUTHORIZED') && (
+          {unauthorizedError && (
             <>
               <p>Unauthorized</p>
               <ul className="list-inside list-disc text-sm">
@@ -44,6 +48,7 @@ export default function Error({
               </ul>
             </>
           )}
+          {otherError && <p>{error.message ?? 'An unknown error occurred'}</p>}
           <div className="flex justify-end">
             <Button
               variant="destructive"

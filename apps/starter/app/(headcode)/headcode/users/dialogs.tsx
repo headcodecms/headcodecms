@@ -56,7 +56,7 @@ export function DialogAddUser({
   setUpdate: (update: boolean) => void
 }) {
   const [open, setOpen] = useState(false)
-  const [error, setError] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
 
   const form = useForm({
     defaultValues: {
@@ -68,13 +68,18 @@ export function DialogAddUser({
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      setError(false)
+      setError(null)
 
-      await createInitialUser({
+      const { success, error } = await createInitialUser({
         email: value.email,
         password: value.password,
         role: value.role as Role,
       })
+
+      if (!success) {
+        setError(error ?? 'An unknown error occurred')
+        return
+      }
 
       if (noUsers) {
         await authClient.signIn.email({
@@ -113,7 +118,7 @@ export function DialogAddUser({
             <AlertCircleIcon />
             <AlertTitle>Error adding user.</AlertTitle>
             <AlertDescription>
-              <p>An error occurred while adding the user. Please try again.</p>
+              <p>{error}</p>
             </AlertDescription>
           </Alert>
         )}

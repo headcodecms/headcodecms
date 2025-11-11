@@ -1,5 +1,11 @@
 import { headcodeConfig } from '@/headcode.config'
-import { getEntries as getDBEntries } from '@/db'
+import {
+  getEntries as getDBEntries,
+  getEntriesToSections,
+  deleteEntriesToSections,
+  deleteSections,
+  deleteEntry,
+} from '@/db'
 
 export type EntryType = {
   namespace: string
@@ -75,4 +81,13 @@ export async function getEntries() {
   }
 
   return { entryTypes, entries, emptyEntries }
+}
+
+export async function deleteEntryAndSections(id: number): Promise<void> {
+  const entryToSections = await getEntriesToSections(id)
+  const sectionIds = entryToSections.map((ets) => ets.sectionId)
+
+  await deleteEntriesToSections(id)
+  await deleteSections(sectionIds)
+  await deleteEntry(id)
 }

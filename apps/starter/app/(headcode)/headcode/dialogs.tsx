@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -27,6 +28,7 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import type { AddEntry } from '@/db'
+import { EntryType } from '@/lib/headcode/entries'
 import { useForm } from '@tanstack/react-form'
 import { FileStackIcon } from 'lucide-react'
 import { useState } from 'react'
@@ -43,25 +45,31 @@ const formSchema = z.object({
     ),
 })
 
-export function DialogAddEntry({ version = 'v01' }: { version: string }) {
+export function DialogAddEntry({
+  version,
+  dynamicEntries,
+}: {
+  version: string
+  dynamicEntries: EntryType[]
+}) {
   const [open, setOpen] = useState(false)
   const form = useForm({
     defaultValues: {
-      namespace: '', // first value from select options
+      namespace: dynamicEntries[0].namespace,
       key: '',
     },
     validators: {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log('submitting form', value)
       const entry: AddEntry = {
         version,
         namespace: value.namespace,
         key: value.key,
       }
-      const result = await addEntry(entry)
-      console.log('entry added successfully', result)
+      await addEntry(entry)
+      form.reset()
+      setOpen(false)
     },
   })
 
@@ -106,8 +114,14 @@ export function DialogAddEntry({ version = 'v01' }: { version: string }) {
                         <SelectValue placeholder="Select namespace" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="global">Global</SelectItem>
-                        <SelectItem value="user">User</SelectItem>
+                        {dynamicEntries.map((entryType) => (
+                          <SelectItem
+                            key={entryType.namespace}
+                            value={entryType.namespace}
+                          >
+                            {entryType.namespace}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     {isInvalid && (
@@ -133,6 +147,9 @@ export function DialogAddEntry({ version = 'v01' }: { version: string }) {
                       aria-invalid={isInvalid}
                       autoComplete="off"
                     />
+                    <FieldDescription>
+                      Use letters, numbers, dashes, and underscores for the key.
+                    </FieldDescription>
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
                     )}

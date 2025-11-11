@@ -8,6 +8,7 @@ import { Suspense } from 'react'
 import { EntriesTable } from './table'
 import { getEntries } from '@/lib/headcode/entries'
 import { AlertClone } from './alerts'
+import { DialogAddEntry } from './dialogs'
 
 export default function Page() {
   return (
@@ -26,6 +27,24 @@ async function EntriesPage() {
     <Container>
       <Header role={role} />
 
+      <Suspense fallback={<DefaultSkeleton />}>
+        <Entries />
+      </Suspense>
+    </Container>
+  )
+}
+
+export async function Entries() {
+  const { entryTypes, entries, emptyEntries } = await getEntries()
+  const dynamicEntries = entryTypes.filter((entryType) => entryType.dynamic)
+
+  const version = headcodeConfig.version
+  const clone = headcodeConfig.clone
+
+  console.log('entries', entryTypes, entries, emptyEntries)
+
+  return (
+    <>
       <div className="flex items-end justify-between gap-12">
         <div className="space-y-1">
           <h2 className="text-3xl font-bold tracking-tight">Content Entries</h2>
@@ -38,30 +57,23 @@ async function EntriesPage() {
             its sections.
           </p>
         </div>
-        <div>Add Entry</div>
+        <div>
+          {dynamicEntries.length > 0 && (
+            <DialogAddEntry version={version} dynamicEntries={dynamicEntries} />
+          )}
+        </div>
       </div>
 
       <Separator className="mt-6" />
 
       <div className="my-6">
-        <Suspense fallback={<DefaultSkeleton />}>
-          <Entries />
-        </Suspense>
+        {emptyEntries && clone && <AlertClone clone={clone} />}
+        <EntriesTable
+          version={version}
+          data={entries}
+          entryTypes={entryTypes}
+        />
       </div>
-    </Container>
-  )
-}
-
-export async function Entries() {
-  const { entryTypes, entries, emptyEntries } = await getEntries()
-  const clone = headcodeConfig.clone
-
-  console.log('entries', entryTypes, entries, emptyEntries)
-
-  return (
-    <>
-      {emptyEntries && clone && <AlertClone clone={clone} />}
-      <EntriesTable data={entries} />
     </>
   )
 }

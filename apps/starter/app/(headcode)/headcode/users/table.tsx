@@ -39,6 +39,7 @@ import { User } from 'better-auth'
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { DialogChangePassword } from './dialogs'
+import { DefaultSkeleton } from '@/components/headcode/skeletons'
 
 const getUsersColumns = (
   handleChangePassword: (user: User) => void,
@@ -123,9 +124,8 @@ export function UsersTable({
 
   useEffect(() => {
     const fetchData = async () => {
-      const userData = await authClient.admin.listUsers({
-        query: { limit: 1000 },
-      })
+      new Promise((resolve) => setTimeout(resolve, 2000))
+      const userData = await authClient.admin.listUsers({ query: {} })
 
       setData(userData.data?.users ?? [])
       setUpdate(false)
@@ -173,7 +173,11 @@ export function UsersTable({
 
   return (
     <>
-      <UsersDataTable columns={columns} data={data} />
+      {update ? (
+        <DefaultSkeleton />
+      ) : (
+        <UsersDataTable columns={columns} data={data} />
+      )}
       <DialogChangePassword
         user={userToChangePassword}
         open={openChangePassword}

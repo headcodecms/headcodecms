@@ -70,7 +70,8 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Entry } from '@/lib/headcode/entries'
+import { Entry, EntryType } from '@/lib/headcode/entries'
+import { addEntry, deleteEntry } from './actions'
 
 const getEntriesColumns = (
   handleEdit: (entry: Entry) => void,
@@ -141,9 +142,11 @@ const getEntriesColumns = (
               <DropdownMenuItem onClick={() => handleEdit(entry)}>
                 Edit entry
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleDelete(entry)}>
-                Delete entry
-              </DropdownMenuItem>
+              {entry.isDynamic && (
+                <DropdownMenuItem onClick={() => handleDelete(entry)}>
+                  Delete entry
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </>
@@ -152,7 +155,15 @@ const getEntriesColumns = (
   },
 ]
 
-export function EntriesTable({ data }: { data: Entry[] }) {
+export function EntriesTable({
+  version,
+  data,
+  entryTypes,
+}: {
+  version: string
+  data: Entry[]
+  entryTypes: EntryType[]
+}) {
   const [open, setOpen] = useState(false)
   const [entryToDelete, setEntryToDelete] = useState<Entry | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -163,8 +174,18 @@ export function EntriesTable({ data }: { data: Entry[] }) {
     setOpen(true)
   }
 
-  const handleEdit = (entry: Entry) => {
-    router.push(`/headcode/section/${entry.id}`)
+  const handleEdit = async (entry: Entry) => {
+    let id = entry.id
+    if (!id) {
+      const newEntry = await addEntry({
+        version,
+        namespace: entry.namespace,
+        key: entry.key,
+      })
+      id = newEntry.id
+    }
+
+    router.push(`/headcode/section/${id}`)
   }
 
   const columns = getEntriesColumns(handleEdit, handleDelete)
@@ -177,8 +198,12 @@ export function EntriesTable({ data }: { data: Entry[] }) {
       console.log('deleting entry', entryToDelete)
       setIsDeleting(true)
       try {
-        // const result = await deleteEntry(entryToDelete.id)
-        console.log('entry deleted successfully')
+        if (entryToDelete.id) {
+          const result = await deleteEntry(entryToDelete.id)
+          // show toast notification
+          // standardize results from actions
+          console.log('entry deleted successfully', result)
+        }
       } catch (error) {
         console.error('error deleting entry', error)
       } finally {
@@ -191,7 +216,12 @@ export function EntriesTable({ data }: { data: Entry[] }) {
 
   return (
     <>
-      <EntriesDataTable columns={columns} data={data} handleEdit={handleEdit} />
+      <EntriesDataTable
+        columns={columns}
+        data={data}
+        entryTypes={entryTypes}
+        handleEdit={handleEdit}
+      />
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -223,10 +253,12 @@ export function EntriesTable({ data }: { data: Entry[] }) {
 export function EntriesDataTable<TData, TValue>({
   columns,
   data,
+  entryTypes,
   handleEdit,
 }: {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  entryTypes: EntryType[]
   handleEdit: (entry: TData) => void
 }) {
   const [sorting, setSorting] = useState<SortingState>([])
@@ -273,18 +305,20 @@ export function EntriesDataTable<TData, TValue>({
               <span>Clear filter</span>
             </SelectItem>
             <SelectSeparator />
-            <SelectItem value="global" className="flex items-center gap-2">
-              <SquareIcon className="size-4 text-transparent" />
-              <span>Global</span>
-            </SelectItem>
-            <SelectItem value="blog" className="flex items-center gap-2">
-              <FileStackIcon className="size-4" />
-              <span>Blog</span>
-            </SelectItem>
-            <SelectItem value="pages" className="flex items-center gap-2">
-              <FileStackIcon className="size-4" />
-              <span>Pages</span>
-            </SelectItem>
+            {entryTypes.map((entryType) => (
+              <SelectItem
+                key={entryType.namespace}
+                value={entryType.namespace}
+                className="flex items-center gap-2"
+              >
+                {entryType.dynamic ? (
+                  <FileStackIcon className="size-4" />
+                ) : (
+                  <SquareIcon className="size-4 text-transparent" />
+                )}
+                <span>{entryType.namespace}</span>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

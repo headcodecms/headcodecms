@@ -1,16 +1,29 @@
 'use server'
 
-import type { AddEntry } from '@/db'
+import { addEntry as addDBEntry, Entry, type AddEntry } from '@/db'
+import { deleteEntryAndSections } from '@/lib/headcode/entries'
 import { revalidatePath } from 'next/cache'
 
-export async function addEntry(values: AddEntry) {
-  console.log(values)
-  await new Promise((resolve) => setTimeout(resolve, 2000))
-  revalidatePath('/headcode/users')
+export async function addEntry(values: AddEntry): Promise<Entry> {
+  const entry = await addDBEntry(values)
 
-  return {
-    id: '1',
-    namespace: 'global',
-    key: 'footer',
+  // add pinned sections to entry
+
+  revalidatePath('/headcode/entries')
+  return entry
+}
+
+export async function deleteEntry(id: number) {
+  try {
+    await deleteEntryAndSections(id)
+
+    revalidatePath('/headcode/entries')
+    return { success: true }
+  } catch (error) {
+    console.error('error deleting entry', error)
+    return {
+      success: false,
+      error: 'Failed to delete entry',
+    }
   }
 }

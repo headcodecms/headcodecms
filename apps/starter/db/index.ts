@@ -43,3 +43,55 @@ export async function getEntries(): Promise<Entry[]> {
     throw DBError(error)
   }
 }
+
+export async function addEntry(values: AddEntry): Promise<Entry> {
+  try {
+    const result = await db.insert(entries).values(values).returning()
+    return result[0]
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function getEntriesToSections(
+  entryId: number,
+): Promise<EntriesToSections[]> {
+  try {
+    return await db
+      .select()
+      .from(entriesToSections)
+      .where(eq(entriesToSections.entryId, entryId))
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function deleteEntriesToSections(entryId: number): Promise<void> {
+  try {
+    await db
+      .delete(entriesToSections)
+      .where(eq(entriesToSections.entryId, entryId))
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function deleteSections(sectionIds: number[]): Promise<void> {
+  try {
+    if (sectionIds.length === 0) return
+
+    for (const sectionId of sectionIds) {
+      await db.delete(sections).where(eq(sections.id, sectionId))
+    }
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function deleteEntry(id: number): Promise<void> {
+  try {
+    await db.delete(entries).where(eq(entries.id, id))
+  } catch (error) {
+    throw DBError(error)
+  }
+}

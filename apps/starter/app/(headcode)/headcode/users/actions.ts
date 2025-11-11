@@ -13,16 +13,23 @@ export async function createInitialUser({
   password: string
   role: Role
 }) {
-  await auth.api.createUser({
-    body: {
-      email,
-      password,
-      name: email,
-      role,
-    },
-  })
+  try {
+    await auth.api.createUser({
+      body: {
+        email,
+        password,
+        name: email,
+        role,
+      },
+    })
+    revalidateTag('/headcode/users', 'max')
 
-  revalidateTag('/headcode/users', 'max')
-
-  return { success: true }
+    return { success: true }
+  } catch (error) {
+    console.error('Error creating initial user', error)
+    return {
+      success: false,
+      error: (error as Error).message ?? 'Error creating initial user',
+    }
+  }
 }
