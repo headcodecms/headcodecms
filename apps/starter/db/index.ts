@@ -1,4 +1,4 @@
-import { count, eq, getTableColumns } from 'drizzle-orm'
+import { and, count, eq, getTableColumns } from 'drizzle-orm'
 import { db } from './db'
 import { entries, entriesToSections, sections, user } from './schema'
 import { headcodeConfig } from '@/headcode.config'
@@ -97,11 +97,37 @@ export async function getEntriesToSectionsWithNames(
     throw DBError(error)
   }
 }
-export async function deleteEntriesToSections(entryId: number): Promise<void> {
+export async function deleteEntriesAllSections(entryId: number): Promise<void> {
   try {
     await db
       .delete(entriesToSections)
       .where(eq(entriesToSections.entryId, entryId))
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function deleteEntriesToSections(
+  entryId: number,
+  sectionId: number,
+): Promise<void> {
+  try {
+    await db
+      .delete(entriesToSections)
+      .where(
+        and(
+          eq(entriesToSections.entryId, entryId),
+          eq(entriesToSections.sectionId, sectionId),
+        ),
+      )
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function updateSection(section: Section): Promise<void> {
+  try {
+    await db.update(sections).set(section).where(eq(sections.id, section.id))
   } catch (error) {
     throw DBError(error)
   }
@@ -114,6 +140,14 @@ export async function deleteSections(sectionIds: number[]): Promise<void> {
     for (const sectionId of sectionIds) {
       await db.delete(sections).where(eq(sections.id, sectionId))
     }
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function deleteSection(sectionId: number): Promise<void> {
+  try {
+    await db.delete(sections).where(eq(sections.id, sectionId))
   } catch (error) {
     throw DBError(error)
   }

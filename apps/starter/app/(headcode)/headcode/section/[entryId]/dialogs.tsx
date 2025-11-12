@@ -70,7 +70,9 @@ export function DialogAddSection({
       if (section) {
         form.reset()
         setOpen(false)
-        router.push(`/headcode/section/${entry.id}/${section.id}`)
+        setTimeout(() => {
+          router.push(`/headcode/section/${entry.id}/${section.id}`)
+        }, 500)
       } else if (error) {
         setError(error)
       }

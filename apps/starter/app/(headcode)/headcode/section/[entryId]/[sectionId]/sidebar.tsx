@@ -19,6 +19,7 @@ import { GripVerticalIcon, PinIcon } from 'lucide-react'
 import { useState } from 'react'
 import { DialogAddSection } from '../dialogs'
 import { getUnpinnedSectionNames } from '@/lib/headcode/config'
+import Link from 'next/link'
 
 type SortableEntry = EntriesToSectionsWithNames & {
   id: string
@@ -63,34 +64,36 @@ export function Sidebar({
         getItemValue={(item) => item.id}
       >
         <SortableContent>
-          {entries.map((entry) => (
+          {entries.map((item) => (
             <SortableItem
-              key={entry.id}
-              value={entry.id}
+              key={item.id}
+              value={item.id}
               className="my-1"
               asChild
             >
               <Item
-                key={entry.id}
-                variant={entry.sectionId === sectionId ? 'muted' : 'default'}
+                key={item.id}
+                variant={item.sectionId === sectionId ? 'muted' : 'default'}
                 size="sm"
                 asChild
               >
-                <a href="#">
+                <Link
+                  href={`/headcode/section/${item.entryId}/${item.sectionId}`}
+                >
                   <SortableItemHandle asChild>
                     <ItemMedia variant="default">
                       <GripVerticalIcon className="text-muted-foreground size-4" />
                     </ItemMedia>
                   </SortableItemHandle>
                   <ItemContent>
-                    <ItemTitle>{entry.title}</ItemTitle>
+                    <ItemTitle>{item.title}</ItemTitle>
                   </ItemContent>
-                  {entry.pinned && (
+                  {item.pinned && (
                     <ItemActions>
                       <PinIcon className="text-muted-foreground size-4" />
                     </ItemActions>
                   )}
-                </a>
+                </Link>
               </Item>
             </SortableItem>
           ))}

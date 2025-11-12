@@ -1,5 +1,6 @@
 'use client'
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -27,10 +28,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
-import type { AddEntry } from '@/db'
 import { UIEntryType } from '@/lib/headcode/entries'
 import { useForm } from '@tanstack/react-form'
-import { FileStackIcon } from 'lucide-react'
+import { AlertCircleIcon, FileStackIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { z } from 'zod'
 import { addEntry } from './actions'
@@ -53,6 +54,9 @@ export function DialogAddEntry({
   dynamicEntries: UIEntryType[]
 }) {
   const [open, setOpen] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+
   const form = useForm({
     defaultValues: {
       namespace: dynamicEntries[0].namespace,
@@ -62,14 +66,23 @@ export function DialogAddEntry({
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const entry: AddEntry = {
+      setError(null)
+
+      const { entry: newEntry, error } = await addEntry({
         version,
         namespace: value.namespace,
         key: value.key,
+      })
+
+      if (newEntry) {
+        form.reset()
+        setOpen(false)
+        setTimeout(() => {
+          router.push(`/headcode/section/${newEntry.id}`)
+        }, 500)
+      } else if (error) {
+        setError(error)
       }
-      await addEntry(entry)
-      form.reset()
-      setOpen(false)
     },
   })
 
@@ -88,6 +101,15 @@ export function DialogAddEntry({
             Add a new dynamic entry to Headcode CMS.
           </DialogDescription>
         </DialogHeader>
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle>Error adding entry.</AlertTitle>
+            <AlertDescription>
+              <p>{error}</p>
+            </AlertDescription>
+          </Alert>
+        )}
         <form
           id="add-entry-form"
           onSubmit={(e) => {

@@ -32,7 +32,10 @@ import type { Entry, Section } from '@/db'
 import { getConfigSection } from '@/lib/headcode/config'
 import { getDefaultSectionValues, getSchema } from '@/lib/headcode/form'
 import { GripVerticalIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
+import { toast } from 'sonner'
+import { deleteSection, updateSection } from './actions'
 
 export function Form({
   entry,
@@ -45,6 +48,7 @@ export function Form({
 }) {
   const [open, setOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const router = useRouter()
 
   const configSection = getConfigSection(
     entry.namespace,
@@ -63,7 +67,15 @@ export function Form({
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log('submitting form', value)
+      const { success, error } = await updateSection({
+        ...section,
+        data: JSON.stringify(value),
+      })
+      if (success) {
+        toast.success('Section saved successfully')
+      } else if (error) {
+        toast.warning(error)
+      }
     },
   })
 
@@ -74,9 +86,17 @@ export function Form({
   const handleConfirmDelete = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    setIsDeleting(true)
 
-    console.log('deleting section', section)
+    const { success, error } = await deleteSection(entry.id, section.id)
+    setIsDeleting(false)
     setOpen(false)
+
+    if (success) {
+      router.push(`/headcode/section/${entry.id}`)
+    } else if (error) {
+      toast.warning(error)
+    }
   }
 
   const SectionChildFields = ({

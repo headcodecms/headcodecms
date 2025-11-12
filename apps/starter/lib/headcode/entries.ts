@@ -4,7 +4,7 @@ import {
   AddEntry,
   AddSection,
   addSectionToEntry,
-  deleteEntriesToSections,
+  deleteEntriesAllSections,
   deleteEntry,
   deleteSections,
   EntriesToSections,
@@ -99,7 +99,7 @@ export async function deleteEntryAndSections(id: number): Promise<void> {
   const entryToSections = await getEntriesToSections(id)
   const sectionIds = entryToSections.map((ets) => ets.sectionId)
 
-  await deleteEntriesToSections(id)
+  await deleteEntriesAllSections(id)
   await deleteSections(sectionIds)
   await deleteEntry(id)
 }
