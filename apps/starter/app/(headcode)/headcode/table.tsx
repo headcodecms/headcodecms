@@ -73,6 +73,7 @@ import { useState } from 'react'
 import { UIEntry, UIEntryType } from '@/lib/headcode/entries'
 import { addEntry, deleteEntry } from './actions'
 import { toast } from 'sonner'
+import { ConfirmationDialog } from '@/components/headcode/dialogs'
 
 const getEntriesColumns = (
   handleEdit: (entry: UIEntry) => void,
@@ -108,19 +109,6 @@ const getEntriesColumns = (
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Key
-        </Button>
-      )
-    },
-  },
-  {
-    accessorKey: 'title',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Title
         </Button>
       )
     },
@@ -203,7 +191,6 @@ export function EntriesTable({
     e.stopPropagation()
 
     if (entryToDelete) {
-      console.log('deleting entry', entryToDelete)
       setIsDeleting(true)
       if (entryToDelete.id) {
         const { success, error } = await deleteEntry(entryToDelete.id)
@@ -228,30 +215,15 @@ export function EntriesTable({
         entryTypes={entryTypes}
         handleEdit={handleEdit}
       />
-      <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Delete entry {entryToDelete?.namespace} / {entryToDelete?.key}?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              entry {entryToDelete?.namespace} / {entryToDelete?.key} from
-              Headcode CMS.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className={buttonVariants({ variant: 'destructive' })}
-              onClick={handleConfirmDelete}
-            >
-              {isDeleting && <Spinner />}
-              Delete entry
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={open}
+        setOpen={setOpen}
+        title={`Delete entry ${entryToDelete?.namespace} / ${entryToDelete?.key}?`}
+        description={`This action cannot be undone. This will permanently delete the entry ${entryToDelete?.namespace} / ${entryToDelete?.key} from Headcode CMS.`}
+        buttonText="Delete entry"
+        isSubmitting={isDeleting}
+        handleSubmit={handleConfirmDelete}
+      />
     </>
   )
 }
@@ -366,7 +338,7 @@ export function EntriesDataTable<TData, TValue>({
                       })}
                       className={cn(
                         'px-6',
-                        cell.column.id === 'title' && 'w-full',
+                        cell.column.id === 'key' && 'w-full',
                         cell.column.id === 'isDynamic' && 'pr-2 pl-6',
                       )}
                     >

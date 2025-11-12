@@ -1,6 +1,6 @@
 import { Container } from '@/components/headcode/container'
 import { Header } from '@/components/headcode/header'
-import { DefaultSkeleton, PageSkeleton } from '@/components/headcode/skeletons'
+import { PageSkeleton } from '@/components/headcode/skeletons'
 import { requireRole } from '@/lib/auth'
 import { Suspense } from 'react'
 import { Users } from './users'
@@ -19,9 +19,9 @@ async function UsersPage() {
   const { role, noUsers } = await requireRole(['admin'], true)
 
   return (
-    <Container>
+    <>
       <Header role={role} />
       <Users noUsers={noUsers} />
-    </Container>
+    </>
   )
 }

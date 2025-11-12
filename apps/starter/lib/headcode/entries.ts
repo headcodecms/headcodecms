@@ -1,16 +1,22 @@
-import { headcodeConfig } from '@/headcode.config'
 import {
-  getEntries as getDBEntries,
-  getEntriesToSections,
-  deleteEntriesToSections,
-  deleteSections,
-  deleteEntry,
   addEntry,
   AddEntry,
-  Entry,
-  addSection,
+  addSection as addDBSection,
   addSectionToEntry,
+  deleteEntriesToSections,
+  deleteEntry,
+  deleteSections,
+  EntriesToSectionsWithNames,
+  Entry,
+  getEntries as getDBEntries,
+  getEntriesToSections,
+  getEntriesToSectionsWithNames,
+  getEntry,
+  AddSection,
+  Section,
+  EntriesToSections,
 } from '@/db'
+import { headcodeConfig } from '@/headcode.config'
 
 export type UIEntryType = {
   namespace: string
@@ -97,12 +103,23 @@ export async function deleteEntryAndSections(id: number): Promise<void> {
   await deleteEntry(id)
 }
 
-export async function addEntryAndSections(values: AddEntry): Promise<Entry> {
-  const entry = await addEntry(values)
-  const pinnedSections = []
-  const configEntry = headcodeConfig.entries.find(
-    (entry) => entry.namespace === values.namespace && entry.key === values.key,
+export const getConfigEntry = (namespace: string, key: string | undefined) => {
+  const entries = headcodeConfig.entries.filter(
+    (item) => item.namespace === namespace && item.key === key,
   )
+  if (entries.length === 0) {
+    return null
+  }
+  if (entries.length === 1 && !entries[0].hasOwnProperty('key')) {
+    return entries[0]
+  }
+  return entries.find((item) => item.key === key)
+}
+
+export async function addEntryAndSections(entry: AddEntry): Promise<Entry> {
+  const newEntry = await addEntry(entry)
+  const pinnedSections = []
+  const configEntry = getConfigEntry(entry.namespace, entry.key)
 
   if (configEntry && configEntry.sections.length > 0) {
     for (const section of configEntry.sections) {
@@ -113,17 +130,89 @@ export async function addEntryAndSections(values: AddEntry): Promise<Entry> {
   }
 
   for (let i = 0; i < pinnedSections.length; i++) {
-    const newSection = await addSection({
+    const newSection = await addDBSection({
       name: pinnedSections[i],
       data: null,
     })
     await addSectionToEntry({
-      entryId: entry.id,
+      entryId: newEntry.id,
       sectionId: newSection.id,
       pos: i,
       pinned: true,
     })
   }
 
-  return entry
+  return newEntry
+}
+
+export async function addSection(
+  entryId: number,
+  section: AddSection,
+): Promise<Section> {
+  const newSection = await addDBSection(section)
+  const entriesToSections = await getEntriesToSections(entryId)
+  const maxPos = entriesToSections.reduce(
+    (acc: number, curr: EntriesToSections) => (acc > curr.pos ? acc : curr.pos),
+    0,
+  )
+
+  await addSectionToEntry({
+    entryId: entryId,
+    sectionId: newSection.id,
+    pos: maxPos + 1,
+    pinned: false,
+  })
+
+  return newSection
+}
+
+export async function getValidatedEntriesToSections(
+  entryId: number,
+): Promise<EntriesToSectionsWithNames[]> {
+  const entry = await getEntry(entryId)
+  if (!entry) {
+    throw new Error(`Entry not found: ${entryId}`)
+  }
+
+  const entryToSections = await getEntriesToSectionsWithNames(entryId)
+  const configEntry = getConfigEntry(entry.namespace, entry.key)
+
+  if (!configEntry) {
+    throw new Error(`Config entry not found: ${entry.namespace} / ${entry.key}`)
+  }
+
+  const pinnedSections = configEntry.sections.filter(
+    (section) => section.pinned,
+  )
+  const missingPinnedSections = []
+  for (const section of pinnedSections) {
+    const sectionToSection = entryToSections.find(
+      (item) => item.name === section.section.name,
+    )
+    if (!sectionToSection) {
+      missingPinnedSections.push(section)
+    }
+  }
+
+  let pos = entryToSections.length
+  for (let i = 0; i < missingPinnedSections.length; i++) {
+    const section = missingPinnedSections[i]
+    const newSection = await addDBSection({
+      name: section.section.name,
+      data: null,
+    })
+    const newEntryToSection = await addSectionToEntry({
+      entryId: entryId,
+      sectionId: newSection.id,
+      pos,
+      pinned: true,
+    })
+    entryToSections.push({
+      ...newEntryToSection,
+      name: section.section.name,
+    })
+    pos++
+  }
+
+  return entryToSections
 }

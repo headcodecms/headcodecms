@@ -24,13 +24,13 @@ async function EntriesPage() {
   const { role } = await requireRole(['user', 'admin'])
 
   return (
-    <Container>
+    <>
       <Header role={role} />
 
       <Suspense fallback={<DefaultSkeleton />}>
         <Entries />
       </Suspense>
-    </Container>
+    </>
   )
 }
 

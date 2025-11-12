@@ -1,5 +1,5 @@
 import { createFormHook, createFormHookContexts } from '@tanstack/react-form'
-import { ZodType } from 'zod'
+import type { ZodType } from 'zod'
 import TextFieldComponent from './text-field-component'
 import TextareaFieldComponent from './textarea-field-component'
 
