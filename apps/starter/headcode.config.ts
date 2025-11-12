@@ -24,6 +24,11 @@ export const headcodeConfig = {
       sections: [{ section: heroSection }],
     },
     {
+      namespace: 'global',
+      key: 'company',
+      sections: [{ section: heroSection }],
+    },
+    {
       namespace: 'pages',
       sections: [
         { section: heroSection, pinned: true },

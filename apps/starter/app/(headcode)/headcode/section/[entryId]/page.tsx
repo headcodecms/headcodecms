@@ -1,13 +1,10 @@
 import { Container } from '@/components/headcode/container'
 import { Header } from '@/components/headcode/header'
-import { SectionReference } from '@/components/headcode/form/form'
 import { EntryTitle } from '@/components/headcode/titles'
 import { getEntriesToSectionsWithNames, getEntry } from '@/db'
 import { requireRole } from '@/lib/auth'
-import {
-  getConfigEntry,
-  getValidatedEntriesToSections,
-} from '@/lib/headcode/entries'
+import { getUnpinnedSectionNames } from '@/lib/headcode/config'
+import { getValidatedEntriesToSections } from '@/lib/headcode/entries'
 import { redirect } from 'next/navigation'
 import { EmptySections } from './empty'
 
@@ -36,13 +33,7 @@ export default async function Page({
   if (!entry) {
     throw new Error(`Entry not found: ${entryId}`)
   }
-  const configEntry = getConfigEntry(entry.namespace, entry.key)
-  if (!configEntry) {
-    throw new Error(`Config entry not found: ${entry.namespace} / ${entry.key}`)
-  }
-  const unpinnedSections = configEntry.sections.filter(
-    (section: SectionReference) => !section.pinned,
-  ) as SectionReference[]
+  const unpinnedSections = getUnpinnedSectionNames(entry.namespace, entry.key)
   if (unpinnedSections.length === 0) {
     throw new Error(
       `No unpinned sections found: ${entry.namespace} / ${entry.key}`,
@@ -55,7 +46,7 @@ export default async function Page({
     <Container>
       <Header role={role} />
       <EntryTitle entry={entry} />
-      <EmptySections entry={entry} sections={unpinnedSections} />
+      <EmptySections entry={entry} sectionNames={unpinnedSections} />
     </Container>
   )
 }

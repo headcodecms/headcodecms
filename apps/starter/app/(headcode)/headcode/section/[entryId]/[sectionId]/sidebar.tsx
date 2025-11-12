@@ -14,9 +14,11 @@ import {
   SortableItemHandle,
   SortableOverlay,
 } from '@/components/ui/sortable'
-import type { EntriesToSectionsWithNames } from '@/db'
+import type { EntriesToSectionsWithNames, Entry } from '@/db'
 import { GripVerticalIcon, PinIcon } from 'lucide-react'
 import { useState } from 'react'
+import { DialogAddSection } from '../dialogs'
+import { getUnpinnedSectionNames } from '@/lib/headcode/config'
 
 type SortableEntry = EntriesToSectionsWithNames & {
   id: string
@@ -33,13 +35,16 @@ const toSortableEntries = (
 }
 
 export function Sidebar({
+  entry,
   entriesToSections,
   sectionId,
 }: {
+  entry: Entry
   entriesToSections: EntriesToSectionsWithNames[]
   sectionId: number
 }) {
   const [entries, setEntries] = useState(toSortableEntries(entriesToSections))
+  const sectionNames = getUnpinnedSectionNames(entry.namespace, entry.key)
 
   const handleValueChange = async (items: SortableEntry[]) => {
     console.log('handleValueChange', items)
@@ -98,6 +103,7 @@ export function Sidebar({
           </Item>
         </SortableOverlay>
       </Sortable>
+      <DialogAddSection entry={entry} sectionNames={sectionNames} />
     </>
   )
 }

@@ -1,22 +1,23 @@
 import {
+  addSection as addDBSection,
   addEntry,
   AddEntry,
-  addSection as addDBSection,
+  AddSection,
   addSectionToEntry,
   deleteEntriesToSections,
   deleteEntry,
   deleteSections,
+  EntriesToSections,
   EntriesToSectionsWithNames,
   Entry,
   getEntries as getDBEntries,
   getEntriesToSections,
   getEntriesToSectionsWithNames,
   getEntry,
-  AddSection,
   Section,
-  EntriesToSections,
 } from '@/db'
 import { headcodeConfig } from '@/headcode.config'
+import { getConfigEntry } from './config'
 
 export type UIEntryType = {
   namespace: string
@@ -101,19 +102,6 @@ export async function deleteEntryAndSections(id: number): Promise<void> {
   await deleteEntriesToSections(id)
   await deleteSections(sectionIds)
   await deleteEntry(id)
-}
-
-export const getConfigEntry = (namespace: string, key: string | undefined) => {
-  const entries = headcodeConfig.entries.filter(
-    (item) => item.namespace === namespace && item.key === key,
-  )
-  if (entries.length === 0) {
-    return null
-  }
-  if (entries.length === 1 && !entries[0].hasOwnProperty('key')) {
-    return entries[0]
-  }
-  return entries.find((item) => item.key === key)
 }
 
 export async function addEntryAndSections(entry: AddEntry): Promise<Entry> {

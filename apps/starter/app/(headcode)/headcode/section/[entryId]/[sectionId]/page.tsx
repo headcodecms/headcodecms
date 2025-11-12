@@ -42,14 +42,15 @@ export default async function Page({
       <Header role={role} />
       <EntryTitle entry={entry} />
       <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-        <div className="col-span-1 py-5">
+        <div className="col-span-1">
           <Sidebar
+            entry={entry}
             entriesToSections={entriesToSections}
             sectionId={sectionIdInt}
           />
         </div>
         <div className="col-span-1 md:col-span-2">
-          <Form section={section} canDelete={canDelete} />
+          <Form entry={entry} section={section} canDelete={canDelete} />
         </div>
       </div>
     </Container>

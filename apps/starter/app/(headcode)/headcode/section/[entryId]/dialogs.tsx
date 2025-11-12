@@ -33,6 +33,7 @@ import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { z } from 'zod'
+import { SectionName } from '@/lib/headcode/config'
 
 const formSchema = z.object({
   section: z.string(),
@@ -40,10 +41,12 @@ const formSchema = z.object({
 
 export function DialogAddSection({
   entry,
-  sections,
+  sectionNames,
+  size = 'default',
 }: {
   entry: Entry
-  sections: { name: string; label: string }[]
+  sectionNames: SectionName[]
+  size?: 'default' | 'sm'
 }) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -51,7 +54,7 @@ export function DialogAddSection({
 
   const form = useForm({
     defaultValues: {
-      section: sections[0].name,
+      section: sectionNames[0].name,
     },
     validators: {
       onSubmit: formSchema,
@@ -77,7 +80,11 @@ export function DialogAddSection({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary" size="sm">
+        <Button
+          variant="secondary"
+          size={size}
+          className={size === 'default' ? 'w-full' : 'w-auto'}
+        >
           <PlusIcon className="size-4" />
           Add section
         </Button>
@@ -124,7 +131,7 @@ export function DialogAddSection({
                         <SelectValue placeholder="Select section" />
                       </SelectTrigger>
                       <SelectContent>
-                        {sections.map((s, index) => (
+                        {sectionNames.map((s, index) => (
                           <SelectItem key={index} value={s.name}>
                             {s.label}
                           </SelectItem>

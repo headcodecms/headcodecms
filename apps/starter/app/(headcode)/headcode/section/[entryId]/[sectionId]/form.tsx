@@ -1,23 +1,12 @@
 'use client'
 
-import { heroSection } from '@/components/headcode/themes/vienna/hero'
-import type { Entry, Section } from '@/db'
+import { ConfirmationDialog } from '@/components/headcode/dialogs'
 import {
   ChildFields,
   FieldProps,
   useAppForm,
 } from '@/components/headcode/form/form'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -25,11 +14,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Spinner } from '@/components/ui/spinner'
-import { getDefaultSectionValues, getSchema } from '@/lib/headcode/form'
-import { GripVerticalIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react'
-import { useState, useRef } from 'react'
 import {
   Sortable,
   SortableContent,
@@ -37,23 +27,32 @@ import {
   SortableItemHandle,
   SortableOverlay,
 } from '@/components/ui/sortable'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible'
+import { Spinner } from '@/components/ui/spinner'
+import type { Entry, Section } from '@/db'
+import { getConfigSection } from '@/lib/headcode/config'
+import { getDefaultSectionValues, getSchema } from '@/lib/headcode/form'
+import { GripVerticalIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react'
+import { useRef, useState } from 'react'
 
 export function Form({
+  entry,
   section,
   canDelete,
 }: {
+  entry: Entry
   section: Section
   canDelete: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const fields = heroSection.fields
+  const configSection = getConfigSection(
+    entry.namespace,
+    entry.key,
+    section.name,
+  )
+
+  const fields = configSection.fields
   const formSchema = getSchema(fields)
   const defaultValues = getDefaultSectionValues(fields, section.data)
   console.log('Form', defaultValues, formSchema)
@@ -367,30 +366,6 @@ export function Form({
     </form.Subscribe>
   )
 
-  const DeleteDialog = () => (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete section {section.name}?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the
-            section {section.name} from this entry.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            className={buttonVariants({ variant: 'destructive' })}
-            onClick={handleConfirmDelete}
-          >
-            {isDeleting && <Spinner />}
-            Delete section
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  )
-
   return (
     <>
       <Card className="w-full">
@@ -411,7 +386,15 @@ export function Form({
         </CardContent>
         <SectionSubmitButtons />
       </Card>
-      <DeleteDialog />
+      <ConfirmationDialog
+        open={open}
+        setOpen={setOpen}
+        title={`Delete section ${section.name}?`}
+        description={`This action cannot be undone. This will permanently delete the section ${section.name} from this entry.`}
+        buttonText="Delete section"
+        isSubmitting={isDeleting}
+        handleSubmit={handleConfirmDelete}
+      />
     </>
   )
 }

@@ -6,22 +6,17 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty'
 import { Entry } from '@/db'
+import { SectionName } from '@/lib/headcode/config'
 import { PlusIcon } from 'lucide-react'
 import { DialogAddSection } from './dialogs'
-import { SectionReference } from '@/components/headcode/form/form'
 
 export function EmptySections({
   entry,
-  sections,
+  sectionNames,
 }: {
   entry: Entry
-  sections: SectionReference[]
+  sectionNames: SectionName[]
 }) {
-  const sectionNames = sections.map((item) => ({
-    name: item.section.name,
-    label: item.section.label,
-  }))
-
   return (
     <Empty className="bg-card">
       <EmptyHeader>
@@ -33,7 +28,7 @@ export function EmptySections({
         </EmptyTitle>
       </EmptyHeader>
       <EmptyContent>
-        <DialogAddSection entry={entry} sections={sectionNames} />
+        <DialogAddSection size="sm" entry={entry} sectionNames={sectionNames} />
       </EmptyContent>
     </Empty>
   )
