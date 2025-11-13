@@ -12,7 +12,6 @@ export async function addEntry(
 ): Promise<{ entry?: Entry; error?: string }> {
   try {
     const entry = await addEntryAndSections(values)
-    revalidatePath('/headcode/entries')
     return { entry }
   } catch (error) {
     console.error('error adding entry', error)

@@ -31,7 +31,7 @@ import { addSection } from './actions'
 import { useForm } from '@tanstack/react-form'
 import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 import { SectionName } from '@/lib/headcode/config'
 
@@ -50,7 +50,17 @@ export function DialogAddSection({
 }) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const redirectPathRef = useRef<string | null>(null)
   const router = useRouter()
+
+  // Navigate when dialog closes and we have a redirect path
+  useEffect(() => {
+    if (!open && redirectPathRef.current) {
+      const path = redirectPathRef.current
+      redirectPathRef.current = null
+      router.push(path)
+    }
+  }, [open, router])
 
   const form = useForm({
     defaultValues: {
@@ -69,10 +79,8 @@ export function DialogAddSection({
 
       if (section) {
         form.reset()
+        redirectPathRef.current = `/headcode/section/${entry.id}/${section.id}`
         setOpen(false)
-        setTimeout(() => {
-          router.push(`/headcode/section/${entry.id}/${section.id}`)
-        }, 500)
       } else if (error) {
         setError(error)
       }

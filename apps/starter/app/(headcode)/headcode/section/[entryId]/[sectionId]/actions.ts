@@ -28,9 +28,6 @@ export async function deleteSection(
     await deleteEntriesToSections(entryId, sectionId)
     await deleteDBSection(sectionId)
 
-    revalidatePath('/headcode/section/[entryId]')
-    revalidatePath('/headcode/section/[entryId]/[sectionId]')
-
     return { success: true }
   } catch (error) {
     console.error('Error adding section', error)

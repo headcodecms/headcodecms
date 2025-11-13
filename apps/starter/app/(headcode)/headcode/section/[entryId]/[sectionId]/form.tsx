@@ -6,6 +6,7 @@ import {
   FieldProps,
   useAppForm,
 } from '@/components/headcode/form/form'
+import TextFieldComponent from '@/components/headcode/form/text-field-component'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -148,6 +149,29 @@ export function Form({
     const nextIdRef = useRef(0)
     const lastLengthRef = useRef(0)
 
+    // Helper function to find the first TextField key
+    const getFirstTextFieldKey = (): string | null => {
+      for (const [childKey, childField] of Object.entries(field.fields)) {
+        // Check if the component is TextFieldComponent
+        // Since components might be lazy loaded, we check multiple ways
+        const component = childField.component
+        const isTextField =
+          component === TextFieldComponent ||
+          (component &&
+            typeof component === 'object' &&
+            '_payload' in component &&
+            (component as { _payload?: { _result?: { default?: unknown } } })
+              ._payload?._result?.default === TextFieldComponent)
+
+        if (isTextField) {
+          return childKey
+        }
+      }
+      return null
+    }
+
+    const firstTextFieldKey = getFirstTextFieldKey()
+
     return (
       <form.AppField key={nameKey} name={nameKey} mode="array">
         {(formField) => {
@@ -266,9 +290,29 @@ export function Form({
                             <CollapsibleTrigger className="grow">
                               <div className="flex w-full items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  <span>
-                                    {field.label} item {index}
-                                  </span>
+                                  {field.label}
+                                  {firstTextFieldKey ? (
+                                    <form.AppField
+                                      name={`${nameKey}[${index}].${firstTextFieldKey}`}
+                                    >
+                                      {(textField) => {
+                                        const value = textField.state
+                                          .value as string
+                                        if (
+                                          value &&
+                                          typeof value === 'string' &&
+                                          value.trim()
+                                        ) {
+                                          return (
+                                            <span className="text-muted-foreground/50 hidden max-w-xs truncate md:block">
+                                              {value}
+                                            </span>
+                                          )
+                                        }
+                                        return null
+                                      }}
+                                    </form.AppField>
+                                  ) : null}
                                 </div>
                                 <div className="relative size-4 shrink-0">
                                   {(openStates[index] ?? false) ? (
@@ -279,7 +323,7 @@ export function Form({
                                 </div>
                               </div>
                             </CollapsibleTrigger>
-                            <div className="text-muted-foreground/50 hover:text-muted-foreground/100 flex-none">
+                            <div className="text-muted-foreground/50 hover:text-muted-foreground flex-none">
                               <button
                                 onClick={(e) => {
                                   e.preventDefault()

@@ -1,9 +1,9 @@
 import { SectionReference } from '@/components/headcode/form/form'
 import { headcodeConfig } from '@/headcode.config'
 
-export const getConfigEntry = (namespace: string, key: string | undefined) => {
+export const getConfigEntry = (namespace: string, key?: string | undefined) => {
   const entries = headcodeConfig.entries.filter(
-    (item) => item.namespace === namespace && item.key === key,
+    (item) => item.namespace === namespace,
   )
   if (entries.length === 0) {
     return null

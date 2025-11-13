@@ -32,7 +32,7 @@ import { UIEntryType } from '@/lib/headcode/entries'
 import { useForm } from '@tanstack/react-form'
 import { AlertCircleIcon, FileStackIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 import { addEntry } from './actions'
 
@@ -55,7 +55,17 @@ export function DialogAddEntry({
 }) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const redirectPathRef = useRef<string | null>(null)
   const router = useRouter()
+
+  // Navigate when dialog closes and we have a redirect path
+  useEffect(() => {
+    if (!open && redirectPathRef.current) {
+      const path = redirectPathRef.current
+      redirectPathRef.current = null
+      router.push(path)
+    }
+  }, [open, router])
 
   const form = useForm({
     defaultValues: {
@@ -76,10 +86,8 @@ export function DialogAddEntry({
 
       if (newEntry) {
         form.reset()
+        redirectPathRef.current = `/headcode/section/${newEntry.id}`
         setOpen(false)
-        setTimeout(() => {
-          router.push(`/headcode/section/${newEntry.id}`)
-        }, 500)
       } else if (error) {
         setError(error)
       }
