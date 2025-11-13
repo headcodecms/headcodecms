@@ -1,7 +1,7 @@
+import { headcodeConfig } from '@/headcode.config'
 import { and, count, eq, getTableColumns } from 'drizzle-orm'
 import { db } from './db'
 import { entries, entriesToSections, sections, user } from './schema'
-import { headcodeConfig } from '@/headcode.config'
 
 export type Role = 'user' | 'admin'
 

@@ -1,4 +1,3 @@
-import { useFieldContext } from './form'
 import {
   Field,
   FieldDescription,
@@ -6,6 +5,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { useFieldContext } from './form'
 
 export default function TextFieldComponent({
   label,

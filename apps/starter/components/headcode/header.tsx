@@ -1,8 +1,8 @@
+import { Badge } from '@/components/ui/badge'
+import { headcodeConfig } from '@/headcode.config'
+import { GitBranchIcon } from 'lucide-react'
 import Link from 'next/link'
 import { Nav } from './nav'
-import { Badge } from '@/components/ui/badge'
-import { GitBranchIcon } from 'lucide-react'
-import { headcodeConfig } from '@/headcode.config'
 
 export const Header = ({ role }: { role?: string }) => {
   return (

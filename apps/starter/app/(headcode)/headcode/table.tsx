@@ -12,17 +12,8 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { ConfirmationDialog } from '@/components/headcode/dialogs'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,7 +42,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Spinner } from '@/components/ui/spinner'
 import {
   Table,
   TableBody,
@@ -60,6 +50,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { UIEntry, UIEntryType } from '@/lib/headcode/entries'
 import { cn } from '@/lib/utils'
 import {
   FileStackIcon,
@@ -70,10 +61,8 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { UIEntry, UIEntryType } from '@/lib/headcode/entries'
-import { addEntry, deleteEntry } from './actions'
 import { toast } from 'sonner'
-import { ConfirmationDialog } from '@/components/headcode/dialogs'
+import { addEntry, deleteEntry } from './actions'
 
 const getEntriesColumns = (
   handleEdit: (entry: UIEntry) => void,

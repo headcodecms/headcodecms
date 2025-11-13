@@ -1,10 +1,10 @@
 import { Skeleton } from '@/components/ui/skeleton'
+import { noUsers } from '@/db'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { SignInForm } from './form'
-import { noUsers } from '@/db'
 
 export default function SignInPage() {
   return (

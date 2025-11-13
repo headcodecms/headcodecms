@@ -1,4 +1,4 @@
-import { SectionReference } from '@/components/headcode/form/form'
+import type { SectionReference } from './types'
 import { headcodeConfig } from '@/headcode.config'
 
 export const getConfigEntry = (namespace: string, key?: string | undefined) => {

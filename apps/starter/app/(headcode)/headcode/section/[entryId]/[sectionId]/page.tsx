@@ -1,6 +1,3 @@
-// check if sectionToEntry elements exist and are correct
-// display section form
-
 import { Container } from '@/components/headcode/container'
 import { Header } from '@/components/headcode/header'
 import { EntryTitle } from '@/components/headcode/titles'

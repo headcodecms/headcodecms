@@ -4,10 +4,13 @@ import {
   FieldError,
   FieldLabel,
 } from '@/components/ui/field'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+  InputGroupTextarea,
+} from '@/components/ui/input-group'
 import { useFieldContext } from './form'
-import { InputGroupText } from '@/components/ui/input-group'
-import { InputGroup, InputGroupTextarea } from '@/components/ui/input-group'
-import { InputGroupAddon } from '@/components/ui/input-group'
 
 export default function TextareaFieldComponent({
   label,

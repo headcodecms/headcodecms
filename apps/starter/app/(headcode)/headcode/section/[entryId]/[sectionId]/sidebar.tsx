@@ -15,11 +15,11 @@ import {
   SortableOverlay,
 } from '@/components/ui/sortable'
 import type { EntriesToSectionsWithNames, Entry } from '@/db'
+import { getUnpinnedSectionNames } from '@/lib/headcode/config'
 import { GripVerticalIcon, PinIcon } from 'lucide-react'
+import Link from 'next/link'
 import { useState } from 'react'
 import { DialogAddSection } from '../dialogs'
-import { getUnpinnedSectionNames } from '@/lib/headcode/config'
-import Link from 'next/link'
 
 type SortableEntry = EntriesToSectionsWithNames & {
   id: string

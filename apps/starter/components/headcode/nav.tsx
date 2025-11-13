@@ -6,8 +6,8 @@ import {
 } from '@/components/ui/navigation-menu'
 import { ImageIcon, UsersIcon } from 'lucide-react'
 import Link from 'next/link'
-import { ToggleTheme } from './toggle-theme'
 import { SignOutButton } from './sign-out'
+import { ToggleTheme } from './toggle-theme'
 
 export function Nav({ role }: { role?: string }) {
   const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL

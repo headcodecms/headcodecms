@@ -9,9 +9,9 @@ import {
 } from '@/components/ui/empty'
 import { Separator } from '@/components/ui/separator'
 import { UserRoundPlusIcon } from 'lucide-react'
+import { useState } from 'react'
 import { DialogAddUser } from './dialogs'
 import { UsersTable } from './table'
-import { useState } from 'react'
 
 export function Users({ noUsers }: { noUsers: boolean }) {
   const [update, setUpdate] = useState(true)

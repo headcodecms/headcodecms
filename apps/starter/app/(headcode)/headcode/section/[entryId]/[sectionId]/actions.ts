@@ -1,12 +1,11 @@
 'use server'
 
 import {
-  deleteEntriesToSections,
   deleteSection as deleteDBSection,
-  updateSection as updateDBSection,
+  deleteEntriesToSections,
   Section,
+  updateSection as updateDBSection,
 } from '@/db'
-import { revalidatePath } from 'next/cache'
 
 export async function updateSection(
   section: Section,

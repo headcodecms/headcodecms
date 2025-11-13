@@ -1,6 +1,7 @@
 'use client'
 
 import { ConfirmationDialog } from '@/components/headcode/dialogs'
+import { DefaultSkeleton } from '@/components/headcode/skeletons'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -39,7 +40,6 @@ import { User } from 'better-auth'
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { DialogChangePassword } from './dialogs'
-import { DefaultSkeleton } from '@/components/headcode/skeletons'
 
 const getUsersColumns = (
   handleChangePassword: (user: User) => void,

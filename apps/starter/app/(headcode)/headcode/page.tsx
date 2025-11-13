@@ -4,11 +4,11 @@ import { DefaultSkeleton, PageSkeleton } from '@/components/headcode/skeletons'
 import { Separator } from '@/components/ui/separator'
 import { headcodeConfig } from '@/headcode.config'
 import { requireRole } from '@/lib/auth'
-import { Suspense } from 'react'
-import { EntriesTable } from './table'
 import { getEntries } from '@/lib/headcode/entries'
+import { Suspense } from 'react'
 import { AlertClone } from './alerts'
 import { DialogAddEntry } from './dialogs'
+import { EntriesTable } from './table'
 
 export default function Page() {
   return (

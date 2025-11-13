@@ -1,10 +1,10 @@
 import { sql } from 'drizzle-orm'
 import {
+  integer,
+  primaryKey,
   sqliteTable,
   text,
-  integer,
   unique,
-  primaryKey,
 } from 'drizzle-orm/sqlite-core'
 
 const timestamps = {

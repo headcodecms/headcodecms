@@ -1,5 +1,5 @@
 import { heroSection } from './components/headcode/themes/vienna/hero'
-import type { HeadcodeConfig } from './components/headcode/form/form'
+import type { HeadcodeConfig } from './lib/headcode/types'
 
 export const headcodeConfig = {
   version: 'v02',

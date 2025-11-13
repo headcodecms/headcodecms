@@ -1,6 +1,6 @@
 import { lazy } from 'react'
 import { z } from 'zod'
-import type { FieldProps } from './form'
+import type { FieldProps } from '@/lib/headcode/types'
 
 const DefaultTextField: FieldProps<string, unknown> = {
   label: 'Text Field',

@@ -1,30 +1,41 @@
-import { Entry as DBEntry, Section } from "@/db"
+import { Entry as DBEntry, Section } from '@/db'
+import type { Fields, InferSectionData } from './types'
 
 export type Entry = DBEntry & {
   sectionName: string | null
   sectionData: Record<string, any> | null
 }
-export async function getEntries(namespace: string, sectionName?: string): Promise<Entry[]> {
+export async function getEntries(
+  namespace: string,
+  sectionName?: string,
+): Promise<Entry[]> {
   // returns all entries for a namespace
   // if sectionName is provided return section data with that name, e.g., docs-meta
-  
+
   return []
 }
 
-export async function getSectionsById(entryId: number): Promise<Section[]> {{
+export async function getSectionsById(entryId: number): Promise<Section[]> {
   // returns all sections for an entry with the section name
   return []
 }
 
-export async function getSections(namespace: string, key: string): Promise<Section[]> {
+export async function getSections(
+  namespace: string,
+  key: string,
+): Promise<Section[]> {
   // returns all sections for an entry with the section name order by pos
   return []
 }
 
-export async function getSectionByName(namespace: string, key: string, sectionName: string): Promise<{
+export async function getSectionByName<F extends Fields>(
+  namespace: string,
+  key: string,
+  sectionName: string,
+): Promise<{
   section: InferSectionData<F>
   isDefault: boolean
-}>  {
+}> {
   return null
 }
 

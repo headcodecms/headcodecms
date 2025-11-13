@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { Fields } from '@/components/headcode/form/form'
+import type { Fields } from './types'
 
 export const getSchema = (fields: Fields) => {
   return z.object(

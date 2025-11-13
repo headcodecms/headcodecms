@@ -27,13 +27,13 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import type { Entry } from '@/db'
-import { addSection } from './actions'
+import { SectionName } from '@/lib/headcode/config'
 import { useForm } from '@tanstack/react-form'
 import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
-import { SectionName } from '@/lib/headcode/config'
+import { addSection } from './actions'
 
 const formSchema = z.object({
   section: z.string(),
