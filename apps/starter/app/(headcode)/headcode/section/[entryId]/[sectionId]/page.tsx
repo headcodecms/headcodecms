@@ -3,7 +3,7 @@ import { Header } from '@/components/headcode/header'
 import { EntryTitle } from '@/components/headcode/titles'
 import { getEntry, getSection } from '@/db'
 import { requireRole } from '@/lib/auth'
-import { getValidatedEntriesToSections } from '@/lib/headcode/entries'
+import { getValidatedEntriesToSections } from '@/lib/headcode/admin'
 import { Form } from './form'
 import { Sidebar } from './sidebar'
 

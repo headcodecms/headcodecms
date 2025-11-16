@@ -12,7 +12,7 @@ import {
   Entry,
   getEntries as getDBEntries,
   getEntriesToSections,
-  getEntriesToSectionsWithNames,
+  getEntriesToSectionsWithNamesById,
   getEntry,
   Section,
 } from '@/db'
@@ -162,7 +162,7 @@ export async function getValidatedEntriesToSections(
     throw new Error(`Entry not found: ${entryId}`)
   }
 
-  const entryToSections = await getEntriesToSectionsWithNames(entryId)
+  const entryToSections = await getEntriesToSectionsWithNamesById(entryId)
   const configEntry = getConfigEntry(entry.namespace, entry.key)
 
   if (!configEntry) {

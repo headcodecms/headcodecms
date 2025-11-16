@@ -35,7 +35,8 @@ import { User } from 'better-auth'
 import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
-import { createInitialUser } from './actions'
+import { addUser } from './actions'
+import { useDialogRedirect } from '@/lib/headcode/dialogs'
 
 const passwordSchema = z
   .string()
@@ -57,6 +58,7 @@ export function DialogAddUser({
 }) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { redirectPathRef, handleOpenChange } = useDialogRedirect(open)
 
   const form = useForm({
     defaultValues: {
@@ -70,7 +72,7 @@ export function DialogAddUser({
     onSubmit: async ({ value }) => {
       setError(null)
 
-      const { success, error } = await createInitialUser({
+      const { success, error } = await addUser({
         email: value.email,
         password: value.password,
         role: value.role as Role,
@@ -78,7 +80,23 @@ export function DialogAddUser({
 
       if (success) {
         form.reset()
-        setOpen(false)
+        if (noUsers) {
+          const { error } = await authClient.signIn.email({
+            email: value.email,
+            password: value.password,
+          })
+          if (error) {
+            setError(
+              error.message ??
+                'An error occurred while signing in. Please try again.',
+            )
+          } else {
+            redirectPathRef.current = '/headcode'
+            setOpen(false)
+          }
+        } else {
+          setOpen(false)
+        }
         setUpdate(true)
       } else if (error) {
         setError(error)
@@ -92,7 +110,13 @@ export function DialogAddUser({
     : 'Add a new user to Headcode CMS.'
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(newOpen) => {
+        setOpen(newOpen)
+        handleOpenChange(newOpen)
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="secondary" size="sm">
           <PlusIcon className="size-4" />

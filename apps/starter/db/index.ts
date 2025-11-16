@@ -7,6 +7,10 @@ export type Role = 'user' | 'admin'
 
 export type Entry = typeof entries.$inferSelect
 export type AddEntry = typeof entries.$inferInsert
+export type EntryWithSection = Entry & {
+  name: string | null
+  data: unknown | null
+}
 
 export type Section = typeof sections.$inferSelect
 export type AddSection = typeof sections.$inferInsert
@@ -44,12 +48,42 @@ export async function getEntry(entryId: number): Promise<Entry | null> {
   }
 }
 
-export async function getEntries(): Promise<Entry[]> {
+export async function getEntriesWithSection(
+  namespace: string,
+  name: string,
+): Promise<EntryWithSection[]> {
+  try {
+    const result = await db
+      .select({
+        ...getTableColumns(entries),
+        name: sections.name,
+        data: sections.data,
+      })
+      .from(entries)
+      .innerJoin(entriesToSections, eq(entries.id, entriesToSections.entryId))
+      .leftJoin(sections, eq(entriesToSections.sectionId, sections.id))
+      .where(and(eq(entries.namespace, namespace), eq(sections.name, name)))
+      .orderBy(entriesToSections.pos)
+
+    return result
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function getEntries(
+  namespace?: string | undefined,
+): Promise<Entry[]> {
   try {
     const result = await db
       .select()
       .from(entries)
-      .where(eq(entries.version, version))
+      .where(
+        and(
+          eq(entries.version, version),
+          namespace ? eq(entries.namespace, namespace) : undefined,
+        ),
+      )
     return result
   } catch (error) {
     throw DBError(error)
@@ -80,7 +114,7 @@ export async function getEntriesToSections(
 }
 
 export type EntriesToSectionsWithNames = EntriesToSections & { name: string }
-export async function getEntriesToSectionsWithNames(
+export async function getEntriesToSectionsWithNamesById(
   entryId: number,
 ): Promise<EntriesToSectionsWithNames[]> {
   try {
@@ -97,6 +131,27 @@ export async function getEntriesToSectionsWithNames(
     throw DBError(error)
   }
 }
+
+export async function getEntriesToSectionsWithNames(
+  namespace: string,
+  key: string,
+): Promise<EntriesToSectionsWithNames[]> {
+  try {
+    return await db
+      .select({
+        ...getTableColumns(entriesToSections),
+        name: sections.name,
+      })
+      .from(entriesToSections)
+      .where(and(eq(entries.namespace, namespace), eq(entries.key, key)))
+      .innerJoin(entries, eq(entriesToSections.entryId, entries.id))
+      .innerJoin(sections, eq(entriesToSections.sectionId, sections.id))
+      .orderBy(entriesToSections.pos)
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
 export async function deleteEntriesAllSections(entryId: number): Promise<void> {
   try {
     await db
@@ -170,17 +225,55 @@ export async function addSection(section: AddSection): Promise<Section> {
   }
 }
 
-export async function getSection(sectionId: number): Promise<Section | null> {
+export async function getSection(
+  sectionId: number,
+): Promise<(Section & Entry) | null> {
   try {
     const result = await db
-      .select()
+      .select({
+        ...getTableColumns(sections),
+        ...getTableColumns(entries),
+      })
       .from(sections)
+      .innerJoin(
+        entriesToSections,
+        eq(sections.id, entriesToSections.sectionId),
+      )
+      .innerJoin(entries, eq(entriesToSections.entryId, entries.id))
       .where(eq(sections.id, sectionId))
     return result.length > 0 ? result[0] : null
   } catch (error) {
     throw DBError(error)
   }
 }
+
+export async function getSectionByName(
+  namespace: string,
+  key: string,
+  name: string,
+): Promise<Section | null> {
+  try {
+    const result = await db
+      .select()
+      .from(sections)
+      .where(
+        and(
+          eq(sections.name, name),
+          eq(entries.namespace, namespace),
+          eq(entries.key, key),
+        ),
+      )
+      .innerJoin(
+        entriesToSections,
+        eq(sections.id, entriesToSections.sectionId),
+      )
+      .innerJoin(entries, eq(entriesToSections.entryId, entries.id))
+    return result.length > 0 ? result[0].sections : null
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
 export async function addSectionToEntry(
   sectionToEntry: AddEntriesToSections,
 ): Promise<EntriesToSections> {

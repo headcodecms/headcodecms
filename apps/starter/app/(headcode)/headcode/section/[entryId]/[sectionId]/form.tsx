@@ -30,10 +30,10 @@ import { getConfigSection } from '@/lib/headcode/config'
 import { getDefaultSectionValues, getSchema } from '@/lib/headcode/form'
 import { ChildFields, FieldProps } from '@/lib/headcode/types'
 import { GripVerticalIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { deleteSection, updateSection } from './actions'
+import { useDialogRedirect } from '@/lib/headcode/dialogs'
 
 export function Form({
   entry,
@@ -46,7 +46,7 @@ export function Form({
 }) {
   const [open, setOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const router = useRouter()
+  const { redirectPathRef, handleOpenChange } = useDialogRedirect(open)
 
   const configSection = getConfigSection(
     entry.namespace,
@@ -57,10 +57,9 @@ export function Form({
   const fields = configSection.fields
   const formSchema = getSchema(fields)
   const defaultValues = getDefaultSectionValues(fields, section.data)
-  console.log('Form', defaultValues, formSchema)
 
   const form = useAppForm({
-    defaultValues: getDefaultSectionValues(fields, section.data),
+    defaultValues,
     validators: {
       onSubmit: formSchema,
     },
@@ -88,12 +87,13 @@ export function Form({
 
     const { success, error } = await deleteSection(entry.id, section.id)
     setIsDeleting(false)
-    setOpen(false)
 
     if (success) {
-      router.push(`/headcode/section/${entry.id}`)
+      redirectPathRef.current = `/headcode/section/${entry.id}`
+      setOpen(false)
     } else if (error) {
       toast.warning(error)
+      setOpen(false)
     }
   }
 
@@ -449,7 +449,10 @@ export function Form({
       </Card>
       <ConfirmationDialog
         open={open}
-        setOpen={setOpen}
+        setOpen={(newOpen) => {
+          setOpen(newOpen)
+          handleOpenChange(newOpen)
+        }}
         title={`Delete section ${section.name}?`}
         description={`This action cannot be undone. This will permanently delete the section ${section.name} from this entry.`}
         buttonText="Delete section"

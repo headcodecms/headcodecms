@@ -1,104 +1,83 @@
-import { Entry as DBEntry, Section } from '@/db'
+import {
+  EntriesToSectionsWithNames,
+  type Entry,
+  EntryWithSection,
+  getEntries as getDBEntries,
+  getEntriesToSectionsWithNames,
+  getEntriesToSectionsWithNamesById,
+  getSectionByName as getDBSectionByName,
+  getSection as getDBSection,
+  type Section,
+} from '@/db'
 import type { Fields, InferSectionData } from './types'
+import { getSchema } from './form'
+import { getConfigSection } from './config'
 
-export type Entry = DBEntry & {
-  sectionName: string | null
-  sectionData: Record<string, any> | null
-}
-export async function getEntries(
+export async function getEntriesWithSection(
   namespace: string,
-  sectionName?: string,
-): Promise<Entry[]> {
-  // returns all entries for a namespace
-  // if sectionName is provided return section data with that name, e.g., docs-meta
-
-  return []
+  name: string,
+): Promise<EntryWithSection[]> {
+  return await getEntriesWithSection(namespace, name)
 }
 
-export async function getSectionsById(entryId: number): Promise<Section[]> {
-  // returns all sections for an entry with the section name
-  return []
+export async function getEntries(namespace: string): Promise<Entry[]> {
+  return await getDBEntries(namespace)
+}
+
+export async function getSectionsById(
+  entryId: number,
+): Promise<EntriesToSectionsWithNames[]> {
+  return await getEntriesToSectionsWithNamesById(entryId)
 }
 
 export async function getSections(
   namespace: string,
   key: string,
-): Promise<Section[]> {
-  // returns all sections for an entry with the section name order by pos
-  return []
+): Promise<EntriesToSectionsWithNames[]> {
+  return await getEntriesToSectionsWithNames(namespace, key)
+}
+
+const parseSection = (
+  namespace: string,
+  key: string,
+  name: string,
+  section: Section | null,
+) => {
+  const sectionConfig = getConfigSection(namespace, key, name)
+  const schema = getSchema(sectionConfig.fields)
+  return schema.parse({
+    ...section.data,
+  }) as InferSectionData<F>
 }
 
 export async function getSectionByName<F extends Fields>(
   namespace: string,
   key: string,
-  sectionName: string,
+  name: string,
 ): Promise<{
   section: InferSectionData<F>
   isDefault: boolean
 }> {
-  return null
-}
-
-export async function getSection<F extends Fields>(
-  id: string,
-): Promise<{
-  section: InferSectionData<F>
-  isDefault: boolean
-}> {
-  // get from DB by id
-  // get section config from config
-  // check if name from DB is equal to section.name
-  // if not, throw error
-  // if equal, parse schema
-  const schema = getSchema(sectionConfig.fields)
+  const section = await getDBSectionByName(namespace, key, name)
   return {
-    section: schema.parse({
-      title: 'Section Title',
-      description: 'Section Description',
-      select: 'option1',
-      plans: [
-        {
-          plan: 'Plan 1',
-          price: 100,
-        },
-      ],
-    }) as InferSectionData<F>,
-    isDefault: false,
+    section: parseSection(namespace, key, name, section),
+    isDefault: section === null,
   }
 }
 
-// const heroSection = {
-//   name: 'hero',
-//   title: 'Hero Section', // label
-//   fields: {
-//     title: TextField({
-//       label: 'Title Mex',
-//       description: 'Title description',
-//       defaultValue: 'Default Title',
-//     }),
-//     description: TextareaField({ label: 'Description Mex' }),
-//     select: SelectField({
-//       label: 'Select Mex',
-//       defaultValue: 'option2',
-//       options: [
-//         { label: 'Option 1', value: 'option1' },
-//         { label: 'Option 2', value: 'option2' },
-//       ],
-//     }),
-//     plans: {
-//       label: 'Plans',
-//       fields: {
-//         plan: TextField({
-//           label: 'Plan Title',
-//           description: 'Plan description',
-//           defaultValue: 'Default Plan',
-//         }),
-//         price: TextField({
-//           label: 'Plan Price',
-//           description: 'Plan price description',
-//           defaultValue: 'Default Price',
-//         }),
-//       },
-//     },
-//   } satisfies Fields,
-// }
+export async function getSection<F extends Fields>(
+  id: number,
+): Promise<{
+  section: InferSectionData<F>
+  isDefault: boolean
+}> {
+  const result = await getDBSection(id)
+  if (!result) {
+    throw new Error(`Section not found: ${id}`)
+  }
+
+  return {
+    section: parseSection(result.namespace, result.key, result.name, result),
+    isDefault: false,
+  }
+}

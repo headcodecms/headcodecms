@@ -4,7 +4,7 @@ import { EntryTitle } from '@/components/headcode/titles'
 import { getEntriesToSectionsWithNames, getEntry } from '@/db'
 import { requireRole } from '@/lib/auth'
 import { getUnpinnedSectionNames } from '@/lib/headcode/config'
-import { getValidatedEntriesToSections } from '@/lib/headcode/entries'
+import { getValidatedEntriesToSections } from '@/lib/headcode/admin'
 import { redirect } from 'next/navigation'
 import { EmptySections } from './empty'
 

@@ -4,7 +4,7 @@ import { type Role } from '@/db'
 import { auth } from '@/lib/auth'
 import { revalidateTag } from 'next/cache'
 
-export async function createInitialUser({
+export async function addUser({
   email,
   password,
   role,

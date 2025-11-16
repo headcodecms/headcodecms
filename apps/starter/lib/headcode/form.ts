@@ -27,19 +27,19 @@ export const getDefaultValues = (fields: Fields) => {
   )
 }
 
-export const getDefaultSectionValues = (fields: Fields, data: unknown) => {
+export const getDefaultSectionValues = (
+  fields: Fields,
+  data: unknown | null,
+) => {
   const defaultValues = getDefaultValues(fields)
-  defaultValues.description = 'Description from data'
-  defaultValues.plans = [
-    {
-      plan: 'Plan 1',
-      price: 100,
-    },
-    {
-      plan: 'Plan 2',
-      price: 200,
-    },
-  ]
-  // merge default values with data
+
+  if (data) {
+    Object.entries(data).forEach(([key, value]) => {
+      if (defaultValues[key]) {
+        defaultValues[key] = value
+      }
+    })
+  }
+
   return defaultValues
 }

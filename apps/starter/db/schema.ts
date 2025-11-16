@@ -19,10 +19,10 @@ const timestamps = {
 export const entries = sqliteTable(
   'entries',
   {
-    id: integer('id').primaryKey({ autoIncrement: true }),
-    version: text('version').notNull(),
-    namespace: text('namespace').notNull(),
-    key: text('key').notNull(),
+    id: integer().primaryKey({ autoIncrement: true }),
+    version: text().notNull(),
+    namespace: text().notNull(),
+    key: text().notNull(),
     ...timestamps,
   },
   (table) => [
@@ -35,9 +35,9 @@ export const entries = sqliteTable(
 )
 
 export const sections = sqliteTable('sections', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  name: text('name').notNull(),
-  data: text('data'),
+  id: integer().primaryKey({ autoIncrement: true }),
+  name: text().notNull(),
+  data: text({ mode: 'json' }),
   ...timestamps,
 })
 
@@ -50,7 +50,7 @@ export const entriesToSections = sqliteTable(
     sectionId: integer('section_id')
       .notNull()
       .references(() => sections.id),
-    pos: integer('pos').notNull(),
+    pos: integer().notNull(),
     pinned: integer({ mode: 'boolean' }).default(false).notNull(),
     ...timestamps,
   },

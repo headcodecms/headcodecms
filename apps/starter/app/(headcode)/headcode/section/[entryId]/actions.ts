@@ -1,7 +1,7 @@
 'use server'
 
 import type { AddSection, Section } from '@/db'
-import { addSection as addDBSection } from '@/lib/headcode/entries'
+import { addSection as addDBSection } from '@/lib/headcode/admin'
 
 export async function addSection(
   entryId: number,

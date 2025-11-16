@@ -4,7 +4,7 @@ import { type AddEntry, type Entry } from '@/db'
 import {
   addEntryAndSections,
   deleteEntryAndSections,
-} from '@/lib/headcode/entries'
+} from '@/lib/headcode/admin'
 import { revalidatePath } from 'next/cache'
 
 export async function addEntry(

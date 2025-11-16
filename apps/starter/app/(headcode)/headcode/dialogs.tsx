@@ -28,13 +28,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
-import { UIEntryType } from '@/lib/headcode/entries'
+import { UIEntryType } from '@/lib/headcode/admin'
 import { useForm } from '@tanstack/react-form'
 import { AlertCircleIcon, FileStackIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { z } from 'zod'
 import { addEntry } from './actions'
+import { useDialogRedirect } from '@/lib/headcode/dialogs'
 
 const formSchema = z.object({
   namespace: z.string(),
@@ -55,17 +55,7 @@ export function DialogAddEntry({
 }) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const redirectPathRef = useRef<string | null>(null)
-  const router = useRouter()
-
-  // Navigate when dialog closes and we have a redirect path
-  useEffect(() => {
-    if (!open && redirectPathRef.current) {
-      const path = redirectPathRef.current
-      redirectPathRef.current = null
-      router.push(path)
-    }
-  }, [open, router])
+  const { redirectPathRef, handleOpenChange } = useDialogRedirect(open)
 
   const form = useForm({
     defaultValues: {
@@ -95,7 +85,13 @@ export function DialogAddEntry({
   })
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(newOpen) => {
+        setOpen(newOpen)
+        handleOpenChange(newOpen)
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="secondary" size="sm">
           <FileStackIcon className="size-4" />
