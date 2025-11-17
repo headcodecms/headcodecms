@@ -3,7 +3,7 @@ import type { HeadcodeConfig } from './lib/headcode/types'
 
 export const headcodeConfig = {
   version: 'v02',
-  clone: 'v01',
+  //clone: 'v01',
   entries: [
     {
       namespace: 'global',

@@ -24,17 +24,12 @@ export async function getEntries(namespace: string): Promise<Entry[]> {
   return await getDBEntries(namespace)
 }
 
-export async function getSectionsById(
-  entryId: number,
-): Promise<EntriesToSectionsWithNames[]> {
-  return await getEntriesToSectionsWithNamesById(entryId)
-}
-
 export async function getSections(
-  namespace: string,
-  key: string,
+  entryId: number | { namespace: string; key: string },
 ): Promise<EntriesToSectionsWithNames[]> {
-  return await getEntriesToSectionsWithNames(namespace, key)
+  return typeof entryId === 'number'
+    ? await getEntriesToSectionsWithNamesById(entryId)
+    : await getEntriesToSectionsWithNames(entryId.namespace, entryId.key)
 }
 
 const parseSection = (
@@ -46,34 +41,25 @@ const parseSection = (
   const sectionConfig = getConfigSection(namespace, key, name)
   const schema = getSchema(sectionConfig.fields)
   return schema.parse({
-    ...section.data,
-  }) as InferSectionData<F>
-}
-
-export async function getSectionByName<F extends Fields>(
-  namespace: string,
-  key: string,
-  name: string,
-): Promise<{
-  section: InferSectionData<F>
-  isDefault: boolean
-}> {
-  const section = await getDBSectionByName(namespace, key, name)
-  return {
-    section: parseSection(namespace, key, name, section),
-    isDefault: section === null,
-  }
+    ...(section?.data ?? {}),
+  }) as InferSectionData<typeof sectionConfig.fields>
 }
 
 export async function getSection<F extends Fields>(
-  id: number,
+  id: number | { namespace: string; key: string; name: string },
 ): Promise<{
   section: InferSectionData<F>
   isDefault: boolean
 }> {
-  const result = await getDBSection(id)
-  if (!result) {
+  const result =
+    typeof id === 'number'
+      ? await getDBSection(id)
+      : await getDBSectionByName(id.namespace, id.key, id.name)
+  if (result === null) {
     throw new Error(`Section not found: ${id}`)
+  }
+  if (!result) {
+    // parse default values
   }
 
   return {

@@ -6,9 +6,10 @@ import { headcodeConfig } from '@/headcode.config'
 import { requireRole } from '@/lib/auth'
 import { getEntries } from '@/lib/headcode/admin'
 import { Suspense } from 'react'
-import { AlertClone } from './alerts'
+import { AlertClone, AlertNewInstallation } from './alerts'
 import { DialogAddEntry } from './dialogs'
 import { EntriesTable } from './table'
+import { getEntriesCount } from '@/db'
 
 export default function Page() {
   return (
@@ -39,20 +40,24 @@ export async function Entries() {
   const dynamicEntries = entryTypes.filter((entryType) => entryType.dynamic)
 
   const version = headcodeConfig.version
+  // @ts-expect-error - clone is optional
   const clone = headcodeConfig.clone
+
+  let newInstallation = false
+  if (emptyEntries && !clone) {
+    newInstallation = (await getEntriesCount()) === 0
+  }
 
   return (
     <>
+      {newInstallation && <AlertNewInstallation />}
+      {emptyEntries && clone && <AlertClone clone={clone} />}
+
       <div className="flex items-end justify-between gap-12">
         <div className="space-y-1">
           <h2 className="text-3xl font-bold tracking-tight">Content Entries</h2>
           <p className="text-muted-foreground max-w-3xl text-sm">
-            An entry is identified by namespace and key, and has multiple
-            content sections. Entries within a namespace can be either static
-            (e.g., namespace=global, key=footer) or dynamic [dynamic icon]
-            (e.g., namespace=blog, key=post-1). You cannot mix static and
-            dynamic entries within the same namespace. Click on an entry to edit
-            its sections.
+            Manage dynamic (e.g., blog posts) and static content entries.
           </p>
         </div>
         <div>
@@ -65,7 +70,6 @@ export async function Entries() {
       <Separator className="mt-6" />
 
       <div className="my-6">
-        {emptyEntries && clone && <AlertClone clone={clone} />}
         <EntriesTable
           version={version}
           data={entries}

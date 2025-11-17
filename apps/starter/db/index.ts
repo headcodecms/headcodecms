@@ -62,10 +62,28 @@ export async function getEntriesWithSection(
       .from(entries)
       .innerJoin(entriesToSections, eq(entries.id, entriesToSections.entryId))
       .leftJoin(sections, eq(entriesToSections.sectionId, sections.id))
-      .where(and(eq(entries.namespace, namespace), eq(sections.name, name)))
+      .where(
+        and(
+          eq(entries.version, version),
+          eq(entries.namespace, namespace),
+          eq(sections.name, name),
+        ),
+      )
       .orderBy(entriesToSections.pos)
 
     return result
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function getEntriesCount(version?: string | null) {
+  try {
+    const result = await db
+      .select({ count: count() })
+      .from(entries)
+      .where(version ? eq(entries.version, version) : undefined)
+    return result.length > 0 ? result[0].count : 0
   } catch (error) {
     throw DBError(error)
   }
@@ -143,7 +161,13 @@ export async function getEntriesToSectionsWithNames(
         name: sections.name,
       })
       .from(entriesToSections)
-      .where(and(eq(entries.namespace, namespace), eq(entries.key, key)))
+      .where(
+        and(
+          eq(entries.version, version),
+          eq(entries.namespace, namespace),
+          eq(entries.key, key),
+        ),
+      )
       .innerJoin(entries, eq(entriesToSections.entryId, entries.id))
       .innerJoin(sections, eq(entriesToSections.sectionId, sections.id))
       .orderBy(entriesToSections.pos)
@@ -251,16 +275,20 @@ export async function getSectionByName(
   namespace: string,
   key: string,
   name: string,
-): Promise<Section | null> {
+): Promise<(Section & Entry) | null> {
   try {
     const result = await db
-      .select()
+      .select({
+        ...getTableColumns(sections),
+        ...getTableColumns(entries),
+      })
       .from(sections)
       .where(
         and(
-          eq(sections.name, name),
+          eq(entries.version, version),
           eq(entries.namespace, namespace),
           eq(entries.key, key),
+          eq(sections.name, name),
         ),
       )
       .innerJoin(
@@ -268,7 +296,7 @@ export async function getSectionByName(
         eq(sections.id, entriesToSections.sectionId),
       )
       .innerJoin(entries, eq(entriesToSections.entryId, entries.id))
-    return result.length > 0 ? result[0].sections : null
+    return result.length > 0 ? result[0] : null
   } catch (error) {
     throw DBError(error)
   }
