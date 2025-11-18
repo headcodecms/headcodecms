@@ -63,9 +63,12 @@ export function DialogAddSection({
     onSubmit: async ({ value }) => {
       setError(null)
 
-      const { section, error } = await addSection(entry.id, {
+      const { section, error } = await addSection({
         name: value.section,
+        pos: 0,
+        pinned: false,
         data: null,
+        entryId: entry.id,
       })
 
       if (section) {

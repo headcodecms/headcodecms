@@ -1,36 +1,11 @@
 import {
-  EntriesToSectionsWithNames,
-  type Entry,
-  EntryWithSection,
-  getEntries as getDBEntries,
-  getEntriesToSectionsWithNames,
-  getEntriesToSectionsWithNamesById,
-  getSectionByName as getDBSectionByName,
   getSection as getDBSection,
+  getSectionByName as getDBSectionByName,
   type Section,
 } from '@/db'
-import type { Fields, InferSectionData } from './types'
-import { getSchema } from './form'
 import { getConfigSection } from './config'
-
-export async function getEntriesWithSection(
-  namespace: string,
-  name: string,
-): Promise<EntryWithSection[]> {
-  return await getEntriesWithSection(namespace, name)
-}
-
-export async function getEntries(namespace: string): Promise<Entry[]> {
-  return await getDBEntries(namespace)
-}
-
-export async function getSections(
-  entryId: number | { namespace: string; key: string },
-): Promise<EntriesToSectionsWithNames[]> {
-  return typeof entryId === 'number'
-    ? await getEntriesToSectionsWithNamesById(entryId)
-    : await getEntriesToSectionsWithNames(entryId.namespace, entryId.key)
-}
+import { getSchema } from './form'
+import type { Fields, InferSectionData } from './types'
 
 const parseSection = (
   namespace: string,
@@ -63,7 +38,12 @@ export async function getSection<F extends Fields>(
   }
 
   return {
-    section: parseSection(result.namespace, result.key, result.name, result),
+    section: parseSection(
+      result.entry.namespace,
+      result.entry.key,
+      result.section.name,
+      result.section,
+    ),
     isDefault: false,
   }
 }

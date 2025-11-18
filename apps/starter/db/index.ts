@@ -1,7 +1,7 @@
 import { headcodeConfig } from '@/headcode.config'
 import { and, count, eq, getTableColumns } from 'drizzle-orm'
 import { db } from './db'
-import { entries, entriesToSections, sections, user } from './schema'
+import { entries, sections, user } from './schema'
 
 export type Role = 'user' | 'admin'
 
@@ -10,9 +10,6 @@ export type AddEntry = typeof entries.$inferInsert
 
 export type Section = typeof sections.$inferSelect
 export type AddSection = typeof sections.$inferInsert
-
-export type EntriesToSections = typeof entriesToSections.$inferSelect
-export type AddEntriesToSections = typeof entriesToSections.$inferInsert
 
 const version = headcodeConfig.version
 
@@ -39,34 +36,6 @@ export async function getEntry(entryId: number): Promise<Entry | null> {
       .from(entries)
       .where(eq(entries.id, entryId))
     return result.length > 0 ? result[0] : null
-  } catch (error) {
-    throw DBError(error)
-  }
-}
-
-export async function getEntriesWithSection(
-  namespace: string,
-  name: string,
-): Promise<{ entry: Entry; section: Section | null }[]> {
-  try {
-    const result = await db
-      .select({
-        entry: { ...getTableColumns(entries) },
-        section: { ...getTableColumns(sections) },
-      })
-      .from(entries)
-      .innerJoin(entriesToSections, eq(entries.id, entriesToSections.entryId))
-      .leftJoin(sections, eq(entriesToSections.sectionId, sections.id))
-      .where(
-        and(
-          eq(entries.version, version),
-          eq(entries.namespace, namespace),
-          eq(sections.name, name),
-        ),
-      )
-      .orderBy(entriesToSections.pos)
-
-    return result
   } catch (error) {
     throw DBError(error)
   }
@@ -112,112 +81,18 @@ export async function addEntry(entry: AddEntry): Promise<Entry> {
   }
 }
 
-export async function getEntriesToSections(
-  entryId: number,
-): Promise<EntriesToSections[]> {
-  try {
-    return await db
-      .select()
-      .from(entriesToSections)
-      .where(eq(entriesToSections.entryId, entryId))
-      .orderBy(entriesToSections.pos)
-  } catch (error) {
-    throw DBError(error)
-  }
-}
-
-export type EntriesToSectionsWithNames = EntriesToSections & { name: string }
-export async function getEntriesToSectionsWithNamesById(
-  entryId: number,
-): Promise<EntriesToSectionsWithNames[]> {
-  try {
-    const result = await db
-      .select({
-        ...getTableColumns(entriesToSections),
-        name: sections.name,
-      })
-      .from(entriesToSections)
-      .where(eq(entriesToSections.entryId, entryId))
-      .innerJoin(sections, eq(entriesToSections.sectionId, sections.id))
-      .orderBy(entriesToSections.pos)
-
-    return result
-  } catch (error) {
-    throw DBError(error)
-  }
-}
-
-export async function getEntriesToSectionsWithNames(
-  namespace: string,
-  key: string,
-): Promise<EntriesToSectionsWithNames[]> {
-  try {
-    return await db
-      .select({
-        ...getTableColumns(entriesToSections),
-        name: sections.name,
-      })
-      .from(entriesToSections)
-      .where(
-        and(
-          eq(entries.version, version),
-          eq(entries.namespace, namespace),
-          eq(entries.key, key),
-        ),
-      )
-      .innerJoin(entries, eq(entriesToSections.entryId, entries.id))
-      .innerJoin(sections, eq(entriesToSections.sectionId, sections.id))
-      .orderBy(entriesToSections.pos)
-  } catch (error) {
-    throw DBError(error)
-  }
-}
-
-export async function reorderSectionEntries(
-  entries: Pick<EntriesToSections, 'entryId' | 'sectionId' | 'pos'>[],
+export async function reorderSections(
+  items: { id: number; pos: number }[],
 ): Promise<void> {
   try {
     await db.transaction(async (tx) => {
-      for (const entry of entries) {
+      for (const item of items) {
         await tx
-          .update(entriesToSections)
-          .set({ pos: entry.pos })
-          .where(
-            and(
-              eq(entriesToSections.entryId, entry.entryId),
-              eq(entriesToSections.sectionId, entry.sectionId),
-            ),
-          )
+          .update(sections)
+          .set({ pos: item.pos })
+          .where(eq(sections.id, item.id))
       }
     })
-  } catch (error) {
-    throw DBError(error)
-  }
-}
-
-export async function deleteEntriesAllSections(entryId: number): Promise<void> {
-  try {
-    await db
-      .delete(entriesToSections)
-      .where(eq(entriesToSections.entryId, entryId))
-  } catch (error) {
-    throw DBError(error)
-  }
-}
-
-export async function deleteEntriesToSections(
-  entryId: number,
-  sectionId: number,
-): Promise<void> {
-  try {
-    await db
-      .delete(entriesToSections)
-      .where(
-        and(
-          eq(entriesToSections.entryId, entryId),
-          eq(entriesToSections.sectionId, sectionId),
-        ),
-      )
   } catch (error) {
     throw DBError(error)
   }
@@ -231,13 +106,9 @@ export async function updateSection(section: Section): Promise<void> {
   }
 }
 
-export async function deleteSections(sectionIds: number[]): Promise<void> {
+export async function deleteSections(entryId: number): Promise<void> {
   try {
-    if (sectionIds.length === 0) return
-
-    for (const sectionId of sectionIds) {
-      await db.delete(sections).where(eq(sections.id, sectionId))
-    }
+    await db.delete(sections).where(eq(sections.entryId, entryId))
   } catch (error) {
     throw DBError(error)
   }
@@ -268,21 +139,29 @@ export async function addSection(section: AddSection): Promise<Section> {
   }
 }
 
+export async function getSections(entryId: number): Promise<Section[]> {
+  try {
+    const result = await db
+      .select()
+      .from(sections)
+      .where(eq(sections.entryId, entryId))
+    return result
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
 export async function getSection(
   sectionId: number,
 ): Promise<{ section: Section; entry: Entry } | null> {
   try {
     const result = await db
       .select({
-        section: getTableColumns(sections),
-        entry: getTableColumns(entries),
+        section: { ...getTableColumns(sections) },
+        entry: { ...getTableColumns(entries) },
       })
       .from(sections)
-      .innerJoin(
-        entriesToSections,
-        eq(sections.id, entriesToSections.sectionId),
-      )
-      .innerJoin(entries, eq(entriesToSections.entryId, entries.id))
+      .innerJoin(entries, eq(sections.entryId, entries.id))
       .where(eq(sections.id, sectionId))
     return result.length > 0 ? result[0] : null
   } catch (error) {
@@ -294,12 +173,12 @@ export async function getSectionByName(
   namespace: string,
   key: string,
   name: string,
-): Promise<(Section & Entry) | null> {
+): Promise<{ section: Section; entry: Entry } | null> {
   try {
     const result = await db
       .select({
-        ...getTableColumns(sections),
-        ...getTableColumns(entries),
+        section: { ...getTableColumns(sections) },
+        entry: { ...getTableColumns(entries) },
       })
       .from(sections)
       .where(
@@ -310,26 +189,8 @@ export async function getSectionByName(
           eq(sections.name, name),
         ),
       )
-      .innerJoin(
-        entriesToSections,
-        eq(sections.id, entriesToSections.sectionId),
-      )
-      .innerJoin(entries, eq(entriesToSections.entryId, entries.id))
+      .innerJoin(entries, eq(sections.entryId, entries.id))
     return result.length > 0 ? result[0] : null
-  } catch (error) {
-    throw DBError(error)
-  }
-}
-
-export async function addSectionToEntry(
-  sectionToEntry: AddEntriesToSections,
-): Promise<EntriesToSections> {
-  try {
-    const result = await db
-      .insert(entriesToSections)
-      .values(sectionToEntry)
-      .returning()
-    return result[0]
   } catch (error) {
     throw DBError(error)
   }

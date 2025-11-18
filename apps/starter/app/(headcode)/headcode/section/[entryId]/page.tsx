@@ -1,13 +1,13 @@
 import { Container } from '@/components/headcode/container'
 import { Header } from '@/components/headcode/header'
 import { EntryTitle } from '@/components/headcode/titles'
-import { getEntriesToSectionsWithNamesById, getEntry, Role } from '@/db'
+import { getEntry, Role } from '@/db'
 import { requireRole } from '@/lib/auth'
-import { getValidatedEntriesToSections } from '@/lib/headcode/admin'
-import { getUnpinnedSectionNames } from '@/lib/headcode/config'
+import { getValidatedSections } from '@/lib/headcode/admin'
+import { getConfigSectionNames } from '@/lib/headcode/config'
+import { cacheTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { EmptySections } from './empty'
-import { cacheTag } from 'next/cache'
 
 export default async function Page({
   params,
@@ -29,23 +29,23 @@ export async function EntryPage({
   role: Role
   entryId: number
 }) {
-  const entryToSections = await getEntriesToSectionsWithNamesById(entryId)
-  if (entryToSections.length > 0) {
-    redirect(`/headcode/section/${entryId}/${entryToSections[0].sectionId}`)
-  }
+  'use cache'
+  cacheTag(`/headcode/entries/${entryId}`)
 
-  const validatedEntryToSections = await getValidatedEntriesToSections(entryId)
-  if (validatedEntryToSections.length > 0) {
-    redirect(
-      `/headcode/section/${entryId}/${validatedEntryToSections[0].sectionId}`,
-    )
+  const sections = await getValidatedSections(entryId)
+  if (sections.length > 0) {
+    redirect(`/headcode/section/${entryId}/${sections[0].id}`)
   }
 
   const entry = await getEntry(entryId)
   if (!entry) {
     throw new Error(`Entry not found: ${entryId}`)
   }
-  const unpinnedSections = getUnpinnedSectionNames(entry.namespace, entry.key)
+  const unpinnedSections = getConfigSectionNames(
+    entry.namespace,
+    entry.key,
+    false,
+  )
   if (unpinnedSections.length === 0) {
     throw new Error(
       `No unpinned sections found: ${entry.namespace} / ${entry.key}`,

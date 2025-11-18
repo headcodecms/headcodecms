@@ -14,51 +14,36 @@ import {
   SortableItemHandle,
   SortableOverlay,
 } from '@/components/ui/sortable'
-import type { EntriesToSectionsWithNames, Entry } from '@/db'
-import { getUnpinnedSectionNames } from '@/lib/headcode/config'
+import type { Entry, Section } from '@/db'
+import { getConfigSectionNames } from '@/lib/headcode/config'
 import { GripVerticalIcon, PinIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
-import { DialogAddSection } from '../dialogs'
 import { toast } from 'sonner'
-import { reorderSectionEntries } from './actions'
-
-type SortableEntry = EntriesToSectionsWithNames & {
-  id: string
-  title: string
-}
-const toSortableEntries = (
-  entries: EntriesToSectionsWithNames[],
-): SortableEntry[] => {
-  return entries.map((entry) => ({
-    ...entry,
-    id: `${entry.entryId}-${entry.sectionId}`,
-    title: entry.name,
-  }))
-}
+import { DialogAddSection } from '../dialogs'
+import { reorderSections } from './actions'
 
 export function Sidebar({
   entry,
-  entriesToSections,
+  sections,
   sectionId,
 }: {
   entry: Entry
-  entriesToSections: EntriesToSectionsWithNames[]
+  sections: Section[]
   sectionId: number
 }) {
-  const [entries, setEntries] = useState(toSortableEntries(entriesToSections))
-  const sectionNames = getUnpinnedSectionNames(entry.namespace, entry.key)
-  console.log('sectionNames', sectionNames)
+  const [entries, setEntries] = useState(sections)
+  const sectionNames = getConfigSectionNames(entry.namespace, entry.key, false)
 
-  const handleValueChange = async (items: SortableEntry[]) => {
+  const handleValueChange = async (items: Section[]) => {
     const oldEntries = entries
     setEntries(items)
     console.log('handleValueChange', oldEntries, items)
 
-    const { error } = await reorderSectionEntries(
+    const { error } = await reorderSections(
+      entry.id,
       items.map((item, index) => ({
-        entryId: item.entryId,
-        sectionId: item.sectionId,
+        id: item.id,
         pos: index,
       })),
     )
@@ -87,20 +72,18 @@ export function Sidebar({
             >
               <Item
                 key={item.id}
-                variant={item.sectionId === sectionId ? 'muted' : 'default'}
+                variant={item.id === sectionId ? 'muted' : 'default'}
                 size="sm"
                 asChild
               >
-                <Link
-                  href={`/headcode/section/${item.entryId}/${item.sectionId}`}
-                >
+                <Link href={`/headcode/section/${item.entryId}/${item.id}`}>
                   <SortableItemHandle asChild>
                     <ItemMedia variant="default">
                       <GripVerticalIcon className="text-muted-foreground size-4" />
                     </ItemMedia>
                   </SortableItemHandle>
                   <ItemContent>
-                    <ItemTitle>{item.title}</ItemTitle>
+                    <ItemTitle>{item.name}</ItemTitle>
                   </ItemContent>
                   {item.pinned && (
                     <ItemActions>

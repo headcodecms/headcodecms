@@ -34,7 +34,8 @@ export const getDefaultSectionValues = (
   const defaultValues = getDefaultValues(fields)
 
   if (data) {
-    Object.entries(data).forEach(([key, value]) => {
+    const parsedData = JSON.parse(data as string)
+    Object.entries(parsedData).forEach(([key, value]) => {
       if (defaultValues[key]) {
         defaultValues[key] = value
       }
