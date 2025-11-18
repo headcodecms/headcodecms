@@ -2,7 +2,6 @@
 
 import { type Role } from '@/db'
 import { auth } from '@/lib/auth'
-import { refresh } from 'next/cache'
 
 export async function addUser({
   email,

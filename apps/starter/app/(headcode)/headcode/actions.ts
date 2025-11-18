@@ -1,11 +1,11 @@
 'use server'
 
-import { type AddEntry, type Entry } from '@/db'
+import { type AddEntry, type Entry, cloneVersion as cloneDBVersion } from '@/db'
 import {
   addEntryAndSections,
   deleteEntryAndSections,
 } from '@/lib/headcode/admin'
-import { updateTag } from 'next/cache'
+import { refresh, updateTag } from 'next/cache'
 
 export async function addEntry(
   values: AddEntry,
@@ -34,5 +34,19 @@ export async function deleteEntry(
     return {
       error: 'Failed to delete entry',
     }
+  }
+}
+
+export async function cloneVersion(
+  clone: string,
+): Promise<{ success?: boolean; error?: string }> {
+  try {
+    await cloneDBVersion(clone)
+    updateTag('/headcode/entries')
+
+    return { success: true }
+  } catch (error) {
+    console.error('error cloning database', error)
+    return { error: 'Failed to clone database' }
   }
 }

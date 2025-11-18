@@ -1,5 +1,5 @@
 import { headcodeConfig } from '@/headcode.config'
-import { and, count, eq, getTableColumns } from 'drizzle-orm'
+import { and, asc, count, eq, getTableColumns } from 'drizzle-orm'
 import { db } from './db'
 import { entries, sections, user } from './schema'
 
@@ -145,6 +145,7 @@ export async function getSections(entryId: number): Promise<Section[]> {
       .select()
       .from(sections)
       .where(eq(sections.entryId, entryId))
+      .orderBy(asc(sections.pos))
     return result
   } catch (error) {
     throw DBError(error)
@@ -191,6 +192,45 @@ export async function getSectionByName(
       )
       .innerJoin(entries, eq(sections.entryId, entries.id))
     return result.length > 0 ? result[0] : null
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function cloneVersion(clone: string): Promise<void> {
+  try {
+    await db.transaction(async (tx) => {
+      const cloneEntries = await tx
+        .select()
+        .from(entries)
+        .where(eq(entries.version, clone))
+
+      for (const cloneEntry of cloneEntries) {
+        const newEntry = await tx
+          .insert(entries)
+          .values({
+            version,
+            namespace: cloneEntry.namespace,
+            key: cloneEntry.key,
+          })
+          .returning()
+
+        const cloneSections = await tx
+          .select()
+          .from(sections)
+          .where(eq(sections.entryId, cloneEntry.id))
+
+        for (const cloneSection of cloneSections) {
+          await tx.insert(sections).values({
+            entryId: newEntry[0].id,
+            name: cloneSection.name,
+            pos: cloneSection.pos,
+            pinned: cloneSection.pinned,
+            data: cloneSection.data,
+          })
+        }
+      }
+    })
   } catch (error) {
     throw DBError(error)
   }

@@ -38,6 +38,7 @@ export async function getSection<F extends Fields>(
   }
 
   return {
+    // @ts-expect-error - parseSection returns an InferSectionData<F>
     section: parseSection(
       result.entry.namespace,
       result.entry.key,

@@ -44,7 +44,6 @@ export async function Entries() {
   const dynamicEntries = entryTypes.filter((entryType) => entryType.dynamic)
 
   const version = headcodeConfig.version
-  // @ts-expect-error - clone is optional
   const clone = headcodeConfig.clone
 
   let newInstallation = false
@@ -55,7 +54,7 @@ export async function Entries() {
   return (
     <>
       {newInstallation && <AlertNewInstallation />}
-      {emptyEntries && clone && <AlertClone clone={clone} />}
+      {emptyEntries && clone ? <AlertClone clone={clone} /> : null}
 
       <div className="flex items-end justify-between gap-12">
         <div className="space-y-1">

@@ -38,7 +38,6 @@ export function Sidebar({
   const handleValueChange = async (items: Section[]) => {
     const oldEntries = entries
     setEntries(items)
-    console.log('handleValueChange', oldEntries, items)
 
     const { error } = await reorderSections(
       entry.id,

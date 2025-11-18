@@ -13,7 +13,6 @@ export async function reorderSections(
   items: { id: number; pos: number }[],
 ): Promise<{ success?: boolean; error?: string }> {
   try {
-    console.log('reorderSections', items, entryId)
     await reorderDBSections(items)
 
     updateTag(`/headcode/entries/${entryId}`)

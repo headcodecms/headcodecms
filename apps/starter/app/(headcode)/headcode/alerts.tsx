@@ -3,10 +3,21 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { CircleAlertIcon } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { cloneVersion } from './actions'
+import { Spinner } from '@/components/ui/spinner'
 
 export function AlertClone({ clone }: { clone: string }) {
-  const handleClone = () => {
-    console.log('cloning database from', clone)
+  const [isCloning, setIsCloning] = useState(false)
+
+  const handleClone = async () => {
+    setIsCloning(true)
+    const result = await cloneVersion(clone)
+    if (result.error) {
+      setIsCloning(false)
+      toast.error(result.error ?? 'Failed to clone database')
+    }
   }
 
   return (
@@ -15,7 +26,8 @@ export function AlertClone({ clone }: { clone: string }) {
         <CircleAlertIcon />
         <AlertTitle>Clone database from {clone}</AlertTitle>
       </div>
-      <Button size="sm" onClick={handleClone}>
+      <Button size="sm" onClick={handleClone} disabled={isCloning}>
+        {isCloning && <Spinner />}
         Clone
       </Button>
     </Alert>

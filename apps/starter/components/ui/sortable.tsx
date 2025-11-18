@@ -154,7 +154,6 @@ function SortableRoot<T>(props: SortableRootProps<T>) {
     return value.map((item) => getItemValue(item))
   }, [value, getItemValue])
 
-  // Extract callback props to avoid React Compiler dependency inference issues
   const {
     onDragStart: onDragStartProp,
     onDragEnd: onDragEndProp,
@@ -576,7 +575,6 @@ export {
   SortableItem,
   SortableItemHandle,
   SortableOverlay,
-  //
   SortableRoot as Root,
   SortableContent as Content,
   SortableItem as Item,
