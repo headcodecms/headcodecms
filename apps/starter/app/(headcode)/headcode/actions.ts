@@ -5,7 +5,7 @@ import {
   addEntryAndSections,
   deleteEntryAndSections,
 } from '@/lib/headcode/admin'
-import { revalidatePath, updateTag } from 'next/cache'
+import { updateTag } from 'next/cache'
 
 export async function addEntry(
   values: AddEntry,

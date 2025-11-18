@@ -2,21 +2,21 @@
 
 import {
   deleteSection as deleteDBSection,
-  deleteEntriesToSections,
-  EntriesToSections,
-  reorderSectionEntries as reorderDBSectionEntries,
+  reorderSections as reorderDBSections,
   Section,
   updateSection as updateDBSection,
 } from '@/db'
 import { updateTag } from 'next/cache'
 
-export async function reorderSectionEntries(
-  entriesToSections: Pick<EntriesToSections, 'entryId' | 'sectionId' | 'pos'>[],
+export async function reorderSections(
+  entryId: number,
+  items: { id: number; pos: number }[],
 ): Promise<{ success?: boolean; error?: string }> {
   try {
-    await reorderDBSectionEntries(entriesToSections)
+    console.log('reorderSections', items, entryId)
+    await reorderDBSections(items)
 
-    updateTag(`/headcode/entry/${entriesToSections[0].entryId}`)
+    updateTag(`/headcode/entries/${entryId}`)
     return { success: true }
   } catch (error) {
     console.error('Error reordering section entries', error)
@@ -30,7 +30,7 @@ export async function updateSection(
   try {
     await updateDBSection(section)
 
-    updateTag(`/headcode/section/${section.id}`)
+    updateTag(`/headcode/entries/${section.entryId}`)
     return { success: true }
   } catch (error) {
     console.error('Error updating section', error)
@@ -43,12 +43,9 @@ export async function deleteSection(
   sectionId: number,
 ): Promise<{ success?: boolean; error?: string }> {
   try {
-    console.log('deleteSection', entryId, sectionId)
-
-    await deleteEntriesToSections(entryId, sectionId)
     await deleteDBSection(sectionId)
 
-    updateTag(`/headcode/section/${entryId}`)
+    updateTag(`/headcode/entries/${entryId}`)
 
     return { success: true }
   } catch (error) {

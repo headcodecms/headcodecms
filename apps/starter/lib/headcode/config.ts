@@ -36,17 +36,21 @@ export type SectionName = {
   name: string
   label: string
 }
-export const getUnpinnedSectionNames = (namespace: string, key: string) => {
+export const getConfigSectionNames = (
+  namespace: string,
+  key: string,
+  pinned: boolean,
+) => {
   const configEntry = getConfigEntry(namespace, key)
   if (!configEntry) {
     throw new Error(`Config entry not found: ${namespace} / ${key}`)
   }
 
-  const unpinnedSections = configEntry.sections.filter(
-    (section: SectionReference) => !section.pinned,
+  const configSections = configEntry.sections.filter(
+    (section: SectionReference) => (pinned ? section.pinned : !section.pinned),
   ) as SectionReference[]
 
-  return unpinnedSections.map((section) => ({
+  return configSections.map((section) => ({
     name: section.section.name,
     label: section.section.label,
   })) as SectionName[]

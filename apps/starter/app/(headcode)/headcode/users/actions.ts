@@ -23,7 +23,6 @@ export async function addUser({
       },
     })
 
-    refresh()
     return { success: true }
   } catch (error) {
     console.error('Error creating initial user', error)

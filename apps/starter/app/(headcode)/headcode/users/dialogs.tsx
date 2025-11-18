@@ -36,7 +36,6 @@ import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
 import { addUser } from './actions'
-import { useRouter } from 'next/navigation'
 
 const passwordSchema = z
   .string()
@@ -59,7 +58,6 @@ export function DialogAddUser({
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const router = useRouter()
 
   const form = useForm({
     defaultValues: {
@@ -88,15 +86,12 @@ export function DialogAddUser({
             callbackURL: '/headcode',
           })
 
-          setIsSubmitting(false)
           if (error) {
+            setIsSubmitting(false)
             setError(
               error.message ??
                 'An error occurred while signing in. Please try again.',
             )
-          } else {
-            form.reset()
-            setOpen(false)
           }
         } else {
           form.reset()

@@ -33,22 +33,10 @@ import { GripVerticalIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { deleteSection, updateSection } from './actions'
-import { useRouter } from 'next/navigation'
 
-export function Form({
-  entry,
-  section,
-  canDelete,
-}: {
-  entry: Entry
-  section: Section
-  canDelete: boolean
-}) {
+export function Form({ entry, section }: { entry: Entry; section: Section }) {
   const [open, setOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const router = useRouter()
-
-  console.log('Form', entry, section)
 
   const configSection = getConfigSection(
     entry.namespace,
@@ -87,16 +75,13 @@ export function Form({
     e.stopPropagation()
     setIsDeleting(true)
 
-    console.log('handleConfirmDelete', entry.id, section.id)
     const { success, error } = await deleteSection(entry.id, section.id)
     setIsDeleting(false)
 
     if (success) {
       setOpen(false)
-      router.push(`/headcode/section/${entry.id}`)
     } else if (error) {
       toast.warning(error)
-      setOpen(false)
     }
   }
 
@@ -410,7 +395,7 @@ export function Form({
                 Reset
               </Button>
             </div>
-            {canDelete && (
+            {!section.pinned && (
               <Button
                 type="button"
                 variant="outline"

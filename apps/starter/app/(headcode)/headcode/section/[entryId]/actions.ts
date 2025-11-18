@@ -5,13 +5,12 @@ import { addSection as addDBSection } from '@/lib/headcode/admin'
 import { updateTag } from 'next/cache'
 
 export async function addSection(
-  entryId: number,
   section: AddSection,
 ): Promise<{ section?: Section; error?: string }> {
   try {
-    const newSection = await addDBSection(entryId, section)
+    const newSection = await addDBSection(section)
 
-    updateTag(`/headcode/entry/${entryId}`)
+    updateTag(`/headcode/entries/${section.entryId}`)
     return { section: newSection }
   } catch (error) {
     console.error('Error adding section', error)
