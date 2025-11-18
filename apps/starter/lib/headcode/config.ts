@@ -41,12 +41,11 @@ export const getUnpinnedSectionNames = (namespace: string, key: string) => {
   if (!configEntry) {
     throw new Error(`Config entry not found: ${namespace} / ${key}`)
   }
+
   const unpinnedSections = configEntry.sections.filter(
     (section: SectionReference) => !section.pinned,
   ) as SectionReference[]
-  if (unpinnedSections.length === 0) {
-    throw new Error(`No unpinned sections found: ${namespace} / ${key}`)
-  }
+
   return unpinnedSections.map((section) => ({
     name: section.section.name,
     label: section.section.label,

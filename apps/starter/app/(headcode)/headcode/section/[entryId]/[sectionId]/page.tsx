@@ -1,11 +1,12 @@
 import { Container } from '@/components/headcode/container'
 import { Header } from '@/components/headcode/header'
 import { EntryTitle } from '@/components/headcode/titles'
-import { getEntry, getSection } from '@/db'
+import { getEntry, getSection, Role } from '@/db'
 import { requireRole } from '@/lib/auth'
 import { getValidatedEntriesToSections } from '@/lib/headcode/admin'
 import { Form } from './form'
 import { Sidebar } from './sidebar'
+import { redirect } from 'next/navigation'
 
 export default async function Page({
   params,
@@ -18,21 +19,40 @@ export default async function Page({
 
   const { role } = await requireRole(['user', 'admin'])
 
-  const entry = await getEntry(entryIdInt)
+  return (
+    <SectionPage
+      role={role as Role}
+      entryId={entryIdInt}
+      sectionId={sectionIdInt}
+    />
+  )
+}
+
+export async function SectionPage({
+  role,
+  entryId,
+  sectionId,
+}: {
+  role: Role
+  entryId: number
+  sectionId: number
+}) {
+  const entry = await getEntry(entryId)
   if (!entry) {
     throw new Error(`Entry not found: ${entryId}`)
   }
-  const section = await getSection(sectionIdInt)
-  if (!section) {
-    throw new Error(`Section not found: ${sectionId}`)
+  const result = await getSection(sectionId)
+  if (!result) {
+    redirect(`/headcode/section/${entryId}`)
   }
-  const entriesToSections = await getValidatedEntriesToSections(entryIdInt)
+  const section = result.section
+  const entriesToSections = await getValidatedEntriesToSections(entryId)
   if (entriesToSections.length === 0) {
     throw new Error(`No entries to sections found: ${entryId}`)
   }
   const canDelete =
-    entriesToSections.find((item) => item.sectionId === sectionIdInt)
-      ?.pinned === false
+    entriesToSections.find((item) => item.sectionId === sectionId)?.pinned ===
+    false
 
   return (
     <Container>
@@ -43,7 +63,7 @@ export default async function Page({
           <Sidebar
             entry={entry}
             entriesToSections={entriesToSections}
-            sectionId={sectionIdInt}
+            sectionId={sectionId}
           />
         </div>
         <div className="col-span-1 md:col-span-2">

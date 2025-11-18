@@ -124,7 +124,6 @@ export function UsersTable({
 
   useEffect(() => {
     const fetchData = async () => {
-      new Promise((resolve) => setTimeout(resolve, 2000))
       const userData = await authClient.admin.listUsers({ query: {} })
 
       setData(userData.data?.users ?? [])

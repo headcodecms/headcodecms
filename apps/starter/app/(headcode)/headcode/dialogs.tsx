@@ -34,7 +34,7 @@ import { AlertCircleIcon, FileStackIcon } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
 import { addEntry } from './actions'
-import { useDialogRedirect } from '@/lib/headcode/dialogs'
+import { useRouter } from 'next/navigation'
 
 const formSchema = z.object({
   namespace: z.string(),
@@ -55,7 +55,8 @@ export function DialogAddEntry({
 }) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { redirectPathRef, handleOpenChange } = useDialogRedirect(open)
+  const [redirectPath, setRedirectPath] = useState<string | null>(null)
+  const router = useRouter()
 
   const form = useForm({
     defaultValues: {
@@ -76,7 +77,7 @@ export function DialogAddEntry({
 
       if (newEntry) {
         form.reset()
-        redirectPathRef.current = `/headcode/section/${newEntry.id}`
+        setRedirectPath(`/headcode/section/${newEntry.id}`)
         setOpen(false)
       } else if (error) {
         setError(error)
@@ -84,21 +85,30 @@ export function DialogAddEntry({
     },
   })
 
+  const handleAnimationEnd = (e: React.AnimationEvent<HTMLDivElement>) => {
+    const target = e.currentTarget
+    if (
+      !open &&
+      redirectPath &&
+      target.getAttribute('data-state') === 'closed'
+    ) {
+      router.push(redirectPath)
+      setRedirectPath(null)
+    }
+  }
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(newOpen) => {
-        setOpen(newOpen)
-        handleOpenChange(newOpen)
-      }}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="secondary" size="sm">
           <FileStackIcon className="size-4" />
           Add <span className="hidden sm:inline">dynamic entry</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        className="sm:max-w-[425px]"
+        onAnimationEnd={handleAnimationEnd}
+      >
         <DialogHeader>
           <DialogTitle>Add entry</DialogTitle>
           <DialogDescription>

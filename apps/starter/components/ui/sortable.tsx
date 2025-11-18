@@ -39,7 +39,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { Slot } from '@radix-ui/react-slot'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { useComposedRefs } from '@/lib/headcode/dialogs'
+import { useComposedRefs } from '@/lib/compose-refs'
 import { cn } from '@/lib/utils'
 
 const orientationConfig = {
@@ -154,20 +154,27 @@ function SortableRoot<T>(props: SortableRootProps<T>) {
     return value.map((item) => getItemValue(item))
   }, [value, getItemValue])
 
+  // Extract callback props to avoid React Compiler dependency inference issues
+  const {
+    onDragStart: onDragStartProp,
+    onDragEnd: onDragEndProp,
+    onDragCancel: onDragCancelProp,
+  } = sortableProps
+
   const onDragStart = React.useCallback(
     (event: DragStartEvent) => {
-      sortableProps.onDragStart?.(event)
+      onDragStartProp?.(event)
 
       if (event.activatorEvent.defaultPrevented) return
 
       setActiveId(event.active.id)
     },
-    [sortableProps.onDragStart],
+    [onDragStartProp],
   )
 
   const onDragEnd = React.useCallback(
     (event: DragEndEvent) => {
-      sortableProps.onDragEnd?.(event)
+      onDragEndProp?.(event)
 
       if (event.activatorEvent.defaultPrevented) return
 
@@ -188,18 +195,18 @@ function SortableRoot<T>(props: SortableRootProps<T>) {
       }
       setActiveId(null)
     },
-    [value, onValueChange, onMove, getItemValue, sortableProps.onDragEnd],
+    [value, onValueChange, onMove, getItemValue, onDragEndProp],
   )
 
   const onDragCancel = React.useCallback(
     (event: DragEndEvent) => {
-      sortableProps.onDragCancel?.(event)
+      onDragCancelProp?.(event)
 
       if (event.activatorEvent.defaultPrevented) return
 
       setActiveId(null)
     },
-    [sortableProps.onDragCancel],
+    [onDragCancelProp],
   )
 
   const announcements: Announcements = React.useMemo(

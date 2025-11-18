@@ -2,7 +2,7 @@
 
 import { type Role } from '@/db'
 import { auth } from '@/lib/auth'
-import { revalidateTag } from 'next/cache'
+import { refresh } from 'next/cache'
 
 export async function addUser({
   email,
@@ -22,8 +22,8 @@ export async function addUser({
         role,
       },
     })
-    revalidateTag('/headcode/users', 'max')
 
+    refresh()
     return { success: true }
   } catch (error) {
     console.error('Error creating initial user', error)

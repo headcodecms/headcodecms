@@ -27,13 +27,13 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import type { Entry } from '@/db'
-import { useDialogRedirect } from '@/lib/headcode/dialogs'
 import { SectionName } from '@/lib/headcode/config'
 import { useForm } from '@tanstack/react-form'
 import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
 import { addSection } from './actions'
+import { useRouter } from 'next/navigation'
 
 const formSchema = z.object({
   section: z.string(),
@@ -50,7 +50,8 @@ export function DialogAddSection({
 }) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { redirectPathRef, handleOpenChange } = useDialogRedirect(open)
+  const [redirectPath, setRedirectPath] = useState<string | null>(null)
+  const router = useRouter()
 
   const form = useForm({
     defaultValues: {
@@ -69,7 +70,7 @@ export function DialogAddSection({
 
       if (section) {
         form.reset()
-        redirectPathRef.current = `/headcode/section/${entry.id}/${section.id}`
+        setRedirectPath(`/headcode/section/${entry.id}/${section.id}`)
         setOpen(false)
       } else if (error) {
         setError(error)
@@ -77,14 +78,20 @@ export function DialogAddSection({
     },
   })
 
+  const handleAnimationEnd = (e: React.AnimationEvent<HTMLDivElement>) => {
+    const target = e.currentTarget
+    if (
+      !open &&
+      redirectPath &&
+      target.getAttribute('data-state') === 'closed'
+    ) {
+      router.push(redirectPath)
+      setRedirectPath(null)
+    }
+  }
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(newOpen) => {
-        setOpen(newOpen)
-        handleOpenChange(newOpen)
-      }}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           variant="secondary"
@@ -95,7 +102,10 @@ export function DialogAddSection({
           Add section
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        className="sm:max-w-[425px]"
+        onAnimationEnd={handleAnimationEnd}
+      >
         <DialogHeader>
           <DialogTitle>Add section</DialogTitle>
           <DialogDescription>

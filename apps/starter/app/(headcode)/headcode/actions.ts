@@ -5,17 +5,19 @@ import {
   addEntryAndSections,
   deleteEntryAndSections,
 } from '@/lib/headcode/admin'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 
 export async function addEntry(
   values: AddEntry,
 ): Promise<{ entry?: Entry; error?: string }> {
   try {
     const entry = await addEntryAndSections(values)
+
+    updateTag('/headcode/entries')
     return { entry }
   } catch (error) {
     console.error('error adding entry', error)
-    return { error: 'Failed to add entry' }
+    return { error: 'Error adding entry. Namespace or key already exists.' }
   }
 }
 
@@ -25,7 +27,7 @@ export async function deleteEntry(
   try {
     await deleteEntryAndSections(id)
 
-    revalidatePath('/headcode/entries')
+    updateTag('/headcode/entries')
     return { success: true }
   } catch (error) {
     console.error('error deleting entry', error)

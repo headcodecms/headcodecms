@@ -33,7 +33,7 @@ import { GripVerticalIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { deleteSection, updateSection } from './actions'
-import { useDialogRedirect } from '@/lib/headcode/dialogs'
+import { useRouter } from 'next/navigation'
 
 export function Form({
   entry,
@@ -46,7 +46,9 @@ export function Form({
 }) {
   const [open, setOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const { redirectPathRef, handleOpenChange } = useDialogRedirect(open)
+  const router = useRouter()
+
+  console.log('Form', entry, section)
 
   const configSection = getConfigSection(
     entry.namespace,
@@ -85,12 +87,13 @@ export function Form({
     e.stopPropagation()
     setIsDeleting(true)
 
+    console.log('handleConfirmDelete', entry.id, section.id)
     const { success, error } = await deleteSection(entry.id, section.id)
     setIsDeleting(false)
 
     if (success) {
-      redirectPathRef.current = `/headcode/section/${entry.id}`
       setOpen(false)
+      router.push(`/headcode/section/${entry.id}`)
     } else if (error) {
       toast.warning(error)
       setOpen(false)
@@ -146,11 +149,8 @@ export function Form({
     const nextIdRef = useRef(0)
     const lastLengthRef = useRef(0)
 
-    // Helper function to find the first TextField key
     const getFirstTextFieldKey = (): string | null => {
       for (const [childKey, childField] of Object.entries(field.fields)) {
-        // Check if the component is TextFieldComponent
-        // Since components might be lazy loaded, we check multiple ways
         const component = childField.component
         const isTextField =
           component === TextFieldComponent ||
@@ -202,8 +202,6 @@ export function Form({
           const sortableItems = formFieldValues.map((_, index) => ({
             id: stableIdsRef.current.get(index)!,
           }))
-
-          console.log('formFieldValues', formFieldValues, sortableItems)
 
           const handleRemove = (index: number) => {
             formField.removeValue(index)
@@ -449,10 +447,7 @@ export function Form({
       </Card>
       <ConfirmationDialog
         open={open}
-        setOpen={(newOpen) => {
-          setOpen(newOpen)
-          handleOpenChange(newOpen)
-        }}
+        setOpen={setOpen}
         title={`Delete section ${section.name}?`}
         description={`This action cannot be undone. This will permanently delete the section ${section.name} from this entry.`}
         buttonText="Delete section"

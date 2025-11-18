@@ -36,7 +36,7 @@ import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
 import { addUser } from './actions'
-import { useDialogRedirect } from '@/lib/headcode/dialogs'
+import { useRouter } from 'next/navigation'
 
 const passwordSchema = z
   .string()
@@ -58,7 +58,8 @@ export function DialogAddUser({
 }) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { redirectPathRef, handleOpenChange } = useDialogRedirect(open)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
 
   const form = useForm({
     defaultValues: {
@@ -70,6 +71,7 @@ export function DialogAddUser({
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
+      setIsSubmitting(true)
       setError(null)
 
       const { success, error } = await addUser({
@@ -79,27 +81,32 @@ export function DialogAddUser({
       })
 
       if (success) {
-        form.reset()
         if (noUsers) {
           const { error } = await authClient.signIn.email({
             email: value.email,
             password: value.password,
+            callbackURL: '/headcode',
           })
+
+          setIsSubmitting(false)
           if (error) {
             setError(
               error.message ??
                 'An error occurred while signing in. Please try again.',
             )
           } else {
-            redirectPathRef.current = '/headcode'
+            form.reset()
             setOpen(false)
           }
         } else {
+          form.reset()
+          setIsSubmitting(false)
           setOpen(false)
+          setUpdate(true)
         }
-        setUpdate(true)
       } else if (error) {
         setError(error)
+        setIsSubmitting(false)
       }
     },
   })
@@ -110,13 +117,7 @@ export function DialogAddUser({
     : 'Add a new user to Headcode CMS.'
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(newOpen) => {
-        setOpen(newOpen)
-        handleOpenChange(newOpen)
-      }}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="secondary" size="sm">
           <PlusIcon className="size-4" />
@@ -227,10 +228,8 @@ export function DialogAddUser({
             </form.Field>
           </FieldGroup>
         </form>
-        <form.Subscribe
-          selector={(state) => [state.canSubmit, state.isSubmitting]}
-        >
-          {([canSubmit, isSubmitting]) => (
+        <form.Subscribe selector={(state) => [state.canSubmit]}>
+          {([canSubmit]) => (
             <DialogFooter>
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>

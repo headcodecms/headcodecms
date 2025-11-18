@@ -1,7 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useRef, useCallback, useEffect, RefCallback, Ref } from 'react'
+import { Ref, RefCallback, useCallback } from 'react'
 
 type PossibleRef<T> = Ref<T> | undefined
 
@@ -47,30 +46,4 @@ function useComposedRefs<T>(...refs: PossibleRef<T>[]): RefCallback<T> {
   return useCallback((node) => composeRefs(...refs)(node), refs)
 }
 
-function useDialogRedirect(open: boolean) {
-  const router = useRouter()
-  const redirectPathRef = useRef<string | null>(null)
-
-  const handleOpenChange = useCallback(
-    (newOpen: boolean) => {
-      if (!newOpen && redirectPathRef.current) {
-        const path = redirectPathRef.current
-        redirectPathRef.current = null
-        router.push(path)
-      }
-    },
-    [router],
-  )
-
-  useEffect(() => {
-    if (!open && redirectPathRef.current) {
-      const path = redirectPathRef.current
-      redirectPathRef.current = null
-      router.push(path)
-    }
-  }, [open, router])
-
-  return { redirectPathRef, handleOpenChange }
-}
-
-export { composeRefs, useComposedRefs, useDialogRedirect }
+export { composeRefs, useComposedRefs }

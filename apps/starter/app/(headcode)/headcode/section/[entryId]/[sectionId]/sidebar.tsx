@@ -20,6 +20,8 @@ import { GripVerticalIcon, PinIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { DialogAddSection } from '../dialogs'
+import { toast } from 'sonner'
+import { reorderSectionEntries } from './actions'
 
 type SortableEntry = EntriesToSectionsWithNames & {
   id: string
@@ -46,13 +48,25 @@ export function Sidebar({
 }) {
   const [entries, setEntries] = useState(toSortableEntries(entriesToSections))
   const sectionNames = getUnpinnedSectionNames(entry.namespace, entry.key)
+  console.log('sectionNames', sectionNames)
 
   const handleValueChange = async (items: SortableEntry[]) => {
-    console.log('handleValueChange', items)
+    const oldEntries = entries
     setEntries(items)
-    // const result = await reorderSectionEntries(items)
-    // if not success, show error toast and revert the items
-    // console.log('result', result)
+    console.log('handleValueChange', oldEntries, items)
+
+    const { error } = await reorderSectionEntries(
+      items.map((item, index) => ({
+        entryId: item.entryId,
+        sectionId: item.sectionId,
+        pos: index,
+      })),
+    )
+
+    if (error) {
+      toast.error(error)
+      setEntries(oldEntries)
+    }
   }
 
   return (
@@ -106,7 +120,9 @@ export function Sidebar({
           </Item>
         </SortableOverlay>
       </Sortable>
-      <DialogAddSection entry={entry} sectionNames={sectionNames} />
+      {sectionNames.length > 0 && (
+        <DialogAddSection entry={entry} sectionNames={sectionNames} />
+      )}
     </>
   )
 }

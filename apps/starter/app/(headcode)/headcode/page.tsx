@@ -2,6 +2,7 @@ import { Container } from '@/components/headcode/container'
 import { Header } from '@/components/headcode/header'
 import { DefaultSkeleton, PageSkeleton } from '@/components/headcode/skeletons'
 import { Separator } from '@/components/ui/separator'
+import { getEntriesCount } from '@/db'
 import { headcodeConfig } from '@/headcode.config'
 import { requireRole } from '@/lib/auth'
 import { getEntries } from '@/lib/headcode/admin'
@@ -9,7 +10,7 @@ import { Suspense } from 'react'
 import { AlertClone, AlertNewInstallation } from './alerts'
 import { DialogAddEntry } from './dialogs'
 import { EntriesTable } from './table'
-import { getEntriesCount } from '@/db'
+import { cacheTag } from 'next/cache'
 
 export default function Page() {
   return (
@@ -36,6 +37,9 @@ async function EntriesPage() {
 }
 
 export async function Entries() {
+  'use cache'
+  cacheTag('/headcode/entries')
+
   const { entryTypes, entries, emptyEntries } = await getEntries()
   const dynamicEntries = entryTypes.filter((entryType) => entryType.dynamic)
 
