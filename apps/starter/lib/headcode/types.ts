@@ -18,7 +18,18 @@ export type ChildFields = {
 }
 export type Fields = Record<string, FieldProps<unknown, unknown> | ChildFields>
 export type InferFieldType<F> =
-  F extends FieldProps<infer T, unknown> ? T : never
+  F extends FieldProps<infer T, unknown>
+    ? T
+    : F extends ChildFields
+      ? Array<{
+          [K in keyof F['fields']]: F['fields'][K] extends FieldProps<
+            infer T,
+            unknown
+          >
+            ? T
+            : never
+        }>
+      : never
 export type InferSectionData<F extends Fields> = {
   [K in keyof F]: InferFieldType<F[K]>
 }

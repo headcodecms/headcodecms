@@ -2,7 +2,7 @@
 import { Fields, InferSectionData } from '@/lib/headcode/types'
 import { TextField } from '@/components/headcode/form/text-field'
 import { TextareaField } from '@/components/headcode/form/textarea-field'
-import { getSchema } from '@/lib/headcode/form'
+import { parseSectionData } from '@/lib/headcode'
 import { HeroClient } from './hero-client'
 import { SelectField } from '@/components/headcode/form/select-field'
 import { Section } from '@/db'
@@ -42,15 +42,12 @@ export const heroSection = {
     },
   } satisfies Fields,
 }
+export type HeroData = InferSectionData<typeof heroSection.fields>
 
 export async function Hero({ section }: { section: Section }) {
   console.log('section', section)
-  const data = JSON.parse(section.data as string)
-  console.log('data', data)
-
-  if (!data) {
-    return null
-  }
+  const { data, isDefault } = parseSectionData(heroSection.fields, section.data)
+  console.log('data', data, 'isDefault', isDefault)
 
   return (
     <>
@@ -58,29 +55,4 @@ export async function Hero({ section }: { section: Section }) {
       <HeroClient data={data} />
     </>
   )
-}
-
-async function getSection<F extends Fields>(
-  id: string,
-  fields: F,
-): Promise<{
-  section: InferSectionData<F>
-  isDefault: boolean
-}> {
-  console.log('useSection', id)
-  const schema = getSchema(fields)
-  return {
-    section: schema.parse({
-      title: 'Section Title',
-      description: 'Section Description',
-      select: 'option1',
-      plans: [
-        {
-          plan: 'Plan 1',
-          price: 100,
-        },
-      ],
-    }) as InferSectionData<F>,
-    isDefault: false,
-  }
 }
