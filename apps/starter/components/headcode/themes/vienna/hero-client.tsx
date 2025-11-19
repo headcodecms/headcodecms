@@ -16,6 +16,7 @@ export function HeroClient({ data }: { data: HeroData }) {
           <p>{plan.price}</p>
         </div>
       ))}
+      <p>{data.checkbox ? 'Checkbox is true' : 'Checkbox is false'}</p>
       <button onClick={() => setDescription('New Description')}>
         Change Description
       </button>

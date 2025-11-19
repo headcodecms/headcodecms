@@ -13,7 +13,7 @@ export const getConfigEntry = (namespace: string, key?: string | undefined) => {
   if (entries.length === 0) {
     return null
   }
-  if (entries.length === 1 && !entries[0].hasOwnProperty('key')) {
+  if (entries.length === 1 && !('key' in entries[0])) {
     return entries[0]
   }
   return entries.find((item) => item.key === key)

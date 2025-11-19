@@ -20,8 +20,7 @@ export const getSchema = (fields: Fields) => {
   return z.object(
     Object.entries(fields).reduce(
       (acc, [key, value]) => {
-        if (value.hasOwnProperty('defaultValue')) {
-          // @ts-expect-error - value is FieldProps
+        if ('defaultValue' in value) {
           acc[key] = value.validator
         } else {
           acc[key] = buildChildFieldsSchema(value as ChildFields)
@@ -36,8 +35,7 @@ export const getSchema = (fields: Fields) => {
 export const getDefaultValues = (fields: Fields) => {
   return Object.entries(fields).reduce(
     (acc, [key, value]) => {
-      // @ts-expect-error - value can be a FieldProps or a Record<string, FieldProps>
-      acc[key] = value.hasOwnProperty('defaultValue') ? value.defaultValue : []
+      acc[key] = 'defaultValue' in value ? value.defaultValue : []
       return acc
     },
     {} as Record<string, unknown>,
@@ -53,7 +51,7 @@ export const getDefaultSectionValues = (
   if (data) {
     const parsedData = JSON.parse(data as string)
     Object.entries(parsedData).forEach(([key, value]) => {
-      if (defaultValues[key]) {
+      if (key in defaultValues) {
         defaultValues[key] = value
       }
     })

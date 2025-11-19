@@ -35,6 +35,8 @@ import { toast } from 'sonner'
 import { deleteSection, updateSection } from './actions'
 
 export function Form({ entry, section }: { entry: Entry; section: Section }) {
+  console.log('form', section, entry)
+
   const [open, setOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 

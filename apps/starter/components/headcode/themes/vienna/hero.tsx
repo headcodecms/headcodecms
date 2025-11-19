@@ -1,3 +1,5 @@
+import { CheckboxField } from '@/components/headcode/form/checkbox-field'
+import { LinkField } from '@/components/headcode/form/link-field'
 import { SelectField } from '@/components/headcode/form/select-field'
 import { TextField } from '@/components/headcode/form/text-field'
 import { TextareaField } from '@/components/headcode/form/textarea-field'
@@ -22,6 +24,19 @@ export const heroSection = {
         { label: 'Option 1', value: 'option1' },
         { label: 'Option 2', value: 'option2' },
       ],
+    }),
+    checkbox: CheckboxField({
+      label: 'Checkbox Mex',
+      defaultValue: false,
+    }),
+    link: LinkField({
+      label: 'Link Mex',
+      description: 'Link description',
+      defaultValue: {
+        title: 'Default Title',
+        url: 'https://www.google.com',
+        openInNewWindow: false,
+      },
     }),
     plans: {
       label: 'Plans',
