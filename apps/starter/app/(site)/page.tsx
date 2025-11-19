@@ -2,6 +2,7 @@ import { PageSkeleton } from '@/components/headcode/skeletons'
 import { getSections } from '@/lib/headcode'
 import { cacheTag } from 'next/cache'
 import { Suspense } from 'react'
+import { Hero } from '@/components/headcode/themes/vienna/hero'
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ const HomeSections = async () => {
       {sections?.map((section) => (
         <div key={section.id}>
           <h2>{section.name}</h2>
+          {section.name === 'hero' && <Hero section={section} />}
         </div>
       ))}
     </div>

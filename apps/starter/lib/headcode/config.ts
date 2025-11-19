@@ -1,6 +1,11 @@
 import type { SectionName, SectionReference } from './types'
 import { headcodeConfig } from '@/headcode.config'
 
+// Lazy getters to avoid circular dependency - headcodeConfig may not be initialized yet
+export const getVersion = () => headcodeConfig.version
+export const getClone = () => headcodeConfig.clone
+export const hasClone = () => headcodeConfig.clone !== undefined
+
 export const getConfigEntry = (namespace: string, key?: string | undefined) => {
   const entries = headcodeConfig.entries.filter(
     (item) => item.namespace === namespace,

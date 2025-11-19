@@ -3,9 +3,9 @@ import { Header } from '@/components/headcode/admin/header'
 import { DefaultSkeleton, PageSkeleton } from '@/components/headcode/skeletons'
 import { Separator } from '@/components/ui/separator'
 import { getEntriesCount } from '@/db'
-import { headcodeConfig } from '@/headcode.config'
 import { requireRole } from '@/lib/auth'
 import { getEntries } from '@/lib/headcode/admin'
+import { getVersion, getClone, hasClone } from '@/lib/headcode/config'
 import { Suspense } from 'react'
 import { AlertClone, AlertNewInstallation } from './alerts'
 import { DialogAddEntry } from './dialogs'
@@ -43,11 +43,11 @@ export async function Entries() {
   const { entryTypes, entries, emptyEntries } = await getEntries()
   const dynamicEntries = entryTypes.filter((entryType) => entryType.dynamic)
 
-  const version = headcodeConfig.version
-  const clone = headcodeConfig.clone
+  const version = getVersion()
+  const clone = getClone()
 
   let newInstallation = false
-  if (emptyEntries && !clone) {
+  if (emptyEntries && !hasClone()) {
     newInstallation = (await getEntriesCount()) === 0
   }
 

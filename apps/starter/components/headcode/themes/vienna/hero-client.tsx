@@ -9,6 +9,13 @@ export function HeroClient({ data }: { data: HeroData }) {
   return (
     <div>
       <p>{description}</p>
+      <p>Plans:</p>
+      {data.plans.map((plan, index) => (
+        <div key={index}>
+          <p>{plan.plan}</p>
+          <p>{plan.price}</p>
+        </div>
+      ))}
       <button onClick={() => setDescription('New Description')}>
         Change Description
       </button>

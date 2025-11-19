@@ -1,19 +1,8 @@
-import { headcodeConfig } from '@/headcode.config'
 import { and, asc, count, eq, getTableColumns } from 'drizzle-orm'
 import { db } from './db'
 import { entries, sections, user } from './schema'
 import type { Entry, AddEntry, Section, AddSection } from '@/lib/headcode/types'
-
-// Re-export types for backward compatibility
-export type {
-  Entry,
-  AddEntry,
-  Section,
-  AddSection,
-  Role,
-} from '@/lib/headcode/types'
-
-const version = headcodeConfig.version
+import { getVersion } from '@/lib/headcode/config'
 
 export const DBError = (error: unknown) => {
   console.error(error)
@@ -52,7 +41,7 @@ export async function getEntries(
       .from(entries)
       .where(
         and(
-          eq(entries.version, version),
+          eq(entries.version, getVersion()),
           namespace ? eq(entries.namespace, namespace) : undefined,
         ),
       )
@@ -88,7 +77,7 @@ export async function getEntriesWithSections(
       .innerJoin(entries, eq(sections.entryId, entries.id))
       .where(
         and(
-          eq(entries.version, version),
+          eq(entries.version, getVersion()),
           eq(entries.namespace, namespace),
           filter?.name ? eq(sections.name, filter.name) : undefined,
           filter?.pinned ? eq(sections.pinned, filter.pinned) : undefined,
@@ -161,7 +150,7 @@ export async function getSections(
       .innerJoin(entries, eq(sections.entryId, entries.id))
       .where(
         and(
-          eq(entries.version, version),
+          eq(entries.version, getVersion()),
           eq(entries.namespace, namespace),
           eq(entries.key, key),
           filter?.name ? eq(sections.name, filter.name) : undefined,
@@ -237,7 +226,7 @@ export async function cloneVersion(clone: string): Promise<void> {
         const newEntry = await tx
           .insert(entries)
           .values({
-            version,
+            version: getVersion(),
             namespace: cloneEntry.namespace,
             key: cloneEntry.key,
           })

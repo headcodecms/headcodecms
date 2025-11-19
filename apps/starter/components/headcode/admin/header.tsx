@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge'
-import { headcodeConfig } from '@/headcode.config'
+import { getVersion } from '@/lib/headcode/config'
 import { GitBranchIcon } from 'lucide-react'
 import Link from 'next/link'
 import { Nav } from './nav'
@@ -14,7 +14,7 @@ export const Header = ({ role }: { role?: string }) => {
         Headcode
         <Badge variant="outline">
           <GitBranchIcon className="size-4" />
-          {headcodeConfig.version}
+          {getVersion()}
         </Badge>
       </Link>
       {role && <Nav role={role} />}
