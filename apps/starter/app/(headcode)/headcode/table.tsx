@@ -50,7 +50,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { UIEntry, UIEntryType } from '@/lib/headcode/admin'
+import type { UIEntry, UIEntryType } from '@/lib/headcode/types'
 import { cn } from '@/lib/utils'
 import {
   FileStackIcon,

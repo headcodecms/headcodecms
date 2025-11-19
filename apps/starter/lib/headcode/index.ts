@@ -1,12 +1,11 @@
 import {
-  Entry,
   getEntries as getDBEntries,
   getSections as getDBSections,
   getSectionsById as getDBSectionsById,
   getEntriesWithSections as getDBEntriesWithSections,
   getSection as getDBSection,
-  type Section,
 } from '@/db'
+import type { Entry, Section } from './types'
 import { getSchema, getDefaultValues } from './form'
 import type { Fields, InferSectionData } from './types'
 

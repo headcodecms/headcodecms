@@ -1,6 +1,7 @@
 'use server'
 
-import { type AddEntry, type Entry, cloneVersion as cloneDBVersion } from '@/db'
+import { cloneVersion as cloneDBVersion } from '@/db'
+import type { AddEntry, Entry } from '@/lib/headcode/types'
 import {
   addEntryAndSections,
   deleteEntryAndSections,

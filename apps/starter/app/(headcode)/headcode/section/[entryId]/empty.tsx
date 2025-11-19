@@ -5,8 +5,8 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty'
-import { Entry } from '@/db'
-import { SectionName } from '@/lib/headcode/config'
+import type { Entry } from '@/lib/headcode/types'
+import type { SectionName } from '@/lib/headcode/types'
 import { PlusIcon } from 'lucide-react'
 import { DialogAddSection } from './dialogs'
 

@@ -1,4 +1,4 @@
-import type { SectionReference } from './types'
+import type { SectionName, SectionReference } from './types'
 import { headcodeConfig } from '@/headcode.config'
 
 export const getConfigEntry = (namespace: string, key?: string | undefined) => {
@@ -32,10 +32,6 @@ export const getConfigSection = (
   return configSection.section
 }
 
-export type SectionName = {
-  name: string
-  label: string
-}
 export const getConfigSectionNames = (
   namespace: string,
   key: string,

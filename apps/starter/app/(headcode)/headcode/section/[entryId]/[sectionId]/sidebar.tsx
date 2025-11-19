@@ -14,7 +14,7 @@ import {
   SortableItemHandle,
   SortableOverlay,
 } from '@/components/ui/sortable'
-import type { Entry, Section } from '@/db'
+import type { Entry, Section } from '@/lib/headcode/types'
 import { getConfigSectionNames } from '@/lib/headcode/config'
 import { GripVerticalIcon, PinIcon } from 'lucide-react'
 import Link from 'next/link'

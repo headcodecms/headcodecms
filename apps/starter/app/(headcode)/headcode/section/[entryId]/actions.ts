@@ -1,6 +1,7 @@
 'use server'
 
-import { getEntry, type AddSection, type Section } from '@/db'
+import { getEntry } from '@/db'
+import type { AddSection, Section } from '@/lib/headcode/types'
 import { addSection as addDBSection } from '@/lib/headcode/admin'
 import { refresh, updateTag } from 'next/cache'
 

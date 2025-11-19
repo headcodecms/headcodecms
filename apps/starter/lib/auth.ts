@@ -1,4 +1,5 @@
-import { noUsers, type Role } from '@/db'
+import { noUsers } from '@/db'
+import type { Role } from '@/lib/headcode/types'
 import { db, provider } from '@/db/db'
 import * as schema from '@/db/schema'
 import { betterAuth } from 'better-auth'

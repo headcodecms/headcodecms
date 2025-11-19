@@ -1,6 +1,6 @@
 'use server'
 
-import { type Role } from '@/db'
+import type { Role } from '@/lib/headcode/types'
 import { auth } from '@/lib/auth'
 
 export async function addUser({

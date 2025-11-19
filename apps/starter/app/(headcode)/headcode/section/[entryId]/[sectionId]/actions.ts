@@ -4,9 +4,9 @@ import {
   deleteSection as deleteDBSection,
   getEntry,
   reorderSections as reorderDBSections,
-  Section,
   updateSection as updateDBSection,
 } from '@/db'
+import type { Section } from '@/lib/headcode/types'
 import { updateTag } from 'next/cache'
 
 export async function reorderSections(

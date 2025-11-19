@@ -26,8 +26,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
-import type { Entry } from '@/db'
-import { SectionName } from '@/lib/headcode/config'
+import type { Entry } from '@/lib/headcode/types'
+import type { SectionName } from '@/lib/headcode/types'
 import { useForm } from '@tanstack/react-form'
 import { AlertCircleIcon, PlusIcon } from 'lucide-react'
 import { useState } from 'react'

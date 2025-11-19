@@ -2,14 +2,16 @@ import { headcodeConfig } from '@/headcode.config'
 import { and, asc, count, eq, getTableColumns } from 'drizzle-orm'
 import { db } from './db'
 import { entries, sections, user } from './schema'
+import type { Entry, AddEntry, Section, AddSection } from '@/lib/headcode/types'
 
-export type Role = 'user' | 'admin'
-
-export type Entry = typeof entries.$inferSelect
-export type AddEntry = typeof entries.$inferInsert
-
-export type Section = typeof sections.$inferSelect
-export type AddSection = typeof sections.$inferInsert
+// Re-export types for backward compatibility
+export type {
+  Entry,
+  AddEntry,
+  Section,
+  AddSection,
+  Role,
+} from '@/lib/headcode/types'
 
 const version = headcodeConfig.version
 

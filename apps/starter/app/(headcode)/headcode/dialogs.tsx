@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
-import { UIEntryType } from '@/lib/headcode/admin'
+import type { UIEntryType } from '@/lib/headcode/types'
 import { useForm } from '@tanstack/react-form'
 import { AlertCircleIcon, FileStackIcon } from 'lucide-react'
 import { useState } from 'react'

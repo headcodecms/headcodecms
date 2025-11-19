@@ -1,30 +1,22 @@
 import {
   addSection as addDBSection,
   addEntry,
-  AddEntry,
-  AddSection,
   deleteEntry,
   deleteSections,
-  Entry,
   getEntries as getDBEntries,
   getEntry,
   getSectionsById,
-  Section,
 } from '@/db'
+import type {
+  AddEntry,
+  AddSection,
+  Entry,
+  Section,
+  UIEntry,
+  UIEntryType,
+} from './types'
 import { headcodeConfig } from '@/headcode.config'
 import { getConfigSectionNames } from './config'
-
-export type UIEntryType = {
-  namespace: string
-  dynamic: boolean
-}
-
-export type UIEntry = {
-  id?: number
-  namespace: string
-  key: string
-  isDynamic: boolean
-}
 
 export async function getEntries() {
   const entryTypes: UIEntryType[] = []

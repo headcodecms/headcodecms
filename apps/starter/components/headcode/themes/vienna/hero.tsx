@@ -5,7 +5,7 @@ import { TextareaField } from '@/components/headcode/form/textarea-field'
 import { parseSectionData } from '@/lib/headcode'
 import { HeroClient } from './hero-client'
 import { SelectField } from '@/components/headcode/form/select-field'
-import { Section } from '@/db'
+import type { Section } from '@/lib/headcode/types'
 
 export const heroSection = {
   name: 'hero',

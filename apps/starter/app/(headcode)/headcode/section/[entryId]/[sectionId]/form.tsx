@@ -25,7 +25,7 @@ import {
   SortableOverlay,
 } from '@/components/ui/sortable'
 import { Spinner } from '@/components/ui/spinner'
-import type { Entry, Section } from '@/db'
+import type { Entry, Section } from '@/lib/headcode/types'
 import { getConfigSection } from '@/lib/headcode/config'
 import { getDefaultSectionValues, getSchema } from '@/lib/headcode/form'
 import { ChildFields, FieldProps } from '@/lib/headcode/types'

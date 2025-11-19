@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
-import { type Role } from '@/db'
+import type { Role } from '@/lib/headcode/types'
 import { authClient } from '@/lib/auth-client'
 import { useForm } from '@tanstack/react-form'
 import { User } from 'better-auth'
