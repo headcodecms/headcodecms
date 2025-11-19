@@ -2,8 +2,8 @@ import { heroSection } from './components/headcode/themes/vienna/hero'
 import type { HeadcodeConfig } from './lib/headcode/types'
 
 export const headcodeConfig: HeadcodeConfig = {
-  version: 'v03',
-  clone: 'v02',
+  version: 'v04',
+  clone: 'v03',
   entries: [
     {
       namespace: 'global',

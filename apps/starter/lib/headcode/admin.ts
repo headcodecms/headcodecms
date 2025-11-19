@@ -8,11 +8,11 @@ import {
   Entry,
   getEntries as getDBEntries,
   getEntry,
-  getSections,
+  getSectionsById,
   Section,
 } from '@/db'
 import { headcodeConfig } from '@/headcode.config'
-import { getConfigEntry, getConfigSectionNames } from './config'
+import { getConfigSectionNames } from './config'
 
 export type UIEntryType = {
   namespace: string
@@ -113,7 +113,7 @@ export async function addEntryAndSections(entry: AddEntry): Promise<Entry> {
 }
 
 export async function addSection(section: AddSection): Promise<Section> {
-  const sections = await getSections(section.entryId)
+  const sections = await getSectionsById(section.entryId)
   const maxPos = sections.reduce(
     (acc: number, curr: Section) => (acc > curr.pos ? acc : curr.pos),
     -1,
@@ -131,7 +131,7 @@ export async function getValidatedSections(
   entryId: number,
 ): Promise<Section[]> {
   const entry = await getEntry(entryId)
-  const sections = await getSections(entryId)
+  const sections = await getSectionsById(entryId)
   if (!entry) {
     throw new Error(`Entry not found: ${entryId}`)
   }

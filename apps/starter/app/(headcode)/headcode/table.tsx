@@ -12,7 +12,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 
-import { ConfirmationDialog } from '@/components/headcode/dialogs'
+import { ConfirmationDialog } from '@/components/headcode/admin/dialogs'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,

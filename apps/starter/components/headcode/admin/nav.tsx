@@ -6,8 +6,7 @@ import {
 } from '@/components/ui/navigation-menu'
 import { ImageIcon, UsersIcon } from 'lucide-react'
 import Link from 'next/link'
-import { SignOutButton } from './sign-out'
-import { ToggleTheme } from './toggle-theme'
+import { RefreshCacheButton, SignOutButton, ToggleTheme } from './nav-buttons'
 
 export function Nav({ role }: { role?: string }) {
   const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL
@@ -43,6 +42,11 @@ export function Nav({ role }: { role?: string }) {
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
             <ToggleTheme />
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild>
+            <RefreshCacheButton />
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>

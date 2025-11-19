@@ -1,10 +1,11 @@
 // hero component
-import { Fields, InferSectionData } from '@/components/headcode/form/form'
+import { Fields, InferSectionData } from '@/lib/headcode/types'
 import { TextField } from '@/components/headcode/form/text-field'
 import { TextareaField } from '@/components/headcode/form/textarea-field'
 import { getSchema } from '@/lib/headcode/form'
 import { HeroClient } from './hero-client'
 import { SelectField } from '@/components/headcode/form/select-field'
+import { Section } from '@/db'
 
 export const heroSection = {
   name: 'hero',
@@ -42,15 +43,19 @@ export const heroSection = {
   } satisfies Fields,
 }
 
-export async function Hero({ id }: { id: string }) {
-  const { section } = await getSection(id, heroSection.fields)
-
+export async function Hero({ section }: { section: Section }) {
   console.log('section', section)
+  const data = JSON.parse(section.data as string)
+  console.log('data', data)
+
+  if (!data) {
+    return null
+  }
 
   return (
     <>
-      <h1>{section.title}</h1>
-      <HeroClient section={section} />
+      <h1>{section.id}</h1>
+      <HeroClient data={data} />
     </>
   )
 }

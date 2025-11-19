@@ -1,6 +1,6 @@
 'use server'
 
-import type { AddSection, Section } from '@/db'
+import { getEntry, type AddSection, type Section } from '@/db'
 import { addSection as addDBSection } from '@/lib/headcode/admin'
 import { refresh, updateTag } from 'next/cache'
 
@@ -9,8 +9,10 @@ export async function addSection(
 ): Promise<{ section?: Section; error?: string }> {
   try {
     const newSection = await addDBSection(section)
+    const entry = await getEntry(section.entryId)
 
     updateTag(`/headcode/entries/${section.entryId}`)
+    updateTag(`/headcode/entries/${entry?.namespace}/${entry?.key}`)
     refresh()
 
     return { section: newSection }

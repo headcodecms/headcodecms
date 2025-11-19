@@ -1,7 +1,7 @@
 'use client'
 
-import { Container } from '@/components/headcode/container'
-import { Header } from '@/components/headcode/header'
+import { Container } from '@/components/headcode/admin/container'
+import { Header } from '@/components/headcode/admin/header'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { AlertCircleIcon } from 'lucide-react'

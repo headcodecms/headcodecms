@@ -1,5 +1,5 @@
-import { Container } from '@/components/headcode/container'
-import { Header } from '@/components/headcode/header'
+import { Container } from '@/components/headcode/admin/container'
+import { Header } from '@/components/headcode/admin/header'
 import { PageSkeleton } from '@/components/headcode/skeletons'
 import { requireRole } from '@/lib/auth'
 import { Suspense } from 'react'

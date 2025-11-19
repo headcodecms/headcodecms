@@ -1,6 +1,6 @@
 'use client'
 
-import { ConfirmationDialog } from '@/components/headcode/dialogs'
+import { ConfirmationDialog } from '@/components/headcode/admin/dialogs'
 import { useAppForm } from '@/components/headcode/form/form'
 import TextFieldComponent from '@/components/headcode/form/text-field-component'
 import { Button } from '@/components/ui/button'
@@ -54,6 +54,7 @@ export function Form({ entry, section }: { entry: Entry; section: Section }) {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
+      console.log('value', value, section)
       const { success, error } = await updateSection({
         ...section,
         data: JSON.stringify(value),

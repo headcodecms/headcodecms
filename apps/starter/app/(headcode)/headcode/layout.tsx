@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@/components/headcode/theme-provider'
+import { ThemeProvider } from '@/components/headcode/admin/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'

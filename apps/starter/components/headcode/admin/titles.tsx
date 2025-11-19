@@ -1,8 +1,8 @@
 import { Entry } from '@/db'
 import { ChevronLeftIcon } from 'lucide-react'
 import Link from 'next/link'
-import { buttonVariants } from '../ui/button'
-import { Separator } from '../ui/separator'
+import { buttonVariants } from '../../ui/button'
+import { Separator } from '../../ui/separator'
 
 export function EntryTitle({ entry }: { entry: Entry }) {
   return (

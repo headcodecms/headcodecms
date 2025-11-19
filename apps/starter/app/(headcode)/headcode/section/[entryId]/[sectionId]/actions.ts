@@ -2,6 +2,7 @@
 
 import {
   deleteSection as deleteDBSection,
+  getEntry,
   reorderSections as reorderDBSections,
   Section,
   updateSection as updateDBSection,
@@ -14,8 +15,11 @@ export async function reorderSections(
 ): Promise<{ success?: boolean; error?: string }> {
   try {
     await reorderDBSections(items)
+    const entry = await getEntry(entryId)
 
     updateTag(`/headcode/entries/${entryId}`)
+    updateTag(`/headcode/entries/${entry?.namespace}/${entry?.key}`)
+
     return { success: true }
   } catch (error) {
     console.error('Error reordering section entries', error)
@@ -28,8 +32,10 @@ export async function updateSection(
 ): Promise<{ success?: boolean; error?: string }> {
   try {
     await updateDBSection(section)
+    const entry = await getEntry(section.entryId)
 
     updateTag(`/headcode/entries/${section.entryId}`)
+    updateTag(`/headcode/entries/${entry?.namespace}/${entry?.key}`)
     return { success: true }
   } catch (error) {
     console.error('Error updating section', error)
@@ -43,9 +49,10 @@ export async function deleteSection(
 ): Promise<{ success?: boolean; error?: string }> {
   try {
     await deleteDBSection(sectionId)
+    const entry = await getEntry(entryId)
 
     updateTag(`/headcode/entries/${entryId}`)
-
+    updateTag(`/headcode/entries/${entry?.namespace}/${entry?.key}`)
     return { success: true }
   } catch (error) {
     console.error('Error adding section', error)

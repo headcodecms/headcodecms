@@ -1,17 +1,16 @@
 'use client'
 
-import type { HeroSection } from '@/components/headcode/vienna/hero'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-export function HeroClient({ section }: { section: HeroSection }) {
-  const [description, setDescription] = useState('')
+export function HeroClient({ data }: { data: unknown }) {
+  const [description, setDescription] = useState(data.description)
 
-  useEffect(() => {
-    setDescription(section.description)
-  }, [section.description])
   return (
     <div>
       <p>{description}</p>
+      <button onClick={() => setDescription('New Description')}>
+        Change Description
+      </button>
     </div>
   )
 }

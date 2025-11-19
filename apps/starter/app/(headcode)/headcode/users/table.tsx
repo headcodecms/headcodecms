@@ -1,6 +1,6 @@
 'use client'
 
-import { ConfirmationDialog } from '@/components/headcode/dialogs'
+import { ConfirmationDialog } from '@/components/headcode/admin/dialogs'
 import { DefaultSkeleton } from '@/components/headcode/skeletons'
 import { Button } from '@/components/ui/button'
 import {

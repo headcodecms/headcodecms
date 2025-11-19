@@ -7,8 +7,35 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Moon, Sun } from 'lucide-react'
+import { authClient } from '@/lib/auth-client'
+import { LogOutIcon, Moon, RefreshCcwIcon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { useRouter } from 'next/navigation'
+
+export function SignOutButton() {
+  const router = useRouter()
+
+  const signOut = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push('/headcode/sign-in')
+        },
+      },
+    })
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="cursor-pointer"
+      onClick={() => signOut()}
+    >
+      <LogOutIcon className="size-4" />
+    </Button>
+  )
+}
 
 export function ToggleTheme() {
   const { setTheme } = useTheme()
@@ -33,5 +60,21 @@ export function ToggleTheme() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  )
+}
+
+export function RefreshCacheButton() {
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="cursor-pointer"
+      onClick={() => {
+        console.log('clear cache')
+      }}
+    >
+      <RefreshCcwIcon className="size-4" />
+      <span className="sr-only">Clear Cache</span>
+    </Button>
   )
 }

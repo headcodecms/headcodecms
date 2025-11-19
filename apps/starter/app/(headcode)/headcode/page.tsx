@@ -1,5 +1,5 @@
-import { Container } from '@/components/headcode/container'
-import { Header } from '@/components/headcode/header'
+import { Container } from '@/components/headcode/admin/container'
+import { Header } from '@/components/headcode/admin/header'
 import { DefaultSkeleton, PageSkeleton } from '@/components/headcode/skeletons'
 import { Separator } from '@/components/ui/separator'
 import { getEntriesCount } from '@/db'
