@@ -35,8 +35,6 @@ import { toast } from 'sonner'
 import { deleteSection, updateSection } from './actions'
 
 export function Form({ entry, section }: { entry: Entry; section: Section }) {
-  console.log('form', section, entry)
-
   const [open, setOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -56,7 +54,6 @@ export function Form({ entry, section }: { entry: Entry; section: Section }) {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log('value', value, section)
       const { success, error } = await updateSection({
         ...section,
         data: JSON.stringify(value),
@@ -196,8 +193,6 @@ export function Form({ entry, section }: { entry: Entry; section: Section }) {
           }
 
           const handleSortingValueChange = (items: Array<{ id: string }>) => {
-            console.log('sorting value change', items)
-
             const idToIndex = new Map<string, number>()
             stableIdsRef.current.forEach((stableId, index) => {
               idToIndex.set(stableId, index)

@@ -1,4 +1,5 @@
 import { CheckboxField } from '@/components/headcode/form/checkbox-field'
+import { EditorField } from '@/components/headcode/form/editor-field'
 import { LinkField } from '@/components/headcode/form/link-field'
 import { SelectField } from '@/components/headcode/form/select-field'
 import { TextField } from '@/components/headcode/form/text-field'
@@ -36,6 +37,18 @@ export const heroSection = {
         title: 'Default Title',
         url: 'https://www.google.com',
         openInNewWindow: false,
+      },
+    }),
+    editor: EditorField({
+      label: 'Editor Mex',
+      defaultValue: {
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [{ type: 'text', text: 'Default Editor' }],
+          },
+        ],
       },
     }),
     plans: {

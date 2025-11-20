@@ -1,5 +1,11 @@
 import { sql } from 'drizzle-orm'
-import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
+import {
+  index,
+  integer,
+  sqliteTable,
+  text,
+  unique,
+} from 'drizzle-orm/sqlite-core'
 
 const timestamps = {
   createdAt: integer('created_at', { mode: 'timestamp_ms' })
@@ -25,6 +31,7 @@ export const entries = sqliteTable(
       table.namespace,
       table.key,
     ),
+    index('entries_version_idx').on(table.version),
   ],
 )
 
