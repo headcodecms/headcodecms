@@ -51,3 +51,13 @@ export const compactNumber = (number: number) => {
   })
   return formatter.format(number)
 }
+
+export function generateUniqueImageName(name: string) {
+  const cleanName = name.replace(/\s+/g, '-').toLowerCase()
+  const suffix = Math.floor(Math.random() * Date.now()).toString(36)
+  const index = cleanName.lastIndexOf('.')
+
+  return index < 0
+    ? `${cleanName}-${suffix}`
+    : `${cleanName.slice(0, index)}-${suffix}${cleanName.slice(index)}`
+}

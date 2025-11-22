@@ -3,6 +3,7 @@
 import fs from 'fs'
 import path from 'path'
 import { put } from '@vercel/blob'
+import { generateUniqueImageName } from '@/lib/headcode/image'
 
 export async function uploadFile(
   file: File,
@@ -57,14 +58,4 @@ async function uploadLocalFile(
     console.error('Error uploading file', error)
     return { error: 'Error uploading file' }
   }
-}
-
-function generateUniqueImageName(name: string) {
-  const cleanName = name.replace(/\s+/g, '-').toLowerCase()
-  const suffix = Math.floor(Math.random() * Date.now()).toString(36)
-  const index = cleanName.lastIndexOf('.')
-
-  return index < 0
-    ? `${cleanName}-${suffix}`
-    : `${cleanName.slice(0, index)}-${suffix}${cleanName.slice(index)}`
 }

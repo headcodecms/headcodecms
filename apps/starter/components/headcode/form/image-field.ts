@@ -8,7 +8,7 @@ import type {
 
 const DefaultImageField: FieldProps<ImageValue | null, ImageFieldOptions> = {
   label: 'Image Field',
-  component: lazy(() => import('./image-field-uploadthing')) as ComponentType<{
+  component: lazy(() => import('./image-field-component')) as ComponentType<{
     label: string
     description?: string
     options?: unknown
