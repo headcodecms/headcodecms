@@ -30,7 +30,7 @@ import { getConfigSection } from '@/lib/headcode/config'
 import { getDefaultSectionValues, getSchema } from '@/lib/headcode/form'
 import { ChildFields, FieldProps } from '@/lib/headcode/types'
 import { GripVerticalIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { deleteSection, updateSection } from './actions'
 
@@ -129,10 +129,15 @@ export function Form({ entry, section }: { entry: Entry; section: Section }) {
     field: ChildFields
   }) => {
     const [openStates, setOpenStates] = useState<Record<number, boolean>>({})
+    const [isMounted, setIsMounted] = useState(false)
 
     const stableIdsRef = useRef<Map<number, string>>(new Map())
     const nextIdRef = useRef(0)
     const lastLengthRef = useRef(0)
+
+    useEffect(() => {
+      setIsMounted(true)
+    }, [])
 
     const getFirstTextFieldKey = (): string | null => {
       for (const [childKey, childField] of Object.entries(field.fields)) {
@@ -269,28 +274,28 @@ export function Form({ entry, section }: { entry: Entry; section: Section }) {
                               <div className="flex w-full items-center justify-between">
                                 <div className="flex items-center gap-2">
                                   {field.label}
-                                  {firstTextFieldKey ? (
+                                  {firstTextFieldKey && isMounted && (
                                     <form.AppField
                                       name={`${nameKey}[${index}].${firstTextFieldKey}`}
                                     >
                                       {(textField) => {
                                         const value = textField.state
                                           .value as string
-                                        if (
+                                        const hasValue =
                                           value &&
                                           typeof value === 'string' &&
                                           value.trim()
-                                        ) {
-                                          return (
-                                            <span className="text-muted-foreground/50 hidden max-w-xs truncate md:block">
-                                              {value}
-                                            </span>
-                                          )
+                                        if (!hasValue) {
+                                          return null
                                         }
-                                        return null
+                                        return (
+                                          <span className="text-muted-foreground/50 hidden max-w-xs truncate md:block">
+                                            {value}
+                                          </span>
+                                        )
                                       }}
                                     </form.AppField>
-                                  ) : null}
+                                  )}
                                 </div>
                                 <div className="relative size-4 shrink-0">
                                   {(openStates[index] ?? false) ? (

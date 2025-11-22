@@ -38,4 +38,5 @@ yarn-error.log*
 
 # Misc
 .DS_Store
+**/public/storage/**
 *.pem

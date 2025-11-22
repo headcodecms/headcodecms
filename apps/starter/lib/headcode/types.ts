@@ -81,6 +81,29 @@ export type InferSectionData<F extends Fields> = {
   [K in keyof F]: InferFieldType<F[K]>
 }
 
+export type ImageSize = {
+  width: number
+  height: number
+}
+
+export type ImageValue = {
+  src: string
+  alt: string
+  width: number
+  height: number
+  blurDataURL?: string
+  name: string
+  type: string | null | undefined
+  size: number
+}
+
+export type ImageFieldOptions = {
+  accept?: Record<string, string[]>
+  maxFiles?: number
+  maxSize?: number
+  minSize?: number
+}
+
 export type UIEntryType = {
   namespace: string
   dynamic: boolean

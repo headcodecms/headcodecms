@@ -1,5 +1,6 @@
 import { CheckboxField } from '@/components/headcode/form/checkbox-field'
 import { EditorField } from '@/components/headcode/form/editor-field'
+import { ImageField } from '@/components/headcode/form/image-field'
 import { LinkField } from '@/components/headcode/form/link-field'
 import { SelectField } from '@/components/headcode/form/select-field'
 import { TextField } from '@/components/headcode/form/text-field'
@@ -38,6 +39,10 @@ export const heroSection = {
         url: 'https://www.google.com',
         openInNewWindow: false,
       },
+    }),
+    image: ImageField({
+      label: 'Image Mex',
+      defaultValue: null,
     }),
     editor: EditorField({
       label: 'Editor Mex',
