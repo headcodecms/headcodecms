@@ -21,9 +21,14 @@ export default async function Page({
 
   const { role } = await requireRole(['user', 'admin'])
 
+  // role is guaranteed to be defined after requireRole (throws/redirects if not)
+  if (!role) {
+    throw new Error('Unexpected: role should be defined after requireRole')
+  }
+
   return (
     <SectionPage
-      role={role as Role}
+      role={role}
       entryId={entryIdInt}
       sectionId={sectionIdInt}
     />
@@ -48,7 +53,7 @@ export async function SectionPage({
   }
   const sections = await getValidatedSections(entryId)
   if (sections.length === 0) {
-    throw new Error(`No sections found: ${entryId}`)
+    throw new NotFoundError('Sections', entryId)
   }
 
   return (

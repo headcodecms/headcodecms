@@ -4,6 +4,7 @@ import { EntryTitle } from '@/components/headcode/admin/titles'
 import { getEntry } from '@/db'
 import type { Role } from '@/lib/headcode/types'
 import { requireRole } from '@/lib/auth'
+import { NotFoundError } from '@/lib/headcode/errors'
 import { getValidatedSections } from '@/lib/headcode/admin'
 import { getConfigSectionNames } from '@/lib/headcode/config'
 import { cacheTag } from 'next/cache'
@@ -20,7 +21,12 @@ export default async function Page({
 
   const { role } = await requireRole(['user', 'admin'])
 
-  return <EntryPage role={role as Role} entryId={entryIdInt} />
+  // role is guaranteed to be defined after requireRole (throws/redirects if not)
+  if (!role) {
+    throw new Error('Unexpected: role should be defined after requireRole')
+  }
+
+  return <EntryPage role={role} entryId={entryIdInt} />
 }
 
 export async function EntryPage({
@@ -40,7 +46,7 @@ export async function EntryPage({
 
   const entry = await getEntry(entryId)
   if (!entry) {
-    throw new Error(`Entry not found: ${entryId}`)
+    throw new NotFoundError('Entry', entryId)
   }
   const unpinnedSections = getConfigSectionNames(
     entry.namespace,
@@ -48,8 +54,8 @@ export async function EntryPage({
     false,
   )
   if (unpinnedSections.length === 0) {
-    throw new Error(
-      `No unpinned sections found: ${entry.namespace} / ${entry.key}`,
+    throw new NotFoundError(
+      `Unpinned sections for entry ${entry.namespace}/${entry.key}`,
     )
   }
 

@@ -72,10 +72,11 @@ export function DialogAddUser({
       setIsSubmitting(true)
       setError(null)
 
+      // value.role is validated by zod schema as 'admin' | 'user', which matches Role
       const { success, error } = await addUser({
         email: value.email,
         password: value.password,
-        role: value.role as Role,
+        role: value.role satisfies Role,
       })
 
       if (success) {

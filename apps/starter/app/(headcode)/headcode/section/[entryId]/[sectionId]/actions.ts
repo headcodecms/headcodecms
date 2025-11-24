@@ -2,12 +2,11 @@
 
 import {
   deleteSection as deleteDBSection,
-  getEntry,
   reorderSections as reorderDBSections,
   updateSection as updateDBSection,
 } from '@/db'
 import type { Section } from '@/lib/headcode/types'
-import { updateTag } from 'next/cache'
+import { invalidateEntryCache } from '@/lib/headcode/cache'
 
 export async function reorderSections(
   entryId: number,
@@ -15,10 +14,7 @@ export async function reorderSections(
 ): Promise<{ success?: boolean; error?: string }> {
   try {
     await reorderDBSections(items)
-    const entry = await getEntry(entryId)
-
-    updateTag(`/headcode/entries/${entryId}`)
-    updateTag(`/headcode/entries/${entry?.namespace}/${entry?.key}`)
+    await invalidateEntryCache(entryId)
 
     return { success: true }
   } catch (error) {
@@ -32,10 +28,8 @@ export async function updateSection(
 ): Promise<{ success?: boolean; error?: string }> {
   try {
     await updateDBSection(section)
-    const entry = await getEntry(section.entryId)
+    await invalidateEntryCache(section.entryId)
 
-    updateTag(`/headcode/entries/${section.entryId}`)
-    updateTag(`/headcode/entries/${entry?.namespace}/${entry?.key}`)
     return { success: true }
   } catch (error) {
     console.error('Error updating section', error)
@@ -49,13 +43,11 @@ export async function deleteSection(
 ): Promise<{ success?: boolean; error?: string }> {
   try {
     await deleteDBSection(sectionId)
-    const entry = await getEntry(entryId)
+    await invalidateEntryCache(entryId)
 
-    updateTag(`/headcode/entries/${entryId}`)
-    updateTag(`/headcode/entries/${entry?.namespace}/${entry?.key}`)
     return { success: true }
   } catch (error) {
-    console.error('Error adding section', error)
-    return { error: 'Error adding section' }
+    console.error('Error deleting section', error)
+    return { error: 'Error deleting section' }
   }
 }

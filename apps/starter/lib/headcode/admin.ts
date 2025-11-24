@@ -15,6 +15,7 @@ import type {
   UIEntry,
   UIEntryType,
 } from './types'
+import { ConfigurationError, NotFoundError } from './errors'
 import { headcodeConfig } from '@/headcode.config'
 import { getConfigSectionNames } from './config'
 
@@ -30,8 +31,8 @@ export async function getEntries() {
 
     if (type) {
       if (type.dynamic !== dynamic) {
-        throw new Error(
-          `Error in headcode.config.ts: Dynamic and static entries cannot be mixed in the same namespace: ${namespace}`,
+        throw new ConfigurationError(
+          `Dynamic and static entries cannot be mixed in the same namespace: ${namespace}`,
         )
       }
     } else {
@@ -125,7 +126,7 @@ export async function getValidatedSections(
   const entry = await getEntry(entryId)
   const sections = await getSectionsById(entryId)
   if (!entry) {
-    throw new Error(`Entry not found: ${entryId}`)
+    throw new NotFoundError('Entry', entryId)
   }
 
   const pinnedSections = getConfigSectionNames(entry.namespace, entry.key, true)

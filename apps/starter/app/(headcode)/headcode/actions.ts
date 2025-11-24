@@ -6,7 +6,7 @@ import {
   addEntryAndSections,
   deleteEntryAndSections,
 } from '@/lib/headcode/admin'
-import { updateTag } from 'next/cache'
+import { invalidateEntriesList } from '@/lib/headcode/cache'
 
 export async function addEntry(
   values: AddEntry,
@@ -14,7 +14,7 @@ export async function addEntry(
   try {
     const entry = await addEntryAndSections(values)
 
-    updateTag('/headcode/entries')
+    await invalidateEntriesList()
     return { entry }
   } catch (error) {
     console.error('error adding entry', error)
@@ -28,7 +28,7 @@ export async function deleteEntry(
   try {
     await deleteEntryAndSections(id)
 
-    updateTag('/headcode/entries')
+    await invalidateEntriesList()
     return { success: true }
   } catch (error) {
     console.error('error deleting entry', error)
@@ -43,7 +43,7 @@ export async function cloneVersion(
 ): Promise<{ success?: boolean; error?: string }> {
   try {
     await cloneDBVersion(clone)
-    updateTag('/headcode/entries')
+    await invalidateEntriesList()
 
     return { success: true }
   } catch (error) {

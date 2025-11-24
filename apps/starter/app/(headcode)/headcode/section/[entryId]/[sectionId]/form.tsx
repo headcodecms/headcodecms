@@ -2,7 +2,6 @@
 
 import { ConfirmationDialog } from '@/components/headcode/admin/dialogs'
 import { useAppForm } from '@/components/headcode/form/form'
-import TextFieldComponent from '@/components/headcode/form/text-field-component'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -11,28 +10,16 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible'
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
-import {
-  Sortable,
-  SortableContent,
-  SortableItem,
-  SortableItemHandle,
-  SortableOverlay,
-} from '@/components/ui/sortable'
+import { Field, FieldGroup } from '@/components/ui/field'
 import { Spinner } from '@/components/ui/spinner'
 import type { Entry, Section } from '@/lib/headcode/types'
 import { getConfigSection } from '@/lib/headcode/config'
 import { getDefaultSectionValues, getSchema } from '@/lib/headcode/form'
 import { ChildFields, FieldProps } from '@/lib/headcode/types'
-import { GripVerticalIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { deleteSection, updateSection } from './actions'
+import { SectionArray } from './section-array'
 
 export function Form({ entry, section }: { entry: Entry; section: Section }) {
   const [open, setOpen] = useState(false)
@@ -85,264 +72,16 @@ export function Form({ entry, section }: { entry: Entry; section: Section }) {
     }
   }
 
-  const SectionChildFields = ({
-    parentKey,
-    index,
-    child,
-    field,
-  }: {
-    parentKey: string
-    index: number
-    child: Record<string, unknown>
-    field: ChildFields
-  }) => {
-    return (
-      <FieldGroup className="pt-3 pb-5">
-        {Object.keys(child).map((childKey) => {
-          const childField = field.fields[
-            childKey as keyof typeof field.fields
-          ] as FieldProps<unknown, unknown>
-          return (
-            <form.AppField
-              key={`${childKey}-${index}`}
-              name={`${parentKey}[${index}].${childKey}`}
-            >
-              {() => (
-                <childField.component
-                  label={childField.label}
-                  description={childField.description ?? undefined}
-                  options={childField.options as unknown}
-                />
-              )}
-            </form.AppField>
-          )
-        })}
-      </FieldGroup>
-    )
-  }
-
-  const SectionArray = ({
-    nameKey,
-    field,
-  }: {
-    nameKey: string
-    field: ChildFields
-  }) => {
-    const [openStates, setOpenStates] = useState<Record<number, boolean>>({})
-    const [isMounted, setIsMounted] = useState(false)
-
-    const stableIdsRef = useRef<Map<number, string>>(new Map())
-    const nextIdRef = useRef(0)
-    const lastLengthRef = useRef(0)
-
-    useEffect(() => {
-      setIsMounted(true)
-    }, [])
-
-    const getFirstTextFieldKey = (): string | null => {
-      for (const [childKey, childField] of Object.entries(field.fields)) {
-        const component = childField.component
-        const isTextField =
-          component === TextFieldComponent ||
-          (component &&
-            typeof component === 'object' &&
-            '_payload' in component &&
-            (component as { _payload?: { _result?: { default?: unknown } } })
-              ._payload?._result?.default === TextFieldComponent)
-
-        if (isTextField) {
-          return childKey
-        }
-      }
-      return null
+  /**
+   * Gets the default value for a new array item based on field configuration.
+   * Uses defaultValue from each child field.
+   */
+  const getDefaultArrayValue = (field: ChildFields): Record<string, unknown> => {
+    const defaultValue: Record<string, unknown> = {}
+    for (const [key, childField] of Object.entries(field.fields)) {
+      defaultValue[key] = childField.defaultValue
     }
-
-    const firstTextFieldKey = getFirstTextFieldKey()
-
-    return (
-      <form.AppField key={nameKey} name={nameKey} mode="array">
-        {(formField) => {
-          const formFieldValues = formField.state.value as Array<
-            Record<string, unknown>
-          >
-
-          const currentLength = formFieldValues.length
-          if (currentLength !== lastLengthRef.current) {
-            const stableIds = stableIdsRef.current
-
-            if (stableIds.size > currentLength) {
-              const keysToRemove: number[] = []
-              stableIds.forEach((_, key) => {
-                if (key >= currentLength) {
-                  keysToRemove.push(key)
-                }
-              })
-              keysToRemove.forEach((key) => stableIds.delete(key))
-            }
-
-            for (let i = 0; i < currentLength; i++) {
-              if (!stableIds.has(i)) {
-                stableIds.set(i, `item-${nextIdRef.current++}`)
-              }
-            }
-
-            lastLengthRef.current = currentLength
-          }
-
-          const sortableItems = formFieldValues.map((_, index) => ({
-            id: stableIdsRef.current.get(index)!,
-          }))
-
-          const handleRemove = (index: number) => {
-            formField.removeValue(index)
-          }
-
-          const handleSortingValueChange = (items: Array<{ id: string }>) => {
-            const idToIndex = new Map<string, number>()
-            stableIdsRef.current.forEach((stableId, index) => {
-              idToIndex.set(stableId, index)
-            })
-
-            const reorderedValues = items.map((item) => {
-              const originalIndex = idToIndex.get(item.id)!
-              return formFieldValues[originalIndex]
-            })
-
-            const newStableIds = new Map<number, string>()
-            items.forEach((item, newIndex) => {
-              newStableIds.set(newIndex, item.id)
-            })
-            stableIdsRef.current = newStableIds
-            lastLengthRef.current = reorderedValues.length
-
-            formField.setValue(reorderedValues as never)
-          }
-
-          return (
-            <div>
-              <FieldLabel className="my-3 flex w-full items-center justify-between">
-                <div>{field.label}</div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    formField.pushValue({
-                      plan: 'Plan',
-                      price: 100,
-                    } as unknown as never)
-                  }}
-                >
-                  <PlusIcon className="size-4" />
-                  Add
-                </Button>
-              </FieldLabel>
-
-              <Sortable
-                value={sortableItems}
-                onValueChange={handleSortingValueChange}
-                getItemValue={(item) => item.id}
-              >
-                <SortableContent>
-                  {formFieldValues?.map((child, index) => {
-                    const stableId =
-                      stableIdsRef.current.get(index) || index.toString()
-                    return (
-                      <SortableItem
-                        key={stableId}
-                        value={stableId}
-                        className="bg-background my-1 overflow-hidden rounded-lg border px-4 dark:border-none"
-                        asChild
-                      >
-                        <Collapsible
-                          open={openStates[index] ?? false}
-                          onOpenChange={(isOpen) => {
-                            setOpenStates((prev) => ({
-                              ...prev,
-                              [index]: isOpen,
-                            }))
-                          }}
-                        >
-                          <div className="flex">
-                            <SortableItemHandle asChild>
-                              <div className="mr-4 flex-none py-3">
-                                <GripVerticalIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
-                              </div>
-                            </SortableItemHandle>
-                            <CollapsibleTrigger className="grow">
-                              <div className="flex w-full items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  {field.label}
-                                  {firstTextFieldKey && isMounted && (
-                                    <form.AppField
-                                      name={`${nameKey}[${index}].${firstTextFieldKey}`}
-                                    >
-                                      {(textField) => {
-                                        const value = textField.state
-                                          .value as string
-                                        const hasValue =
-                                          value &&
-                                          typeof value === 'string' &&
-                                          value.trim()
-                                        if (!hasValue) {
-                                          return null
-                                        }
-                                        return (
-                                          <span className="text-muted-foreground/50 hidden max-w-xs truncate md:block">
-                                            {value}
-                                          </span>
-                                        )
-                                      }}
-                                    </form.AppField>
-                                  )}
-                                </div>
-                                <div className="relative size-4 shrink-0">
-                                  {(openStates[index] ?? false) ? (
-                                    <MinusIcon className="text-muted-foreground absolute inset-0 size-4 transition-opacity duration-200" />
-                                  ) : (
-                                    <PlusIcon className="text-muted-foreground absolute inset-0 size-4 transition-opacity duration-200" />
-                                  )}
-                                </div>
-                              </div>
-                            </CollapsibleTrigger>
-                            <div className="text-muted-foreground/50 hover:text-muted-foreground flex-none">
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  e.stopPropagation()
-                                  handleRemove(index)
-                                }}
-                                className="p-3"
-                              >
-                                <XIcon className="pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
-                              </button>
-                            </div>
-                          </div>
-                          <CollapsibleContent>
-                            <SectionChildFields
-                              parentKey={nameKey}
-                              index={index}
-                              child={child}
-                              field={field}
-                            />
-                          </CollapsibleContent>
-                        </Collapsible>
-                      </SortableItem>
-                    )
-                  })}
-                </SortableContent>
-                <SortableOverlay>
-                  <div className="bg-muted-background overflow-hidden rounded-lg border py-3 dark:border-none">
-                    &nbsp;
-                  </div>
-                </SortableOverlay>
-              </Sortable>
-            </div>
-          )
-        }}
-      </form.AppField>
-    )
+    return defaultValue
   }
 
   const SectionFields = () => (
@@ -350,7 +89,15 @@ export function Form({ entry, section }: { entry: Entry; section: Section }) {
       {Object.entries(defaultValues).map(([key, value]) => {
         if (Array.isArray(value)) {
           const field = fields[key as keyof typeof fields] as ChildFields
-          return <SectionArray key={key} nameKey={key} field={field} />
+          return (
+            <SectionArray
+              key={key}
+              form={form}
+              nameKey={key}
+              field={field}
+              getDefaultArrayValue={() => getDefaultArrayValue(field)}
+            />
+          )
         } else {
           const field = fields[key as keyof typeof fields] as FieldProps<
             unknown,

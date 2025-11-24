@@ -1,5 +1,6 @@
 import { noUsers } from '@/db'
 import type { Role } from '@/lib/headcode/types'
+import { UnauthorizedError } from '@/lib/headcode/errors'
 import { db, provider } from '@/db/db'
 import * as schema from '@/db/schema'
 import { betterAuth } from 'better-auth'
@@ -20,6 +21,14 @@ export const auth = betterAuth({
   plugins: [nextCookies(), admin()],
 })
 
+/**
+ * Requires a user to have one of the specified roles.
+ * Throws UnauthorizedError or redirects if the user doesn't have the required role.
+ *
+ * @param roles - Array of allowed roles
+ * @param skipWhenNoUsers - If true, allows access when no users exist in the database
+ * @returns User email and role (role is always defined unless skipWhenNoUsers is true and noUsers is true)
+ */
 export async function requireRole(
   roles: Role[],
   skipWhenNoUsers = false,
@@ -45,11 +54,18 @@ export async function requireRole(
   }
 
   const email = session.user.email
-  const role = session.user.role as Role
+  const role = session.user.role
 
-  if (!role || !roles.includes(role)) {
-    throw new Error('UNAUTHORIZED')
+  // Type guard: ensure role is a valid Role type
+  if (!role || typeof role !== 'string' || !['user', 'admin'].includes(role)) {
+    throw new UnauthorizedError()
   }
 
-  return { email, role, noUsers: false }
+  const validRole = role as Role
+
+  if (!roles.includes(validRole)) {
+    throw new UnauthorizedError()
+  }
+
+  return { email, role: validRole, noUsers: false }
 }

@@ -16,27 +16,32 @@ export default function Page() {
   return (
     <Container>
       <Suspense fallback={<PageSkeleton />}>
-        <EntriesPage />
+        <EntriesPageContent />
       </Suspense>
     </Container>
   )
 }
 
-async function EntriesPage() {
+async function EntriesPageContent() {
   const { role } = await requireRole(['user', 'admin'])
+
+  // role is guaranteed to be defined after requireRole (throws/redirects if not)
+  if (!role) {
+    throw new Error('Unexpected: role should be defined after requireRole')
+  }
 
   return (
     <>
       <Header role={role} />
 
       <Suspense fallback={<DefaultSkeleton />}>
-        <Entries />
+        <EntriesContent />
       </Suspense>
     </>
   )
 }
 
-export async function Entries() {
+export async function EntriesContent() {
   'use cache'
   cacheTag('/headcode/entries')
 

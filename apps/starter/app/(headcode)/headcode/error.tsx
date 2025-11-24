@@ -4,6 +4,7 @@ import { Container } from '@/components/headcode/admin/container'
 import { Header } from '@/components/headcode/admin/header'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { getErrorCode } from '@/lib/headcode/errors'
 import { AlertCircleIcon } from 'lucide-react'
 import { useEffect } from 'react'
 
@@ -18,9 +19,12 @@ export default function Error({
     console.error(error)
   }, [error])
 
-  const dbError = error.message.startsWith('DB_ERROR')
-  const unauthorizedError = error.message.startsWith('UNAUTHORIZED')
-  const otherError = !dbError && !unauthorizedError
+  const errorCode = getErrorCode(error)
+  const dbError = errorCode === 'DB_ERROR'
+  const unauthorizedError = errorCode === 'UNAUTHORIZED'
+  const notFoundError = errorCode === 'NOT_FOUND'
+  const configError = errorCode === 'CONFIG_ERROR'
+  const otherError = !errorCode || !(dbError || unauthorizedError || notFoundError || configError)
 
   return (
     <Container>
@@ -46,6 +50,18 @@ export default function Error({
                 <li>You are not authorized to access this page</li>
                 <li>Please contact your administrator</li>
               </ul>
+            </>
+          )}
+          {notFoundError && (
+            <>
+              <p>Resource not found</p>
+              <p className="text-sm">{error.message}</p>
+            </>
+          )}
+          {configError && (
+            <>
+              <p>Configuration error</p>
+              <p className="text-sm">{error.message}</p>
             </>
           )}
           {otherError && <p>{error.message ?? 'An unknown error occurred'}</p>}
