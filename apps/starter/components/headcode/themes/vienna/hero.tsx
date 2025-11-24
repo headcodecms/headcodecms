@@ -76,9 +76,7 @@ export const heroSection = {
 export type HeroData = InferSectionData<typeof heroSection.fields>
 
 export async function Hero({ section }: { section: Section }) {
-  console.log('section', section)
   const { data, isDefault } = parseSectionData(heroSection.fields, section.data)
-  console.log('data', data, 'isDefault', isDefault)
 
   return (
     <>

@@ -17,6 +17,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Empty, EmptyContent } from '@/components/ui/empty'
 import {
   Sortable,
   SortableContent,
@@ -218,126 +219,136 @@ export function Form({ entry, section }: { entry: Entry; section: Section }) {
             formField.setValue(reorderedValues as never)
           }
 
+          const handleAddItem = (e: React.MouseEvent) => {
+            e.preventDefault()
+            e.stopPropagation()
+            formField.pushValue({
+              plan: 'Plan',
+              price: 100,
+            } as unknown as never)
+          }
+
           return (
             <div>
               <FieldLabel className="my-3 flex w-full items-center justify-between">
                 <div>{field.label}</div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    formField.pushValue({
-                      plan: 'Plan',
-                      price: 100,
-                    } as unknown as never)
-                  }}
-                >
+                <Button variant="secondary" size="sm" onClick={handleAddItem}>
                   <PlusIcon className="size-4" />
                   Add
                 </Button>
               </FieldLabel>
 
-              <Sortable
-                value={sortableItems}
-                onValueChange={handleSortingValueChange}
-                getItemValue={(item) => item.id}
-              >
-                <SortableContent>
-                  {formFieldValues?.map((child, index) => {
-                    const stableId =
-                      stableIdsRef.current.get(index) || index.toString()
-                    return (
-                      <SortableItem
-                        key={stableId}
-                        value={stableId}
-                        className="bg-background my-1 overflow-hidden rounded-lg border px-4 dark:border-none"
-                        asChild
-                      >
-                        <Collapsible
-                          open={openStates[index] ?? false}
-                          onOpenChange={(isOpen) => {
-                            setOpenStates((prev) => ({
-                              ...prev,
-                              [index]: isOpen,
-                            }))
-                          }}
+              {sortableItems.length === 0 ? (
+                <Empty className="bg-muted dark:bg-background p-3 md:p-6">
+                  <EmptyContent>
+                    <p>No {field.label} found</p>
+                    <Button variant="outline" size="sm" onClick={handleAddItem}>
+                      <PlusIcon className="size-4" />
+                      Add
+                    </Button>
+                  </EmptyContent>
+                </Empty>
+              ) : (
+                <Sortable
+                  value={sortableItems}
+                  onValueChange={handleSortingValueChange}
+                  getItemValue={(item) => item.id}
+                >
+                  <SortableContent>
+                    {formFieldValues?.map((child, index) => {
+                      const stableId =
+                        stableIdsRef.current.get(index) || index.toString()
+                      return (
+                        <SortableItem
+                          key={stableId}
+                          value={stableId}
+                          className="bg-background my-1 overflow-hidden rounded-lg border px-4 dark:border-none"
+                          asChild
                         >
-                          <div className="flex">
-                            <SortableItemHandle asChild>
-                              <div className="mr-4 flex-none py-3">
-                                <GripVerticalIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
-                              </div>
-                            </SortableItemHandle>
-                            <CollapsibleTrigger className="grow">
-                              <div className="flex w-full items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  {field.label}
-                                  {firstTextFieldKey && isMounted && (
-                                    <form.AppField
-                                      name={`${nameKey}[${index}].${firstTextFieldKey}`}
-                                    >
-                                      {(textField) => {
-                                        const value = textField.state
-                                          .value as string
-                                        const hasValue =
-                                          value &&
-                                          typeof value === 'string' &&
-                                          value.trim()
-                                        if (!hasValue) {
-                                          return null
-                                        }
-                                        return (
-                                          <span className="text-muted-foreground/50 hidden max-w-xs truncate md:block">
-                                            {value}
-                                          </span>
-                                        )
-                                      }}
-                                    </form.AppField>
-                                  )}
+                          <Collapsible
+                            open={openStates[index] ?? false}
+                            onOpenChange={(isOpen) => {
+                              setOpenStates((prev) => ({
+                                ...prev,
+                                [index]: isOpen,
+                              }))
+                            }}
+                          >
+                            <div className="flex">
+                              <SortableItemHandle asChild>
+                                <div className="mr-4 flex-none py-3">
+                                  <GripVerticalIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
                                 </div>
-                                <div className="relative size-4 shrink-0">
-                                  {(openStates[index] ?? false) ? (
-                                    <MinusIcon className="text-muted-foreground absolute inset-0 size-4 transition-opacity duration-200" />
-                                  ) : (
-                                    <PlusIcon className="text-muted-foreground absolute inset-0 size-4 transition-opacity duration-200" />
-                                  )}
+                              </SortableItemHandle>
+                              <CollapsibleTrigger className="grow">
+                                <div className="flex w-full items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    {field.label}
+                                    {firstTextFieldKey && isMounted && (
+                                      <form.AppField
+                                        name={`${nameKey}[${index}].${firstTextFieldKey}`}
+                                      >
+                                        {(textField) => {
+                                          const value = textField.state
+                                            .value as string
+                                          const hasValue =
+                                            value &&
+                                            typeof value === 'string' &&
+                                            value.trim()
+                                          if (!hasValue) {
+                                            return null
+                                          }
+                                          return (
+                                            <span className="text-muted-foreground/50 hidden max-w-xs truncate md:block">
+                                              {value}
+                                            </span>
+                                          )
+                                        }}
+                                      </form.AppField>
+                                    )}
+                                  </div>
+                                  <div className="relative size-4 shrink-0">
+                                    {(openStates[index] ?? false) ? (
+                                      <MinusIcon className="text-muted-foreground absolute inset-0 size-4 transition-opacity duration-200" />
+                                    ) : (
+                                      <PlusIcon className="text-muted-foreground absolute inset-0 size-4 transition-opacity duration-200" />
+                                    )}
+                                  </div>
                                 </div>
+                              </CollapsibleTrigger>
+                              <div className="text-muted-foreground/50 hover:text-muted-foreground flex-none">
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    handleRemove(index)
+                                  }}
+                                  className="p-3"
+                                >
+                                  <XIcon className="pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
+                                </button>
                               </div>
-                            </CollapsibleTrigger>
-                            <div className="text-muted-foreground/50 hover:text-muted-foreground flex-none">
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  e.stopPropagation()
-                                  handleRemove(index)
-                                }}
-                                className="p-3"
-                              >
-                                <XIcon className="pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
-                              </button>
                             </div>
-                          </div>
-                          <CollapsibleContent>
-                            <SectionChildFields
-                              parentKey={nameKey}
-                              index={index}
-                              child={child}
-                              field={field}
-                            />
-                          </CollapsibleContent>
-                        </Collapsible>
-                      </SortableItem>
-                    )
-                  })}
-                </SortableContent>
-                <SortableOverlay>
-                  <div className="bg-muted-background overflow-hidden rounded-lg border py-3 dark:border-none">
-                    &nbsp;
-                  </div>
-                </SortableOverlay>
-              </Sortable>
+                            <CollapsibleContent>
+                              <SectionChildFields
+                                parentKey={nameKey}
+                                index={index}
+                                child={child}
+                                field={field}
+                              />
+                            </CollapsibleContent>
+                          </Collapsible>
+                        </SortableItem>
+                      )
+                    })}
+                  </SortableContent>
+                  <SortableOverlay>
+                    <div className="bg-muted-background overflow-hidden rounded-lg border py-3 dark:border-none">
+                      &nbsp;
+                    </div>
+                  </SortableOverlay>
+                </Sortable>
+              )}
             </div>
           )
         }}

@@ -8,8 +8,6 @@ import type { ComponentProps } from 'react'
 type ImageProps = ComponentProps<typeof Image>
 
 export function HeroClient({ data }: { data: HeroData }) {
-  console.log('data', data)
-
   const [description, setDescription] = useState(data.description)
 
   return (
