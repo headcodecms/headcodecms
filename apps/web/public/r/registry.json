@@ -1,0 +1,488 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "headcodecms",
+  "homepage": "https://headcodecms.com",
+  "items": [
+    {
+      "name": "starter",
+      "type": "registry:component",
+      "title": "Headcode CMS Starter",
+      "description": "A minimalistic web content management system for Next.js",
+      "registryDependencies": [
+        "alert-dialog",
+        "alert",
+        "badge",
+        "button",
+        "calendar",
+        "card",
+        "checkbox",
+        "collapsible",
+        "command",
+        "dialog",
+        "dropdown-menu",
+        "empty",
+        "field",
+        "input-group",
+        "input",
+        "item",
+        "label",
+        "navigation-menu",
+        "pagination",
+        "popover",
+        "radio-group",
+        "select",
+        "separator",
+        "sheet",
+        "skeleton",
+        "sonner",
+        "spinner",
+        "switch",
+        "table",
+        "textarea",
+        "tooltip",
+        "https://diceui.com/r/sortable",
+        "@kibo-ui/dropzone", 
+        "@kibo-ui/editor", 
+        "@kibo-ui/typography"],
+      "dependencies": [
+        "@libsql/client@^0.15.15",
+        "@vercel/blob@^2.0",
+        "better-auth@^1.4",
+        "dotenv@^17.2.3",
+        "drizzle-orm@^0.44",
+        "drizzle-kit@^0.31",
+        "thumbhash@^0.1",
+        "zod@^4.1"
+      ],
+      "files": [
+        {
+          "path": "registry/starter/app/(headcode)/headcode/actions.ts",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/actions.ts"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/alerts.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/alerts.tsx"
+        },      
+        {
+          "path": "registry/starter/app/(headcode)/headcode/dialogs.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/dialogs.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/error.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/error.tsx"
+        },      
+        {
+          "path": "registry/starter/app/(headcode)/headcode/globals.css",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/globals.css"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/layout.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/layout.tsx"
+        },      
+        {
+          "path": "registry/starter/app/(headcode)/headcode/page.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/page.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/table.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/table.tsx"
+        },
+
+        {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/[sectionId]/actions.ts",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/actions.ts"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/[sectionId]/form.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/form.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/[sectionId]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/page.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/[sectionId]/sidebar.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/sidebar.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/[sectionId]/storage.ts",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/storage.ts"
+        },
+
+        {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/actions.ts",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/actions.ts"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/dialogs.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/dialogs.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/empty.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/empty.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/loading.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/loading.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/page.tsx"
+        },
+
+        {
+          "path": "registry/starter/app/(headcode)/headcode/sign-in/page.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/sign-in/page.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/sign-in/form.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/sign-in/form.tsx"
+        },
+
+        {
+          "path": "registry/starter/app/(headcode)/headcode/users/actions.ts",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/users/actions.ts"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/users/dialogs.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/users/dialogs.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/users/page.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/users/page.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/users/table.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/users/table.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/users/users.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/users/users.tsx"
+        },
+
+
+        {
+          "path": "registry/starter/app/(site)/globals.css",
+          "type": "registry:page",
+          "target": "app/(site)/globals.css"
+        },
+        {
+          "path": "registry/starter/app/(site)/layout.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/layout.tsx"
+        },
+        {
+          "path": "registry/starter/app/(site)/loading.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/loading.tsx"
+        },
+        {
+          "path": "registry/starter/app/(site)/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/page.tsx"
+        },
+
+        {
+          "path": "registry/starter/app/(site)/pages/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/pages/page.tsx"
+        },
+        {
+          "path": "registry/starter/app/(site)/pages/[slug]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/pages/[slug]/page.tsx"
+        },
+
+        {
+          "path": "registry/starter/app/api/auth/[...all]/route.ts",
+          "type": "registry:page",
+          "target": "app/api/auth/[...all]/route.ts"
+        },
+
+        {
+          "path": "registry/starter/lib/auth.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/starter/lib/auth-client.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/starter/lib/headcode/admin.ts",
+          "type": "registry:lib",
+          "target": "lib/headcode/admin.ts"
+        },
+        {
+          "path": "registry/starter/lib/headcode/config.ts",
+          "type": "registry:lib",
+          "target": "lib/headcode/config.ts"
+        },
+        {
+          "path": "registry/starter/lib/headcode/data.ts",
+          "type": "registry:lib",
+          "target": "lib/headcode/data.ts"
+        },
+        {
+          "path": "registry/starter/lib/headcode/form.ts",
+          "type": "registry:lib",
+          "target": "lib/headcode/form.ts"
+        },
+        {
+          "path": "registry/starter/lib/headcode/image.ts",
+          "type": "registry:lib",
+          "target": "lib/headcode/image.ts"
+        },
+        {
+          "path": "registry/starter/lib/headcode/index.ts",
+          "type": "registry:lib",
+          "target": "lib/headcode/index.ts"
+        },
+        {
+          "path": "registry/starter/lib/headcode/types.ts",
+          "type": "registry:lib",
+          "target": "lib/headcode/types.ts"
+        },
+
+        {
+          "path": "registry/starter/db/db.ts",
+          "type": "registry:page",
+          "target": "db/db.ts"
+        },
+        {
+          "path": "registry/starter/db/index.ts",
+          "type": "registry:page",
+          "target": "db/index.ts"
+        },
+        {
+          "path": "registry/starter/db/schema.ts",
+          "type": "registry:page",
+          "target": "db/schema.ts"
+        },
+
+        {
+          "path": "registry/starter/components/headcode/links.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/links.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/skeletons.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/skeletons.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/admin/container.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/admin/container.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/admin/dialogs.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/admin/dialogs.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/admin/header.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/admin/header.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/admin/image-preview.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/admin/image-preview.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/admin/nav-buttons.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/admin/nav-buttons.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/admin/nav.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/admin/nav.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/admin/theme-provider.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/admin/theme-provider.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/admin/titles.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/admin/titles.tsx"
+        },
+
+        {
+          "path": "registry/starter/components/headcode/form/checkbox-field-component.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/form/checkbox-field-component.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/checkbox-field.ts",
+          "type": "registry:component",
+          "target": "components/headcode/form/checkbox-field.ts"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/date-picker-field-component.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/form/date-picker-field-component.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/date-picker-field.ts",
+          "type": "registry:component",
+          "target": "components/headcode/form/date-picker-field.ts"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/editor-field-component.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/form/editor-field-component.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/editor-field-renderer.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/form/editor-field-renderer.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/editor-field.ts",
+          "type": "registry:component",
+          "target": "components/headcode/form/editor-field.ts"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/form.ts",
+          "type": "registry:component",
+          "target": "components/headcode/form/form.ts"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/image-field-component.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/form/image-field-component.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/image-field.ts",
+          "type": "registry:component",
+          "target": "components/headcode/form/image-field.ts"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/link-field-component.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/form/link-field-component.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/link-field.ts",
+          "type": "registry:component",
+          "target": "components/headcode/form/link-field.ts"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/radio-group-field-component.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/form/radio-group-field-component.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/radio-group-field.ts",
+          "type": "registry:component",
+          "target": "components/headcode/form/radio-group-field.ts"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/select-field-component.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/form/select-field-component.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/select-field.ts",
+          "type": "registry:component",
+          "target": "components/headcode/form/select-field.ts"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/text-field-component.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/form/text-field-component.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/text-field.ts",
+          "type": "registry:component",
+          "target": "components/headcode/form/text-field.ts"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/textarea-field-component.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/form/textarea-field-component.tsx"
+        },
+
+        {
+          "path": "registry/starter/components/headcode/themes/vienna/container.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/themes/vienna/container.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/themes/vienna/footer.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/themes/vienna/footer.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/themes/vienna/header.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/themes/vienna/header.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/themes/vienna/hero.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/themes/vienna/hero.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/themes/vienna/image.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/themes/vienna/image.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/themes/vienna/text.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/themes/vienna/text.tsx"
+        },
+
+        {
+          "path": "registry/starter/headcode.config.ts",
+          "type": "registry:page",
+          "target": "headcode.config.ts"
+        },
+        {
+          "path": "registry/starter/next.config.ts",
+          "type": "registry:page",
+          "target": "next.config.ts"
+        },
+        {
+          "path": "registry/starter/.env.headcode",
+          "type": "registry:page",
+          "target": ".env.headcode"
+        },
+        {
+          "path": "registry/starter/drizzle.config.ts",
+          "type": "registry:page",
+          "target": "drizzle.config.ts"
+        }
+      ]
+    }
+  ]
+}
