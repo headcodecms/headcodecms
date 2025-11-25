@@ -435,7 +435,7 @@ export function Form({ entry, section }: { entry: Entry; section: Section }) {
     <>
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>{section.name}</CardTitle>
+          <CardTitle>{configSection.label || section.name}</CardTitle>
         </CardHeader>
         <CardContent>
           <form

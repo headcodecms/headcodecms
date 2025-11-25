@@ -20,7 +20,6 @@ import {
   EditorNodeHeading3,
   EditorNodeOrderedList,
   EditorNodeQuote,
-  EditorNodeTable,
   EditorNodeTaskList,
   EditorNodeText,
   EditorProvider,

@@ -1,39 +1,38 @@
+import { featuresSection } from './components/headcode/themes/vienna/features'
+import { footerSection } from './components/headcode/themes/vienna/footer'
+import { headerSection } from './components/headcode/themes/vienna/header'
 import { heroSection } from './components/headcode/themes/vienna/hero'
+import { imageSection } from './components/headcode/themes/vienna/image'
+import { textSection } from './components/headcode/themes/vienna/text'
 import type { HeadcodeConfig } from './lib/headcode/types'
 
 export const headcodeConfig: HeadcodeConfig = {
-  version: 'v04',
-  clone: 'v03',
+  version: 'v01',
+  // clone: 'v01',
   entries: [
     {
       namespace: 'global',
-      key: 'homepage',
+      key: 'home',
       sections: [
-        { section: heroSection, pinned: true },
         { section: heroSection },
+        { section: featuresSection },
+        { section: textSection },
+        { section: imageSection },
       ],
+    },
+    {
+      namespace: 'global',
+      key: 'header',
+      sections: [{ section: headerSection, pinned: true }],
     },
     {
       namespace: 'global',
       key: 'footer',
-      sections: [{ section: heroSection, pinned: true }],
-    },
-    {
-      namespace: 'global',
-      key: 'contact',
-      sections: [{ section: heroSection }],
-    },
-    {
-      namespace: 'global',
-      key: 'company',
-      sections: [{ section: heroSection }],
+      sections: [{ section: footerSection, pinned: true }],
     },
     {
       namespace: 'pages',
-      sections: [
-        { section: heroSection, pinned: true },
-        { section: heroSection },
-      ],
+      sections: [{ section: heroSection }, { section: textSection }],
     },
   ],
 }

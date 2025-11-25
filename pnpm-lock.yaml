@@ -122,6 +122,9 @@ importers:
       '@tiptap/starter-kit':
         specifier: ^3.11.0
         version: 3.11.0
+      '@tiptap/static-renderer':
+        specifier: ^3.11.0
+        version: 3.11.0(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))(@tiptap/pm@3.11.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@tiptap/suggestion':
         specifier: ^3.11.0
         version: 3.11.0(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))(@tiptap/pm@3.11.0)
@@ -2225,6 +2228,14 @@ packages:
 
   '@tiptap/starter-kit@3.11.0':
     resolution: {integrity: sha512-8kMMYqVSZ2Oqji+mY1o9meTjCRWp4DplFegu7APqDEQRhlb6mBI0wNuazYb7FKJIHJTtf0F6cYglJrxpu9c/fA==}
+
+  '@tiptap/static-renderer@3.11.0':
+    resolution: {integrity: sha512-WrH4Hte/8bo/gt+B8UXbJZhkeuxo0AZ8OhTG92zEY5g7xPotAoyQ7Gqi+iOfwIeSFQNF7oYeh/npqv2uCT/sTw==}
+    peerDependencies:
+      '@tiptap/core': ^3.11.0
+      '@tiptap/pm': ^3.11.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
 
   '@tiptap/suggestion@3.11.0':
     resolution: {integrity: sha512-4zGU3l1rZ7P112en3HiMXZuKCcZSXdwtdSIfQQV94jNyumg/imYFeYARVsabfv6hFjtEuwbq0ev8y13Bl+1Quw==}
@@ -6193,6 +6204,13 @@ snapshots:
       '@tiptap/extension-underline': 3.11.0(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))
       '@tiptap/extensions': 3.11.0(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))(@tiptap/pm@3.11.0)
       '@tiptap/pm': 3.11.0
+
+  '@tiptap/static-renderer@3.11.0(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))(@tiptap/pm@3.11.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+    dependencies:
+      '@tiptap/core': 3.11.0(@tiptap/pm@3.11.0)
+      '@tiptap/pm': 3.11.0
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
 
   '@tiptap/suggestion@3.11.0(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))(@tiptap/pm@3.11.0)':
     dependencies:

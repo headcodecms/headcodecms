@@ -72,7 +72,6 @@ export default function LinkFieldComponent({
             <Input
               id={`${field.name}-url`}
               name={`${field.name}.url`}
-              type="url"
               value={value.url}
               onBlur={field.handleBlur}
               onChange={(e) => handleUrlChange(e.target.value)}

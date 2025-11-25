@@ -82,7 +82,11 @@ export function Sidebar({
                     </ItemMedia>
                   </SortableItemHandle>
                   <ItemContent>
-                    <ItemTitle>{item.name}</ItemTitle>
+                    <ItemTitle>
+                      {sectionNames.find(
+                        (section) => section.name === item.name,
+                      )?.label || item.name}
+                    </ItemTitle>
                   </ItemContent>
                   {item.pinned && (
                     <ItemActions>

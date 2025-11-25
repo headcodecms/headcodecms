@@ -1,5 +1,5 @@
 import { ImageField } from '@/components/headcode/form/image-field'
-import { LinkField } from '@/components/headcode/form/link-field'
+import { LinkField, LinkValue } from '@/components/headcode/form/link-field'
 import { TextField } from '@/components/headcode/form/text-field'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,6 +20,7 @@ import type { Fields, InferSectionData } from '@/lib/headcode/types'
 import { MenuIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { ALink } from '../../links'
 
 export const headerSection = {
   name: 'header',
@@ -60,19 +61,16 @@ export function Header({ sectionData }: { sectionData: unknown }) {
           {data.nav.map((link, index) => (
             <NavigationMenuItem key={index} className="hidden sm:block">
               <NavigationMenuLink asChild>
-                {link.link.url.startsWith('http') ? (
-                  <a
-                    href={link.link.url}
-                    target={link.link.openInNewWindow ? '_blank' : '_self'}
-                  >
-                    {link.link.title}
-                  </a>
-                ) : (
-                  <Link href={link.link.url}>{link.link.title}</Link>
-                )}
+                <ALink link={link.link} />
               </NavigationMenuLink>
             </NavigationMenuItem>
           ))}
+
+          <NavigationMenuItem className="sm:hidden">
+            <NavigationMenuLink asChild>
+              <MobileSheet nav={data.nav} />
+            </NavigationMenuLink>
+          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
     </div>

@@ -43,6 +43,7 @@
     "@tiptap/pm": "^3.11.0",
     "@tiptap/react": "^3.11.0",
     "@tiptap/starter-kit": "^3.11.0",
+    "@tiptap/static-renderer": "^3.11.0",
     "@tiptap/suggestion": "^3.11.0",
     "@uploadthing/react": "^7.3.3",
     "@vercel/blob": "^2.0.0",

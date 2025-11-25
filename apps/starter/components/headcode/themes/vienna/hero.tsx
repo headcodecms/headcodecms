@@ -1,36 +1,48 @@
+import { LinkField } from '@/components/headcode/form/link-field'
+import { TextField } from '@/components/headcode/form/text-field'
+import { TextareaField } from '@/components/headcode/form/textarea-field'
 import { Button } from '@/components/ui/button'
 import { parseSectionData } from '@/lib/headcode/data'
-import type { Fields, InferSectionData, Section } from '@/lib/headcode/types'
-import Link from 'next/link'
+import type { Fields, InferSectionData } from '@/lib/headcode/types'
+import { ALink } from '../../links'
 
 export const heroSection = {
   name: 'hero',
   label: 'Hero Section',
-  fields: {} satisfies Fields,
+  fields: {
+    title: TextField({
+      label: 'Title',
+    }),
+    subtitle: TextareaField({
+      label: 'Subtitle',
+    }),
+    primaryButton: LinkField({
+      label: 'Primary Button',
+    }),
+    secondaryButton: LinkField({
+      label: 'Secondary Button',
+    }),
+  } satisfies Fields,
 }
 export type HeroData = InferSectionData<typeof heroSection.fields>
 
-export function Hero({ section }: { section: Section }) {
-  const { data } = parseSectionData(heroSection.fields, section.data)
+export function Hero({ sectionData }: { sectionData: unknown }) {
+  const { data } = parseSectionData(heroSection.fields, sectionData)
 
   return (
     <div className="flex flex-col items-center justify-center gap-8">
       <h1 className="mb-0 text-6xl font-medium text-balance md:text-7xl xl:text-[5.25rem]">
-        The best way to build your website
+        {data.title}
       </h1>
       <p className="text-muted-foreground mt-0 mb-0 text-lg text-balance">
-        Kibo UI blocks are a new way to build your website. They are a
-        collection of pre-built components that you can use to build your
-        website.
+        {data.subtitle}
       </p>
       <div className="flex items-center gap-2">
         <Button asChild>
-          <Link href="#">Get started</Link>
+          <ALink link={data.primaryButton} />
         </Button>
         <Button asChild variant="outline">
-          <Link className="no-underline" href="#">
-            Learn more
-          </Link>
+          <ALink link={data.secondaryButton} />
         </Button>
       </div>
     </div>
