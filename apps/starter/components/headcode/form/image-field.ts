@@ -17,13 +17,13 @@ const DefaultImageField: FieldProps<ImageValue | null, ImageFieldOptions> = {
   validator: z
     .object({
       src: z.string(),
-      alt: z.string(),
+      alt: z.string().default('Image'),
       width: z.number(),
       height: z.number(),
       blurDataURL: z.string().optional(),
-      name: z.string(),
-      type: z.union([z.string(), z.null(), z.undefined()]),
-      size: z.number(),
+      name: z.string().optional(),
+      type: z.union([z.string(), z.null(), z.undefined()]).optional(),
+      size: z.number().optional(),
     })
     .nullable(),
   options: {

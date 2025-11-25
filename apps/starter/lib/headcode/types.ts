@@ -92,9 +92,9 @@ export type ImageValue = {
   width: number
   height: number
   blurDataURL?: string
-  name: string
-  type: string | null | undefined
-  size: number
+  name?: string
+  type?: string | null | undefined
+  size?: number
 }
 
 export type ImageFieldOptions = {

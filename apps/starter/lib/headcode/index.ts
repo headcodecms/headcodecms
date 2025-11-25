@@ -30,8 +30,18 @@ export async function getEntriesWithSections(
   return await getDBEntriesWithSections(namespace, filter)
 }
 
-export async function getSection(
+export async function getSectionById(
   id: number,
 ): Promise<{ section: Section } | null> {
   return await getDBSection(id)
+}
+
+export async function getSection(
+  namespace: string,
+  key: string,
+  name: string,
+  pinned: boolean = false,
+): Promise<Section | null> {
+  const sections = await getDBSections(namespace, key, { name, pinned })
+  return sections.length > 0 ? sections[0] : null
 }

@@ -219,13 +219,20 @@ export function Form({ entry, section }: { entry: Entry; section: Section }) {
             formField.setValue(reorderedValues as never)
           }
 
+          const getDefaultItemValue = () => {
+            return Object.entries(field.fields).reduce(
+              (acc, [key, childField]) => {
+                acc[key] = childField.defaultValue
+                return acc
+              },
+              {} as Record<string, unknown>,
+            )
+          }
+
           const handleAddItem = (e: React.MouseEvent) => {
             e.preventDefault()
             e.stopPropagation()
-            formField.pushValue({
-              plan: 'Plan',
-              price: 100,
-            } as unknown as never)
+            formField.pushValue(getDefaultItemValue() as unknown as never)
           }
 
           return (

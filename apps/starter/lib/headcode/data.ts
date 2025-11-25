@@ -18,7 +18,6 @@ export function parseSectionData<F extends Fields>(
     }
   }
 
-  // Handle plain objects (not arrays, not null)
   if (
     typeof sectionData === 'object' &&
     !Array.isArray(sectionData) &&
@@ -41,7 +40,6 @@ export function parseSectionData<F extends Fields>(
       }
     }
 
-    // Validation failed, use defaults
     console.error('Validation failed, using default values', {
       error: result.error,
       filteredData,
@@ -56,7 +54,6 @@ export function parseSectionData<F extends Fields>(
     }
   }
 
-  // Handle JSON strings
   if (typeof sectionData === 'string') {
     let parsedData: unknown
     try {
@@ -75,7 +72,6 @@ export function parseSectionData<F extends Fields>(
       }
     }
 
-    // After parsing, handle the parsed data
     if (
       parsedData &&
       typeof parsedData === 'object' &&
@@ -99,7 +95,6 @@ export function parseSectionData<F extends Fields>(
         }
       }
 
-      // Validation failed, use defaults
       console.error(
         'Validation failed after JSON parse, using default values',
         {
@@ -118,7 +113,6 @@ export function parseSectionData<F extends Fields>(
     }
   }
 
-  // For arrays or any other unexpected type, return default values
   console.warn('Unexpected sectionData type, using default values', {
     type: typeof sectionData,
     isArray: Array.isArray(sectionData),
@@ -132,4 +126,3 @@ export function parseSectionData<F extends Fields>(
     isDefault: true,
   }
 }
-

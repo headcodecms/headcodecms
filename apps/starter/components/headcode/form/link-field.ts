@@ -23,7 +23,7 @@ const DefaultLinkField: FieldProps<LinkValue, unknown> = {
   validator: z.object({
     title: z.string(),
     url: z.string(),
-    openInNewWindow: z.boolean(),
+    openInNewWindow: z.boolean().default(false),
   }),
 }
 export const LinkField = (params: Partial<FieldProps<LinkValue, unknown>>) => ({
