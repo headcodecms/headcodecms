@@ -14,12 +14,8 @@ export const imageSection = {
 }
 export type ImageData = InferSectionData<typeof imageSection.fields>
 
-export function Figure({ sectionData }: { sectionData: unknown }) {
+export function SingleImage({ sectionData }: { sectionData: unknown }) {
   const { data } = parseSectionData(imageSection.fields, sectionData)
 
-  return data.image ? (
-    <div className="flex justify-center">
-      <Image {...data.image} alt={data.image.alt} />
-    </div>
-  ) : null
+  return data.image ? <Image {...data.image} alt={data.image.alt} /> : null
 }
