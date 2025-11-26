@@ -3,7 +3,7 @@
 import fs from 'fs'
 import path from 'path'
 import { put } from '@vercel/blob'
-import { generateUniqueImageName } from '@/lib/headcode/image'
+import { generateUniqueImageName } from '@/lib/headcode/images'
 
 export async function uploadFile(
   file: File,

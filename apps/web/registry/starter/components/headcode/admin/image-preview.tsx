@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { Trash2Icon, ClipboardIcon } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { compactNumber } from '@/lib/headcode/image'
+import { compactNumber } from '@/lib/headcode/images'
 import type { ImageValue } from '@/lib/headcode/types'
 
 export function ImagePreview({
@@ -75,7 +75,7 @@ export function ImagePreview({
           <span>
             {imageValue.width}px x {imageValue.height}px
           </span>
-          <span>{compactNumber(imageValue.size)}</span>
+          {imageValue.size && <span>{compactNumber(imageValue.size)}</span>}
           <span>{imageValue.type}</span>
         </p>
         <Button type="button" variant="outline" size="sm" onClick={onDelete}>
@@ -86,4 +86,3 @@ export function ImagePreview({
     </div>
   )
 }
-

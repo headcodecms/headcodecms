@@ -252,14 +252,14 @@
           "target": "lib/headcode/data.ts"
         },
         {
-          "path": "registry/starter/lib/headcode/form.ts",
+          "path": "registry/starter/lib/headcode/fields.ts",
           "type": "registry:lib",
-          "target": "lib/headcode/form.ts"
+          "target": "lib/headcode/fields.ts"
         },
         {
-          "path": "registry/starter/lib/headcode/image.ts",
+          "path": "registry/starter/lib/headcode/images.ts",
           "type": "registry:lib",
-          "target": "lib/headcode/image.ts"
+          "target": "lib/headcode/images.ts"
         },
         {
           "path": "registry/starter/lib/headcode/index.ts",
@@ -375,9 +375,9 @@
           "target": "components/headcode/form/editor-field.ts"
         },
         {
-          "path": "registry/starter/components/headcode/form/form.ts",
+          "path": "registry/starter/components/headcode/form/app-form.ts",
           "type": "registry:component",
-          "target": "components/headcode/form/form.ts"
+          "target": "components/headcode/form/app-form.ts"
         },
         {
           "path": "registry/starter/components/headcode/form/image-field-component.tsx",

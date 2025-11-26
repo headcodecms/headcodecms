@@ -32,7 +32,7 @@ import {
   FieldError,
   FieldLabel,
 } from '@/components/ui/field'
-import { useFieldContext } from './form'
+import { useFieldContext } from './app-form'
 
 export default function EditorFieldComponent({
   label,

@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useFieldContext } from './form'
+import { useFieldContext } from './app-form'
 import type { LinkValue } from './link-field'
 
 export default function LinkFieldComponent({
