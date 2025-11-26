@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { parseSectionData } from '@/lib/headcode/data'
 import type { Fields, InferSectionData } from '@/lib/headcode/types'
 import { CircleCheckBigIcon } from 'lucide-react'
-import Snippets from '../snippets'
+import Commands from './commands'
 
 export const heroSection = {
   name: 'hero',
@@ -59,7 +59,7 @@ export function Hero({ sectionData }: { sectionData: unknown }) {
       </ul>
 
       <div className="w-3xl max-w-full">
-        <Snippets snippets={data.snippets} />
+        <Commands snippets={data.snippets} />
       </div>
 
       <div className="text-muted-foreground -mt-4 text-sm">

@@ -1,11 +1,22 @@
 'use client'
 
-import { Snippet, SnippetCopyButton, SnippetHeader, SnippetTabsContent, SnippetTabsList, SnippetTabsTrigger } from "@/components/kibo-ui/snippet";
-import { useState } from "react";
+import {
+  Snippet,
+  SnippetCopyButton,
+  SnippetHeader,
+  SnippetTabsContent,
+  SnippetTabsList,
+  SnippetTabsTrigger,
+} from '@/components/kibo-ui/snippet'
+import { useState } from 'react'
 
-export default function Snippets({ snippets }: { snippets: { title: string, code: string }[] }) {
-  const [value, setValue] = useState(snippets[0].title);
-  const activeCommand = snippets.find((item) => item.title === value);
+export default function Commands({
+  snippets,
+}: {
+  snippets: { title: string; code: string }[]
+}) {
+  const [value, setValue] = useState(snippets[0].title)
+  const activeCommand = snippets.find((item) => item.title === value)
 
   return (
     <Snippet onValueChange={setValue} value={value}>
@@ -24,7 +35,7 @@ export default function Snippets({ snippets }: { snippets: { title: string, code
             }
             onError={() =>
               console.error(
-                `Failed to copy "${activeCommand.code}" to clipboard`
+                `Failed to copy "${activeCommand.code}" to clipboard`,
               )
             }
             value={activeCommand.code}
@@ -37,5 +48,5 @@ export default function Snippets({ snippets }: { snippets: { title: string, code
         </SnippetTabsContent>
       ))}
     </Snippet>
-  );
-};
+  )
+}

@@ -1,11 +1,14 @@
 import { Container } from '@/components/headcode/themes/vienna/container'
-import { Footer, FooterData } from '@/components/headcode/themes/vienna/footer'
-import { Header, HeaderData } from './header'
+import { Footer, FooterData } from '@/components/headcode/themes/custom/footer'
+import {
+  Header,
+  HeaderData,
+} from '../../components/headcode/themes/custom/header'
 import { getSection } from '@/lib/headcode'
 import type { Metadata } from 'next'
 import { cacheTag } from 'next/cache'
 import HeadcodeLogo from '@/public/headcode-logo.svg'
-
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -25,6 +28,7 @@ export default function RootLayout({
         <HeaderSection />
         {children}
         <FooterSection />
+        <Analytics />
       </body>
     </html>
   )
@@ -76,39 +80,31 @@ const defaultHeader: HeaderData = {
 }
 
 const defaultFooter: FooterData = {
-  company: '© 2026 Headcode CMS. All rights reserved.',
+  company: 'Headcode CMS',
   nav: [
     {
       link: {
-        title: 'Website',
-        url: 'https://headcodecms.com',
-        openInNewWindow: true,
+        title: 'Docs',
+        url: '/docs',
+        openInNewWindow: false,
       },
     },
     {
       link: {
-        title: 'Docs',
-        url: 'https://headcodecms.com/docs',
-        openInNewWindow: true,
+        title: 'Community',
+        url: '/community',
+        openInNewWindow: false,
       },
     },
   ],
   social: [
     {
       link: {
-        title: 'Facebook',
-        url: 'https://headcodecms.com',
+        title: 'Github',
+        url: 'https://github.com/headcodecms/headcodecms',
         openInNewWindow: true,
       },
-      icon: 'facebook',
-    },
-    {
-      link: {
-        title: 'Instagram',
-        url: 'https://headcodecms.com/docs',
-        openInNewWindow: true,
-      },
-      icon: 'instagram',
+      icon: 'github',
     },
   ],
 }

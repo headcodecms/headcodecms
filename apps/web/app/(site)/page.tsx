@@ -3,7 +3,7 @@ import {
   Features,
   FeaturesData,
 } from '@/components/headcode/themes/vienna/features'
-import { Hero, HeroData } from './hero'
+import { Hero, HeroData } from '../../components/headcode/themes/custom/hero'
 import { SingleImage } from '@/components/headcode/themes/vienna/image'
 import { Text, TextData } from '@/components/headcode/themes/vienna/text'
 import { getSections } from '@/lib/headcode'

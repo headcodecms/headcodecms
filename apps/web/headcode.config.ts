@@ -1,11 +1,14 @@
+import { heroSection as viennaHeroSection } from '@/components/headcode/themes/vienna/hero'
+import { codeSection } from './components/headcode/themes/custom/code'
+import { headerSection } from './components/headcode/themes/custom/header'
+import { heroSection } from './components/headcode/themes/custom/hero'
+import { snippetSection } from './components/headcode/themes/custom/snippet'
 import { featuresSection } from './components/headcode/themes/vienna/features'
 import { footerSection } from './components/headcode/themes/vienna/footer'
-import { headerSection } from './app/(site)/header'
-import { heroSection } from './app/(site)/hero'
-import { heroSection as viennaHeroSection } from '@/components/headcode/themes/vienna/hero'
 import { imageSection } from './components/headcode/themes/vienna/image'
 import { textSection } from './components/headcode/themes/vienna/text'
 import type { HeadcodeConfig } from './lib/headcode/types'
+import { docsMetaSection } from './app/(site)/docs/[slug]/docs-meta'
 
 export const headcodeConfig: HeadcodeConfig = {
   version: 'v01',
@@ -42,7 +45,13 @@ export const headcodeConfig: HeadcodeConfig = {
     },
     {
       namespace: 'docs',
-      sections: [{ section: heroSection }, { section: textSection }],
+      sections: [
+        { section: docsMetaSection, pinned: true },
+        { section: textSection },
+        { section: snippetSection },
+        { section: codeSection },
+        { section: imageSection },
+      ],
     },
   ],
 }
