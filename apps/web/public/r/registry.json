@@ -46,7 +46,11 @@
         "@kibo-ui/typography"],
       "dependencies": [
         "@libsql/client@^0.15.15",
+        "@tanstack/react-form@^1.25.0",
+        "@tanstack/react-table@^8.21.3",
+        "@tiptap/static-renderer@^3.11",
         "@vercel/blob@^2.0",
+        "babel-plugin-react-compiler@^1.0",
         "better-auth@^1.4",
         "dotenv@^17.2.3",
         "drizzle-orm@^0.44",
@@ -416,6 +420,16 @@
           "target": "components/headcode/form/select-field.ts"
         },
         {
+          "path": "registry/starter/components/headcode/form/switch-field-component.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/form/switch-field-component.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/form/switch-field.ts",
+          "type": "registry:component",
+          "target": "components/headcode/form/switch-field.ts"
+        },
+        {
           "path": "registry/starter/components/headcode/form/text-field-component.tsx",
           "type": "registry:component",
           "target": "components/headcode/form/text-field-component.tsx"
@@ -430,11 +444,21 @@
           "type": "registry:component",
           "target": "components/headcode/form/textarea-field-component.tsx"
         },
+        {
+          "path": "registry/starter/components/headcode/form/textarea-field.ts",
+          "type": "registry:component",
+          "target": "components/headcode/form/textarea-field.ts"
+        },
 
         {
           "path": "registry/starter/components/headcode/themes/vienna/container.tsx",
           "type": "registry:component",
           "target": "components/headcode/themes/vienna/container.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/themes/vienna/features.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/themes/vienna/features.tsx"
         },
         {
           "path": "registry/starter/components/headcode/themes/vienna/footer.tsx",
@@ -476,6 +500,11 @@
           "path": "registry/starter/.env.headcode",
           "type": "registry:page",
           "target": ".env.headcode"
+        },
+        {
+          "path": "registry/starter/.env.local",
+          "type": "registry:page",
+          "target": ".env.local"
         },
         {
           "path": "registry/starter/drizzle.config.ts",

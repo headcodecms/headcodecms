@@ -6,7 +6,11 @@
   "description": "A minimalistic web content management system for Next.js",
   "dependencies": [
     "@libsql/client@^0.15.15",
+    "@tanstack/react-form@^1.25.0",
+    "@tanstack/react-table@^8.21.3",
+    "@tiptap/static-renderer@^3.11",
     "@vercel/blob@^2.0",
+    "babel-plugin-react-compiler@^1.0",
     "better-auth@^1.4",
     "dotenv@^17.2.3",
     "drizzle-orm@^0.44",
@@ -471,6 +475,18 @@
       "target": "components/headcode/form/select-field.ts"
     },
     {
+      "path": "registry/starter/components/headcode/form/switch-field-component.tsx",
+      "content": "import {\n  Field,\n  FieldDescription,\n  FieldError,\n  FieldLabel,\n} from '@/components/ui/field'\nimport { Switch } from '@/components/ui/switch'\nimport { useFieldContext } from './form'\n\nexport default function SwitchFieldComponent({\n  label,\n  description,\n}: {\n  label: string\n  description?: string | undefined\n}) {\n  const field = useFieldContext<boolean>()\n  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid\n  return (\n    <Field data-invalid={isInvalid}>\n      <div className=\"flex items-center gap-2\">\n        <Switch\n          id={field.name}\n          name={field.name}\n          checked={field.state.value}\n          onCheckedChange={(checked) => field.handleChange(checked === true)}\n          onBlur={field.handleBlur}\n          aria-invalid={isInvalid}\n        />\n        <FieldLabel htmlFor={field.name} className=\"cursor-pointer\">\n          {label}\n        </FieldLabel>\n      </div>\n      {description && <FieldDescription>{description}</FieldDescription>}\n      {isInvalid && <FieldError errors={field.state.meta.errors} />}\n    </Field>\n  )\n}\n\n",
+      "type": "registry:component",
+      "target": "components/headcode/form/switch-field-component.tsx"
+    },
+    {
+      "path": "registry/starter/components/headcode/form/switch-field.ts",
+      "content": "import { lazy } from 'react'\nimport { z } from 'zod'\nimport type { FieldProps } from '@/lib/headcode/types'\n\nconst DefaultSwitchField: FieldProps<boolean, unknown> = {\n  label: 'Switch Field',\n  component: lazy(() => import('./switch-field-component')),\n  defaultValue: false,\n  validator: z.boolean(),\n}\nexport const SwitchField = (\n  params: Partial<FieldProps<boolean, unknown>>,\n) => ({\n  ...DefaultSwitchField,\n  ...params,\n})\n\n",
+      "type": "registry:component",
+      "target": "components/headcode/form/switch-field.ts"
+    },
+    {
       "path": "registry/starter/components/headcode/form/text-field-component.tsx",
       "content": "import {\n  Field,\n  FieldDescription,\n  FieldError,\n  FieldLabel,\n} from '@/components/ui/field'\nimport { Input } from '@/components/ui/input'\nimport { useFieldContext } from './form'\n\nexport default function TextFieldComponent({\n  label,\n  description,\n}: {\n  label: string\n  description?: string | undefined\n}) {\n  const field = useFieldContext<string>()\n  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid\n  return (\n    <Field data-invalid={isInvalid}>\n      <FieldLabel htmlFor={field.name}>{label}</FieldLabel>\n      <Input\n        id={field.name}\n        name={field.name}\n        value={field.state.value}\n        onBlur={field.handleBlur}\n        onChange={(e) => field.handleChange(e.target.value)}\n        aria-invalid={isInvalid}\n        autoComplete=\"off\"\n      />\n      {description && <FieldDescription>{description}</FieldDescription>}\n      {isInvalid && <FieldError errors={field.state.meta.errors} />}\n    </Field>\n  )\n}\n",
       "type": "registry:component",
@@ -489,10 +505,22 @@
       "target": "components/headcode/form/textarea-field-component.tsx"
     },
     {
+      "path": "registry/starter/components/headcode/form/textarea-field.ts",
+      "content": "import { lazy } from 'react'\nimport { z } from 'zod'\nimport type { FieldProps } from '@/lib/headcode/types'\n\nconst DefaultTextareaField: FieldProps<string> = {\n  label: 'Textarea Field',\n  component: lazy(() => import('./textarea-field-component')),\n  defaultValue: '',\n  validator: z.string(),\n}\nexport const TextareaField = (params: Partial<FieldProps<string>>) => ({\n  ...DefaultTextareaField,\n  ...params,\n})\n",
+      "type": "registry:component",
+      "target": "components/headcode/form/textarea-field.ts"
+    },
+    {
       "path": "registry/starter/components/headcode/themes/vienna/container.tsx",
       "content": "export function Container({\n  children,\n  className,\n}: {\n  children: React.ReactNode\n  className?: string\n}) {\n  return (\n    <div className={className}>\n      <div className=\"mx-auto max-w-7xl px-4 sm:px-6\">{children}</div>\n    </div>\n  )\n}\n",
       "type": "registry:component",
       "target": "components/headcode/themes/vienna/container.tsx"
+    },
+    {
+      "path": "registry/starter/components/headcode/themes/vienna/features.tsx",
+      "content": "import { LinkField } from '@/components/headcode/form/link-field'\nimport { TextField } from '@/components/headcode/form/text-field'\nimport { TextareaField } from '@/components/headcode/form/textarea-field'\nimport { Button } from '@/components/ui/button'\nimport { parseSectionData } from '@/lib/headcode/data'\nimport type { Fields, InferSectionData } from '@/lib/headcode/types'\nimport {\n  CheckIcon,\n  CloudIcon,\n  HeartIcon,\n  RefreshCcwIcon,\n  SettingsIcon,\n  StarIcon,\n} from 'lucide-react'\nimport { SelectField } from '../../form/select-field'\nimport { ALink } from '../../links'\n\nexport const featuresSection = {\n  name: 'features',\n  label: 'Features Section',\n  fields: {\n    title: TextField({\n      label: 'Title',\n    }),\n    subtitle: TextareaField({\n      label: 'Subtitle',\n    }),\n    tagline: TextField({\n      label: 'Tagline',\n    }),\n    features: {\n      label: 'Features',\n      fields: {\n        title: TextField({\n          label: 'Title',\n        }),\n        description: TextareaField({\n          label: 'Description',\n        }),\n        icon: SelectField({\n          label: 'Icon',\n          options: [\n            { label: 'Check', value: 'check' },\n            { label: 'Star', value: 'star' },\n            { label: 'Heart', value: 'heart' },\n            { label: 'Refresh', value: 'refresh' },\n            { label: 'Settings', value: 'settings' },\n            { label: 'Cloud', value: 'cloud' },\n          ],\n        }),\n        link: LinkField({\n          label: 'Link',\n        }),\n      },\n    },\n  } satisfies Fields,\n}\nexport type FeaturesData = InferSectionData<typeof featuresSection.fields>\n\nexport function Features({ sectionData }: { sectionData: unknown }) {\n  const { data } = parseSectionData(featuresSection.fields, sectionData)\n\n  return (\n    <>\n      <div className=\"mx-auto max-w-2xl lg:text-center\">\n        <h2 className=\"text-accent-foreground mb-2 text-base/7 font-semibold\">\n          {data.tagline}\n        </h2>\n        <p className=\"text-4xl font-semibold tracking-tight text-pretty sm:text-5xl lg:text-balance\">\n          {data.title}\n        </p>\n        <p className=\"text-muted-foreground text-lg/8\">{data.subtitle}</p>\n      </div>\n      <div className=\"mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none\">\n        <dl className=\"grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3\">\n          {data.features.map((feature, index) => {\n            const Icon = icons[feature.icon as keyof typeof icons]\n            return (\n              <div key={index} className=\"flex flex-col\">\n                <dt className=\"text-muted-foreground flex items-center gap-x-3 text-base/7 font-semibold\">\n                  {Icon && (\n                    <Icon\n                      aria-hidden=\"true\"\n                      className=\"text-accent-foreground size-5 flex-none\"\n                    />\n                  )}\n                  {feature.title}\n                </dt>\n                <dd className=\"mt-4 flex flex-auto flex-col text-base/7 text-gray-600 dark:text-gray-400\">\n                  <p className=\"flex-auto\">{feature.description}</p>\n                  <p className=\"mt-6\">\n                    <Button variant=\"secondary\" asChild>\n                      <ALink link={feature.link} />\n                    </Button>\n                  </p>\n                </dd>\n              </div>\n            )\n          })}\n        </dl>\n      </div>\n    </>\n  )\n}\n\nconst icons = {\n  check: CheckIcon,\n  star: StarIcon,\n  heart: HeartIcon,\n  refresh: RefreshCcwIcon,\n  settings: SettingsIcon,\n  cloud: CloudIcon,\n}\n",
+      "type": "registry:component",
+      "target": "components/headcode/themes/vienna/features.tsx"
     },
     {
       "path": "registry/starter/components/headcode/themes/vienna/footer.tsx",
@@ -541,6 +569,12 @@
       "content": "# DEFAULT CONFIGURATION:\n# Best for local development and try out\n\n# LIBSQL_URL=file:headcode.db\n\n# Generate at: https://www.better-auth.com/docs/installation\n# BETTER_AUTH_SECRET=rVFxMy6uImIkOIvkaRffR1soiXwFlnCH\n# BETTER_AUTH_URL=http://localhost:3000\n\n# FILE_STORAGE_FOLDER=public/storage\n\n\n# OPTIONAL CONFIGURATION:\n\n# DATABASE OPTIONS:\n\n# Turso Cloud: https://turso.tech/\n# TURSO_DATABASE_URL=\n# TURSO_AUTH_TOKEN=\n\n# STORAGE OPTIONS:\n\n# Vercel BLOB\n# BLOB_READ_WRITE_TOKEN=\n# Update next.config.ts and add:\n#  images: {\n#    remotePatterns: [new URL('https://<STORE_ID>.public.blob.vercel-storage.com/**')],\n#  },\n# See: https://nextjs.org/docs/app/api-reference/components/image#remotepatterns\n\n# Uploadthing: https://uploadthing.com\n# UPLOADTHING_TOKEN=\n# Update next.config.ts and add:\n#  images: {\n#    remotePatterns: [new URL('https://<APP_ID>.ufs.sh/f/**')],\n#  },\n# See: https://nextjs.org/docs/app/api-reference/components/image#remotepatterns\n\n# URLs in Headcode CMS admin\n# NEXT_PUBLIC_STORAGE_URL=\"https://vercel.com/<ORG>/~/stores/blob/<STORE_ID>/browser\"\n# NEXT_PUBLIC_STORAGE_TITLE=\"Vercel BLOB\"",
       "type": "registry:page",
       "target": ".env.headcode"
+    },
+    {
+      "path": "registry/starter/.env.local",
+      "content": "# DEFAULT CONFIGURATION:\n# Best for local development and try out\n\n# LIBSQL_URL=file:headcode.db\n\n# Generate at: https://www.better-auth.com/docs/installation\n# BETTER_AUTH_SECRET=rVFxMy6uImIkOIvkaRffR1soiXwFlnCH\n# BETTER_AUTH_URL=http://localhost:3000\n\n# FILE_STORAGE_FOLDER=public/storage\n\n\n# OPTIONAL CONFIGURATION:\n\n# DATABASE OPTIONS:\n\n# Turso Cloud: https://turso.tech/\n# TURSO_DATABASE_URL=\n# TURSO_AUTH_TOKEN=\n\n# STORAGE OPTIONS:\n\n# Vercel BLOB\n# BLOB_READ_WRITE_TOKEN=\n# Update next.config.ts and add:\n#  images: {\n#    remotePatterns: [new URL('https://<STORE_ID>.public.blob.vercel-storage.com/**')],\n#  },\n# See: https://nextjs.org/docs/app/api-reference/components/image#remotepatterns\n\n# Uploadthing: https://uploadthing.com\n# UPLOADTHING_TOKEN=\n# Update next.config.ts and add:\n#  images: {\n#    remotePatterns: [new URL('https://<APP_ID>.ufs.sh/f/**')],\n#  },\n# See: https://nextjs.org/docs/app/api-reference/components/image#remotepatterns\n\n# URLs in Headcode CMS admin\n# NEXT_PUBLIC_STORAGE_URL=\"https://vercel.com/<ORG>/~/stores/blob/<STORE_ID>/browser\"\n# NEXT_PUBLIC_STORAGE_TITLE=\"Vercel BLOB\"",
+      "type": "registry:page",
+      "target": ".env.local"
     },
     {
       "path": "registry/starter/drizzle.config.ts",
