@@ -35,6 +35,7 @@ const formSchema = z.object({
 
 export function SignInForm({
   className,
+  style,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   const [error, setError] = useState<string | null>(null)
