@@ -5,7 +5,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
-import { useFieldContext } from './form'
+import { useFieldContext } from './app-form'
 
 export default function SwitchFieldComponent({
   label,
@@ -36,4 +36,3 @@ export default function SwitchFieldComponent({
     </Field>
   )
 }
-

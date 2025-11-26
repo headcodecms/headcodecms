@@ -5,7 +5,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useFieldContext } from './form'
+import { useFieldContext } from './app-form'
 
 export default function CheckboxFieldComponent({
   label,
@@ -36,4 +36,3 @@ export default function CheckboxFieldComponent({
     </Field>
   )
 }
-

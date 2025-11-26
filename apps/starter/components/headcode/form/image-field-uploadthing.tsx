@@ -9,8 +9,8 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { UploadDropzone } from '@/lib/headcode/uploadthing'
-import { useFieldContext } from './form'
-import { calculateImageProps } from '@/lib/headcode/image'
+import { useFieldContext } from './app-form'
+import { calculateImageProps } from '@/lib/headcode/images'
 import type { ImageValue } from '@/lib/headcode/types'
 import { ImagePreview } from '@/components/headcode/admin/image-preview'
 

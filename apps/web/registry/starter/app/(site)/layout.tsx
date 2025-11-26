@@ -2,7 +2,6 @@ import { Container } from '@/components/headcode/themes/vienna/container'
 import { Footer, FooterData } from '@/components/headcode/themes/vienna/footer'
 import { Header, HeaderData } from '@/components/headcode/themes/vienna/header'
 import { getSection } from '@/lib/headcode'
-import DefaultLogo from '@/public/headcode-logo.svg'
 import type { Metadata } from 'next'
 import { cacheTag } from 'next/cache'
 import './globals.css'
@@ -53,7 +52,7 @@ async function FooterSection() {
 }
 
 const defaultHeader: HeaderData = {
-  logo: DefaultLogo,
+  logo: null,
   name: 'Headcode CMS',
   nav: [
     {

@@ -9,8 +9,8 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Dropzone, DropzoneEmptyState } from '@/components/kibo-ui/dropzone'
-import { useFieldContext } from './form'
-import { calculateImageProps } from '@/lib/headcode/image'
+import { useFieldContext } from './app-form'
+import { calculateImageProps } from '@/lib/headcode/images'
 import { uploadFile } from '@/app/(headcode)/headcode/section/[entryId]/[sectionId]/storage'
 import type { ImageValue } from '@/lib/headcode/types'
 import { ImagePreview } from '@/components/headcode/admin/image-preview'

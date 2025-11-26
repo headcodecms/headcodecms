@@ -1,7 +1,7 @@
 'use client'
 
 import { ConfirmationDialog } from '@/components/headcode/admin/dialogs'
-import { useAppForm } from '@/components/headcode/form/form'
+import { useAppForm } from '@/components/headcode/form/app-form'
 import TextFieldComponent from '@/components/headcode/form/text-field-component'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,7 +28,7 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import type { Entry, Section } from '@/lib/headcode/types'
 import { getConfigSection } from '@/lib/headcode/config'
-import { getDefaultSectionValues, getSchema } from '@/lib/headcode/form'
+import { getDefaultSectionValues, getSchema } from '@/lib/headcode/fields'
 import { ChildFields, FieldProps } from '@/lib/headcode/types'
 import { GripVerticalIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'

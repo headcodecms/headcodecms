@@ -1,4 +1,4 @@
-import { getSchema, getDefaultValues } from './form'
+import { getSchema, getDefaultValues } from './fields'
 import type { Fields, InferSectionData } from './types'
 
 export function parseSectionData<F extends Fields>(
