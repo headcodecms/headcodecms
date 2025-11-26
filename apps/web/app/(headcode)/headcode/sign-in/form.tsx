@@ -36,7 +36,7 @@ const formSchema = z.object({
 export function SignInForm({
   className,
   ...props
-}: Omit<React.ComponentProps<'div'>, 'ref'>) {
+}: React.HTMLAttributes<HTMLDivElement>) {
   const [error, setError] = useState<string | null>(null)
 
   const router = useRouter()
