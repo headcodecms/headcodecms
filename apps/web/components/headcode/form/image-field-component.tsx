@@ -125,6 +125,7 @@ export default function ImageFieldComponent({
           minSize={minSize}
           onDrop={handleDrop}
           disabled={uploading}
+          multiple={maxFiles > 1}
         >
           {uploading ? (
             <div className="flex flex-col items-center justify-center">
