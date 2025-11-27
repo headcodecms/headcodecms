@@ -1,3 +1,6 @@
+'use cache'
+cacheLife('hours')
+
 import { Code } from '@/components/headcode/themes/custom/code'
 import { Snippet } from '@/components/headcode/themes/custom/snippet'
 import { Container } from '@/components/headcode/themes/vienna/container'
@@ -14,13 +17,9 @@ export default async function Docs({
 }: {
   params: Promise<{ slug: string }>
 }) {
-  'use cache'
-  cacheLife('hours')
-
   const { slug } = await params
 
   const sections = await getSections('docs', slug)
-
   return (
     <Container className="mb-8 lg:mb-16">
       <SidebarProvider>

@@ -52,7 +52,7 @@ async function FooterSection() {
 
   const section = await getSection('global', 'footer', 'footer')
   return (
-    <Container className="bg-muted text-muted-foreground py-8">
+    <Container className="text-muted-foreground py-8">
       <Footer sectionData={section ? section.data : defaultFooter} />
     </Container>
   )
