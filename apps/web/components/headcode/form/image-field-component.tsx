@@ -126,6 +126,9 @@ export default function ImageFieldComponent({
           onDrop={handleDrop}
           disabled={uploading}
           multiple={maxFiles > 1}
+          onDragEnter={() => {}}
+          onDragLeave={() => {}}
+          onDragOver={() => {}}
         >
           {uploading ? (
             <div className="flex flex-col items-center justify-center">
