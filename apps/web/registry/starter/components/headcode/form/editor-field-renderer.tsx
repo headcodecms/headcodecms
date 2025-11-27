@@ -38,7 +38,7 @@ const defaultExtensions = [
     code: {
       HTMLAttributes: {
         class: cn('rounded-md bg-muted px-1.5 py-1 font-medium font-mono'),
-        spellcheck: 'false',
+        spellCheck: 'false',
       },
     },
     horizontalRule: {

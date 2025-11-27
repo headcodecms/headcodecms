@@ -1,0 +1,188 @@
+import { Container } from '@/components/headcode/themes/vienna/container'
+import { Features } from '@/components/headcode/themes/vienna/features'
+import { SingleImage } from '@/components/headcode/themes/vienna/image'
+import { Text, TextData } from '@/components/headcode/themes/vienna/text'
+import { getSections } from '@/lib/headcode'
+import { cacheTag } from 'next/cache'
+import { Fragment } from 'react/jsx-runtime'
+import { Hero, HeroData } from '../../components/headcode/themes/custom/hero'
+import { Suspense } from 'react'
+
+// export default function Home() {
+//   return <HomeSection />
+// }
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  return (
+    <Suspense>
+      <HomePage searchParams={searchParams} />
+    </Suspense>
+  )
+}
+
+async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const { access } = await searchParams
+  return access ? <HomeSection /> : <AccessDenied />
+}
+
+async function AccessDenied() {
+  'use cache'
+
+  return (
+    <div className="bg-background fixed inset-0 z-50 flex h-screen w-full items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold">Headcode CMS</h1>
+        <p className="text-muted-foreground text-lg">Coming soon...</p>
+      </div>
+    </div>
+  )
+}
+
+async function HomeSection() {
+  'use cache'
+  cacheTag('/headcode/entries/global/home')
+
+  const sections = await getSections('global', 'home')
+
+  if (sections.length === 0) {
+    return (
+      <>
+        <Container className="py-8 lg:py-16">
+          <Hero sectionData={defaultHero} />
+        </Container>
+        <Container className="py-8 lg:py-16">
+          <Text sectionData={defaultText} />
+        </Container>
+      </>
+    )
+  }
+
+  return sections.map((section) => (
+    <Fragment key={section.id}>
+      {section.name === 'hero' && (
+        <Container className="py-8 lg:py-16">
+          <Hero sectionData={section.data} />
+        </Container>
+      )}
+      {section.name === 'features' && (
+        <Container className="py-8 lg:py-16">
+          <Features sectionData={section.data} />
+        </Container>
+      )}
+      {section.name === 'text' && (
+        <Container className="py-8 lg:py-16">
+          <Text sectionData={section.data} />
+        </Container>
+      )}
+      {section.name === 'image' && (
+        <div className="py-4 lg:py-8">
+          <div className="mx-auto sm:max-w-7xl sm:px-6">
+            <div className="flex justify-center">
+              <SingleImage sectionData={section.data} />
+            </div>
+          </div>
+        </div>
+      )}
+    </Fragment>
+  ))
+}
+
+const defaultHero: HeroData = {
+  title: 'A Minimalistic Web CMS',
+  features: [
+    {
+      title: 'Published as a shadcn repository',
+    },
+    {
+      title: 'Optimzied for Next.js 16 Cache Components',
+    },
+    {
+      title: 'Publish your own themes, UI sections, and field types',
+    },
+    {
+      title: 'Generate layouts and themes with AI tools and agents',
+    },
+  ],
+  snippets: [
+    {
+      title: 'pnpm',
+      code: 'npx kibo-ui@latest add snippet',
+    },
+  ],
+  snippetsSublines: [
+    {
+      line: 'Default: SQLite (file), Better Auth, file storage',
+    },
+    {
+      line: 'Best for local dev and tryout - no SAAS services required.',
+    },
+  ],
+  databases: [
+    {
+      name: 'SQLite (file)',
+      available: true,
+    },
+    {
+      name: 'Turso Cloud',
+      available: true,
+    },
+    {
+      name: 'Postgres (soon)',
+      available: false,
+    },
+  ],
+  storages: [
+    {
+      name: 'File Storage',
+      available: true,
+    },
+    {
+      name: 'Vercel BLOB',
+      available: true,
+    },
+    {
+      name: 'Uploadthing (soon)',
+      available: false,
+    },
+  ],
+  auths: [
+    {
+      name: 'Better Auth',
+      available: true,
+    },
+    {
+      name: 'Clerk (soon)',
+      available: false,
+    },
+  ],
+  primaryButton: {
+    title: 'Get Started',
+    url: '/docs',
+    openInNewWindow: false,
+  },
+}
+
+const defaultText: TextData = {
+  text: {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+          },
+        ],
+      },
+    ],
+  },
+}

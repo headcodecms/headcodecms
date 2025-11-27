@@ -33,10 +33,7 @@ const formSchema = z.object({
     .max(128, 'Password must be less than 128 characters'),
 })
 
-export function SignInForm({
-  className,
-  ...props
-}: React.ComponentProps<'div'>) {
+export function SignInForm({ className }: React.ComponentProps<'div'>) {
   const [error, setError] = useState<string | null>(null)
 
   const router = useRouter()
@@ -68,7 +65,7 @@ export function SignInForm({
   })
 
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
+    <div className={cn('flex flex-col gap-6', className)}>
       <h2 className="text-center text-3xl font-bold tracking-tight">
         Headcode CMS
       </h2>
