@@ -27,7 +27,7 @@ export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   'use cache'
-  cacheTag('/headcode/entries/<docs-id>')
+  cacheTag('/headcode/entries')
 
   const entries = await getEntriesWithSections('docs', { name: 'docs-meta' })
   const metas = entries
