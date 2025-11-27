@@ -1,21 +1,41 @@
-'use cache'
-
 import { Code } from '@/components/headcode/themes/custom/code'
 import { Snippet } from '@/components/headcode/themes/custom/snippet'
 import { Container } from '@/components/headcode/themes/vienna/container'
 import { SingleImage } from '@/components/headcode/themes/vienna/image'
 import { Text } from '@/components/headcode/themes/vienna/text'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { getSections } from '@/lib/headcode'
+import { getEntries, getSections } from '@/lib/headcode'
+import { cacheTag } from 'next/cache'
 import { Fragment } from 'react/jsx-runtime'
 import { AppSidebar } from './app-sidebar'
 
-export default async function Docs({
+export async function generateStaticParams() {
+  'use cache'
+  cacheTag('/headcode/entries')
+
+  const entries = await getEntries('docs')
+  return entries.map((entry) => ({
+    slug: entry.key,
+  }))
+}
+
+export default function Docs({
   params,
 }: {
   params: Promise<{ slug: string }>
 }) {
+  return <DocsSections params={params} />
+}
+
+const DocsSections = async ({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) => {
+  'use cache'
+
   const { slug } = await params
+  cacheTag(`/headcode/entries/docs/${slug}`)
 
   const sections = await getSections('docs', slug)
   return (
