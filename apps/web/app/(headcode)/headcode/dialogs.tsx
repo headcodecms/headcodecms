@@ -195,24 +195,27 @@ export function DialogAddEntry({
             </form.Field>
           </FieldGroup>
         </form>
-        <form.Subscribe
-          selector={(state): [boolean, boolean] => [
-            state.canSubmit,
-            state.isSubmitting,
-          ]}
-        >
-          {([canSubmit, isSubmitting]) => (
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
+        <form.Subscribe>
+          {(state) => {
+            const canSubmit = state.canSubmit
+            const isSubmitting = state.isSubmitting
+            return (
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
 
-              <Button type="submit" form="add-entry-form" disabled={!canSubmit}>
-                {isSubmitting && <Spinner />}
-                Add Entry
-              </Button>
-            </DialogFooter>
-          )}
+                <Button
+                  type="submit"
+                  form="add-entry-form"
+                  disabled={!canSubmit}
+                >
+                  {isSubmitting && <Spinner />}
+                  Add Entry
+                </Button>
+              </DialogFooter>
+            )
+          }}
         </form.Subscribe>
       </DialogContent>
     </Dialog>
