@@ -1,5 +1,4 @@
 'use cache'
-cacheLife('hours')
 
 import { Code } from '@/components/headcode/themes/custom/code'
 import { Snippet } from '@/components/headcode/themes/custom/snippet'
@@ -8,7 +7,6 @@ import { SingleImage } from '@/components/headcode/themes/vienna/image'
 import { Text } from '@/components/headcode/themes/vienna/text'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { getSections } from '@/lib/headcode'
-import { cacheLife } from 'next/cache'
 import { Fragment } from 'react/jsx-runtime'
 import { AppSidebar } from './app-sidebar'
 
