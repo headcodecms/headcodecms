@@ -166,25 +166,27 @@ export function DialogAddSection({
             </form.Field>
           </FieldGroup>
         </form>
-        <form.Subscribe
-          selector={(state) => [state.canSubmit, state.isSubmitting]}
-        >
-          {([canSubmit, isSubmitting]) => (
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
+        <form.Subscribe>
+          {(state: typeof form.state) => {
+            const canSubmit = state.canSubmit
+            const isSubmitting = state.isSubmitting
+            return (
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
 
-              <Button
-                type="submit"
-                form="add-section-form"
-                disabled={!canSubmit}
-              >
-                {isSubmitting && <Spinner />}
-                Add Section
-              </Button>
-            </DialogFooter>
-          )}
+                <Button
+                  type="submit"
+                  form="add-section-form"
+                  disabled={!canSubmit}
+                >
+                  {isSubmitting && <Spinner />}
+                  Add Section
+                </Button>
+              </DialogFooter>
+            )
+          }}
         </form.Subscribe>
       </DialogContent>
     </Dialog>

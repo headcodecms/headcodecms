@@ -141,21 +141,23 @@ export function SignInForm({ className }: React.ComponentProps<'div'>) {
                   )
                 }}
               </form.Field>
-              <form.Subscribe
-                selector={(state) => [state.canSubmit, state.isSubmitting]}
-              >
-                {([canSubmit, isSubmitting]) => (
-                  <Field>
-                    <Button
-                      type="submit"
-                      form="sign-in-form"
-                      disabled={!canSubmit}
-                    >
-                      {isSubmitting && <Spinner />}
-                      Sign in
-                    </Button>
-                  </Field>
-                )}
+              <form.Subscribe>
+                {(state: typeof form.state) => {
+                  const canSubmit = state.canSubmit
+                  const isSubmitting = state.isSubmitting
+                  return (
+                    <Field>
+                      <Button
+                        type="submit"
+                        form="sign-in-form"
+                        disabled={!canSubmit}
+                      >
+                        {isSubmitting && <Spinner />}
+                        Sign in
+                      </Button>
+                    </Field>
+                  )
+                }}
               </form.Subscribe>
             </FieldGroup>
           </form>

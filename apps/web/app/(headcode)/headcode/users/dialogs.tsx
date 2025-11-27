@@ -223,19 +223,22 @@ export function DialogAddUser({
             </form.Field>
           </FieldGroup>
         </form>
-        <form.Subscribe selector={(state) => [state.canSubmit]}>
-          {([canSubmit]) => (
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
+        <form.Subscribe>
+          {(state: typeof form.state) => {
+            const canSubmit = state.canSubmit
+            return (
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
 
-              <Button type="submit" form="add-user-form" disabled={!canSubmit}>
-                {isSubmitting && <Spinner />}
-                Add User
-              </Button>
-            </DialogFooter>
-          )}
+                <Button type="submit" form="add-user-form" disabled={!canSubmit}>
+                  {isSubmitting && <Spinner />}
+                  Add User
+                </Button>
+              </DialogFooter>
+            )
+          }}
         </form.Subscribe>
       </DialogContent>
     </Dialog>
@@ -341,25 +344,27 @@ export function DialogChangePassword({
             </form.Field>
           </FieldGroup>
         </form>
-        <form.Subscribe
-          selector={(state) => [state.canSubmit, state.isSubmitting]}
-        >
-          {([canSubmit, isSubmitting]) => (
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
+        <form.Subscribe>
+          {(state: typeof form.state) => {
+            const canSubmit = state.canSubmit
+            const isSubmitting = state.isSubmitting
+            return (
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
 
-              <Button
-                type="submit"
-                form="change-password-form"
-                disabled={!canSubmit}
-              >
-                {isSubmitting && <Spinner />}
-                Change Password
-              </Button>
-            </DialogFooter>
-          )}
+                <Button
+                  type="submit"
+                  form="change-password-form"
+                  disabled={!canSubmit}
+                >
+                  {isSubmitting && <Spinner />}
+                  Change Password
+                </Button>
+              </DialogFooter>
+            )
+          }}
         </form.Subscribe>
       </DialogContent>
     </Dialog>
