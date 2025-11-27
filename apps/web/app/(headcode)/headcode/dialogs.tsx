@@ -196,7 +196,7 @@ export function DialogAddEntry({
           </FieldGroup>
         </form>
         <form.Subscribe>
-          {(state) => {
+          {(state: typeof form.state) => {
             const canSubmit = state.canSubmit
             const isSubmitting = state.isSubmitting
             return (
