@@ -1,17 +1,49 @@
 import { Container } from '@/components/headcode/themes/vienna/container'
-import {
-  Features,
-  FeaturesData,
-} from '@/components/headcode/themes/vienna/features'
-import { Hero, HeroData } from '../../components/headcode/themes/custom/hero'
+import { Features } from '@/components/headcode/themes/vienna/features'
 import { SingleImage } from '@/components/headcode/themes/vienna/image'
 import { Text, TextData } from '@/components/headcode/themes/vienna/text'
 import { getSections } from '@/lib/headcode'
 import { cacheTag } from 'next/cache'
 import { Fragment } from 'react/jsx-runtime'
+import { Hero, HeroData } from '../../components/headcode/themes/custom/hero'
+import { Suspense } from 'react'
 
-export default function Home() {
-  return <HomeSection />
+// export default function Home() {
+//   return <HomeSection />
+// }
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  return (
+    <Suspense>
+      <HomePage searchParams={searchParams} />
+    </Suspense>
+  )
+}
+
+async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const { access } = await searchParams
+  return access ? <HomeSection /> : <AccessDenied />
+}
+
+async function AccessDenied() {
+  'use cache'
+
+  return (
+    <div className="bg-background fixed inset-0 z-50 flex h-screen w-full items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold">Headcode CMS</h1>
+        <p className="text-muted-foreground text-lg">Coming soon...</p>
+      </div>
+    </div>
+  )
 }
 
 async function HomeSection() {
@@ -25,9 +57,6 @@ async function HomeSection() {
       <>
         <Container className="py-8 lg:py-16">
           <Hero sectionData={defaultHero} />
-        </Container>
-        <Container className="py-8 lg:py-16">
-          <Features sectionData={defaultFeatures} />
         </Container>
         <Container className="py-8 lg:py-16">
           <Text sectionData={defaultText} />
@@ -88,53 +117,57 @@ const defaultHero: HeroData = {
       code: 'npx kibo-ui@latest add snippet',
     },
   ],
+  snippetsSublines: [
+    {
+      line: 'Default: SQLite (file), Better Auth, file storage',
+    },
+    {
+      line: 'Best for local dev and tryout - no SAAS services required.',
+    },
+  ],
+  databases: [
+    {
+      name: 'SQLite (file)',
+      available: true,
+    },
+    {
+      name: 'Turso Cloud',
+      available: true,
+    },
+    {
+      name: 'Postgres (soon)',
+      available: false,
+    },
+  ],
+  storages: [
+    {
+      name: 'File Storage',
+      available: true,
+    },
+    {
+      name: 'Vercel BLOB',
+      available: true,
+    },
+    {
+      name: 'Uploadthing (soon)',
+      available: false,
+    },
+  ],
+  auths: [
+    {
+      name: 'Better Auth',
+      available: true,
+    },
+    {
+      name: 'Clerk (soon)',
+      available: false,
+    },
+  ],
   primaryButton: {
     title: 'Get Started',
     url: '/docs',
     openInNewWindow: false,
   },
-}
-
-const defaultFeatures: FeaturesData = {
-  title: 'Features',
-  subtitle:
-    'A minimalistic web content management system for Next.js. Start with editing content in the Headcode Admin.',
-  tagline: 'Features',
-  features: [
-    {
-      title: 'Feature 1',
-      description:
-        'Feature 1 lorem ipsum dolor sit amet. Consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      icon: 'cloud',
-      link: {
-        title: 'Feature 1',
-        url: 'https://headcodecms.com',
-        openInNewWindow: true,
-      },
-    },
-    {
-      title: 'Feature 2',
-      description:
-        'Feature 2 lorem ipsum dolor sit amet. Consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      icon: 'refresh',
-      link: {
-        title: 'Feature 2',
-        url: 'https://headcodecms.com',
-        openInNewWindow: true,
-      },
-    },
-    {
-      title: 'Feature 3',
-      description:
-        'Feature 3 lorem ipsum dolor sit amet. Consectetur adipiscing elit.',
-      icon: 'settings',
-      link: {
-        title: 'Feature 3',
-        url: 'https://headcodecms.com',
-        openInNewWindow: true,
-      },
-    },
-  ],
 }
 
 const defaultText: TextData = {

@@ -1,5 +1,5 @@
 import { Container } from '@/components/headcode/themes/vienna/container'
-import { Hero, HeroData } from '@/components/headcode/themes/vienna/hero'
+import { Hero, HeroData } from '@/components/headcode/themes/custom/hero'
 import { SingleImage } from '@/components/headcode/themes/vienna/image'
 import { Text, TextData } from '@/components/headcode/themes/vienna/text'
 import { getSections } from '@/lib/headcode'
@@ -19,10 +19,10 @@ async function CommunitySection() {
   if (sections.length === 0) {
     return (
       <>
-        <Container className="py-8 lg:py-16">
+        <Container className="py-8 lg:pt-16">
           <Hero sectionData={defaultHero} />
         </Container>
-        <Container className="py-8 lg:py-16">
+        <Container className="py-8">
           <Text sectionData={defaultText} />
         </Container>
       </>
@@ -32,12 +32,12 @@ async function CommunitySection() {
   return sections.map((section) => (
     <Fragment key={section.id}>
       {section.name === 'hero' && (
-        <Container className="py-8 lg:py-16">
+        <Container className="py-8 lg:pt-16">
           <Hero sectionData={section.data} />
         </Container>
       )}
       {section.name === 'text' && (
-        <Container className="py-8 lg:py-16">
+        <Container className="py-8">
           <Text sectionData={section.data} />
         </Container>
       )}
@@ -56,16 +56,16 @@ async function CommunitySection() {
 
 const defaultHero: HeroData = {
   title: 'Community',
-  subtitle: 'See what the community is building with Headcode CMS.',
+  features: [],
+  snippets: [],
+  snippetsSublines: [],
+  databases: [],
+  storages: [],
+  auths: [],
   primaryButton: {
     title: '',
     url: '',
     openInNewWindow: false,
-  },
-  secondaryButton: {
-    title: '',
-    url: '',
-    openInNewWindow: true,
   },
 }
 
