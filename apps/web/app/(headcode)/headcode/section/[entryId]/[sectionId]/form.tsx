@@ -391,43 +391,47 @@ export function Form({ entry, section }: { entry: Entry; section: Section }) {
   )
 
   const SectionSubmitButtons = () => (
-    <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-      {([canSubmit, isSubmitting]) => (
-        <CardFooter>
-          <Field
-            orientation="horizontal"
-            className="flex w-full items-center justify-between gap-2"
-          >
-            <div className="flex items-center gap-2">
-              <Button
-                disabled={!canSubmit}
-                type="submit"
-                form="edit-section-form"
-              >
-                {isSubmitting && <Spinner />}
-                Save
-              </Button>
-              <Button
-                disabled={!canSubmit}
-                type="button"
-                variant="outline"
-                onClick={() => form.reset()}
-              >
-                Reset
-              </Button>
-            </div>
-            {!section.pinned && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleDeleteSection}
-              >
-                Delete Section
-              </Button>
-            )}
-          </Field>
-        </CardFooter>
-      )}
+    <form.Subscribe>
+      {(state: typeof form.state) => {
+        const canSubmit = state.canSubmit
+        const isSubmitting = state.isSubmitting
+        return (
+          <CardFooter>
+            <Field
+              orientation="horizontal"
+              className="flex w-full items-center justify-between gap-2"
+            >
+              <div className="flex items-center gap-2">
+                <Button
+                  disabled={!canSubmit}
+                  type="submit"
+                  form="edit-section-form"
+                >
+                  {isSubmitting && <Spinner />}
+                  Save
+                </Button>
+                <Button
+                  disabled={!canSubmit}
+                  type="button"
+                  variant="outline"
+                  onClick={() => form.reset()}
+                >
+                  Reset
+                </Button>
+              </div>
+              {!section.pinned && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleDeleteSection}
+                >
+                  Delete Section
+                </Button>
+              )}
+            </Field>
+          </CardFooter>
+        )
+      }}
     </form.Subscribe>
   )
 
