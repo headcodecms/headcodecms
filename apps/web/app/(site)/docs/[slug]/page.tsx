@@ -5,9 +5,9 @@ import { SingleImage } from '@/components/headcode/themes/vienna/image'
 import { Text } from '@/components/headcode/themes/vienna/text'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { getSections } from '@/lib/headcode'
+import { cacheLife } from 'next/cache'
 import { Fragment } from 'react/jsx-runtime'
 import { AppSidebar } from './app-sidebar'
-import { cacheTag } from 'next/cache'
 
 export default async function Docs({
   params,
@@ -15,8 +15,9 @@ export default async function Docs({
   params: Promise<{ slug: string }>
 }) {
   'use cache'
+  cacheLife('hours')
+
   const { slug } = await params
-  cacheTag(`/headcode/entries/docs/${slug}`)
 
   const sections = await getSections('docs', slug)
 
