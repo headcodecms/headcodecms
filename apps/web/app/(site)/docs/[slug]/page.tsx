@@ -7,6 +7,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { getSections } from '@/lib/headcode'
 import { Fragment } from 'react/jsx-runtime'
 import { AppSidebar } from './app-sidebar'
+import { cacheTag } from 'next/cache'
 export default function Docs({
   params,
 }: {
@@ -20,7 +21,10 @@ const DocsSection = async ({
 }: {
   params: Promise<{ slug: string }>
 }) => {
+  'use cache'
   const { slug } = await params
+  cacheTag(`/headcode/entries/docs/${slug}`)
+
   const sections = await getSections('docs', slug)
 
   return (
