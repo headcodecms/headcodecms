@@ -196,7 +196,10 @@ export function DialogAddEntry({
           </FieldGroup>
         </form>
         <form.Subscribe
-          selector={(state) => [state.canSubmit, state.isSubmitting]}
+          selector={(state): [boolean, boolean] => [
+            state.canSubmit,
+            state.isSubmitting,
+          ]}
         >
           {([canSubmit, isSubmitting]) => (
             <DialogFooter>
