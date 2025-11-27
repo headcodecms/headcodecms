@@ -8,19 +8,12 @@ import { getSections } from '@/lib/headcode'
 import { Fragment } from 'react/jsx-runtime'
 import { AppSidebar } from './app-sidebar'
 import { cacheTag } from 'next/cache'
-export default function Docs({
+
+export default async function Docs({
   params,
 }: {
   params: Promise<{ slug: string }>
 }) {
-  return <DocsSection params={params} />
-}
-
-const DocsSection = async ({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) => {
   'use cache'
   const { slug } = await params
   cacheTag(`/headcode/entries/docs/${slug}`)
