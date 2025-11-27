@@ -4,7 +4,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "tsconfig.json"],
       "outputs": [".next/**", "!.next/cache/**"],
       "env": [
         "BETTER_AUTH_SECRET",
