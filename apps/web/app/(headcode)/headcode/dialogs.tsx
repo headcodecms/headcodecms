@@ -198,7 +198,7 @@ export function DialogAddEntry({
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
         >
-          {([canSubmit, isSubmitting]: [boolean, boolean]) => (
+          {([canSubmit, isSubmitting]) => (
             <DialogFooter>
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
