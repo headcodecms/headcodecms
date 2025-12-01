@@ -1,6 +1,11 @@
+import {
+  DocsMetaData,
+  docsMetaSection,
+} from '@/app/(site)/docs/[slug]/docs-meta'
 import { ImageField } from '@/components/headcode/form/image-field'
 import { LinkField } from '@/components/headcode/form/link-field'
 import { TextField } from '@/components/headcode/form/text-field'
+import { ALink } from '@/components/headcode/links'
 import { Button } from '@/components/ui/button'
 import {
   NavigationMenu,
@@ -8,6 +13,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from '@/components/ui/navigation-menu'
+import { Separator } from '@/components/ui/separator'
 import {
   Sheet,
   SheetContent,
@@ -16,11 +22,16 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { parseSectionData } from '@/lib/headcode/data'
-import type { Fields, InferSectionData } from '@/lib/headcode/types'
+import type {
+  Entry,
+  Fields,
+  InferSectionData,
+  Section,
+} from '@/lib/headcode/types'
 import { MenuIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ALink } from '@/components/headcode/links'
+import { getNav } from '@/app/(site)/docs/[slug]/nav-util'
 
 export const headerSection = {
   name: 'header',
@@ -44,8 +55,23 @@ export const headerSection = {
 }
 export type HeaderData = InferSectionData<typeof headerSection.fields>
 
-export function Header({ sectionData }: { sectionData: unknown }) {
+export function Header({
+  sectionData,
+  entries,
+}: {
+  sectionData: unknown
+  entries: { entry: Entry; section: Section }[]
+}) {
   const { data } = parseSectionData(headerSection.fields, sectionData)
+  const metas = entries
+    .map((entry) => {
+      const data = entry.section.data as DocsMetaData
+      const parsedData = parseSectionData(docsMetaSection.fields, data)
+      return { ...parsedData.data, slug: entry.entry.key }
+    })
+    .sort((a, b) => (a.order < b.order ? -1 : 1))
+
+  const docsNav = getNav(metas)
 
   return (
     <div className="flex items-center justify-between">
@@ -79,7 +105,7 @@ export function Header({ sectionData }: { sectionData: unknown }) {
           </NavigationMenuItem>
           <NavigationMenuItem className="sm:hidden">
             <NavigationMenuLink asChild>
-              <MobileSheet nav={data.nav} />
+              <MobileSheet nav={data.nav} docsNav={docsNav} />
             </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
@@ -88,7 +114,16 @@ export function Header({ sectionData }: { sectionData: unknown }) {
   )
 }
 
-function MobileSheet({ nav }: { nav: HeaderData['nav'] }) {
+function MobileSheet({
+  nav,
+  docsNav,
+}: {
+  nav: HeaderData['nav']
+  docsNav: {
+    title: string
+    items: { title: string; url: string; isActive: boolean }[]
+  }[]
+}) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -96,7 +131,7 @@ function MobileSheet({ nav }: { nav: HeaderData['nav'] }) {
           <MenuIcon className="size-4" />
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Navigation</SheetTitle>
         </SheetHeader>
@@ -114,6 +149,23 @@ function MobileSheet({ nav }: { nav: HeaderData['nav'] }) {
             )}
           </div>
         ))}
+        <Separator />
+        <div className="space-y-4 px-4">
+          {docsNav.map((item, index) => (
+            <div key={index}>
+              {item.title}
+              {item.items.map((item, index) => (
+                <Link
+                  className="hover:bg-muted block px-4 py-2"
+                  href={item.url}
+                  key={index}
+                >
+                  {item.title}
+                </Link>
+              ))}
+            </div>
+          ))}
+        </div>
       </SheetContent>
     </Sheet>
   )

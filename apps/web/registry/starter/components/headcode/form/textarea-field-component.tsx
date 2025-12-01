@@ -37,7 +37,7 @@ export default function TextareaFieldComponent({
         />
         <InputGroupAddon align="block-end">
           <InputGroupText className="tabular-nums">
-            {field.state.value.length}/100 characters
+            {field.state.value.length} characters
           </InputGroupText>
         </InputGroupAddon>
       </InputGroup>

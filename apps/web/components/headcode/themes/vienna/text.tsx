@@ -18,7 +18,7 @@ export function Text({ sectionData }: { sectionData: unknown }) {
   const { data } = parseSectionData(textSection.fields, sectionData)
 
   return (
-    <div className="typography mx-auto mb-12 max-w-4xl">
+    <div className="typography mx-auto mb-12 max-w-3xl">
       {data.text && render(data.text as JSONContent)}
     </div>
   )

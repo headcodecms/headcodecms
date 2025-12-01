@@ -11,6 +11,7 @@ export type { Editor, JSONContent } from '@tiptap/react'
 
 import StarterKit from '@tiptap/starter-kit'
 import { createLowlight } from 'lowlight'
+import { TextStyleKit } from '@tiptap/extension-text-style'
 
 const defaultExtensions = [
   StarterKit.configure({
@@ -85,11 +86,17 @@ const defaultExtensions = [
   }),
   Superscript,
   Subscript,
+  TextStyleKit,
 ]
 
 export function render(content: JSONContent) {
-  return renderToReactElement({
-    content,
-    extensions: defaultExtensions,
-  })
+  try {
+    return renderToReactElement({
+      content,
+      extensions: defaultExtensions,
+    })
+  } catch (error) {
+    console.error('Error rendering content', error)
+    return <div>Error rendering content {(error as Error).message}</div>
+  }
 }

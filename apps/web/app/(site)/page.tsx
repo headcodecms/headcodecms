@@ -30,7 +30,8 @@ async function HomePage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { access } = await searchParams
-  return access ? <HomeSection /> : <AccessDenied />
+  // return access ? <HomeSection /> : <AccessDenied />
+  return <HomeSection />
 }
 
 async function AccessDenied() {

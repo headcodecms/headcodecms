@@ -41,7 +41,7 @@ const DocsSections = async ({
   return (
     <Container className="mb-8 lg:mb-16">
       <SidebarProvider>
-        <AppSidebar variant="floating" className="relative" />
+        <AppSidebar slug={slug} variant="floating" className="relative" />
         <SidebarInset>
           <div className="md:px-8 md:py-2">
             {sections.map((section) => (
