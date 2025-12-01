@@ -23,6 +23,7 @@ export const codeSection = {
             { label: 'HTML', value: 'html' },
             { label: 'CSS', value: 'css' },
             { label: 'JSON', value: 'json' },
+            { label: 'Dotenv', value: 'dotenv' },
           ],
         }),
         filename: TextField({

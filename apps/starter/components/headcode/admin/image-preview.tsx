@@ -48,7 +48,7 @@ export function ImagePreview({
       <div className="flex-1 space-y-2">
         <div className="text-sm">{imageValue.name}</div>
         <div className="flex items-center space-x-2">
-          <span className="text-muted-foreground truncate text-xs">
+          <span className="text-muted-foreground max-w-lg truncate overflow-hidden text-xs whitespace-nowrap">
             {imageValue.src}
           </span>
           {imageValue.src && (

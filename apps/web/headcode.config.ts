@@ -22,6 +22,7 @@ export const headcodeConfig: HeadcodeConfig = {
         { section: featuresSection },
         { section: textSection },
         { section: imageSection },
+        { section: codeSection },
       ],
     },
     {

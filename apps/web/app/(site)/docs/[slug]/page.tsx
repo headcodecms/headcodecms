@@ -52,7 +52,9 @@ const DocsSections = async ({
                   <Snippet sectionData={section.data} />
                 )}
                 {section.name === 'image' && (
-                  <SingleImage sectionData={section.data} />
+                  <div className="mx-auto mb-12 w-full max-w-3xl rounded-lg border p-4">
+                    <SingleImage sectionData={section.data} />
+                  </div>
                 )}
               </Fragment>
             ))}
