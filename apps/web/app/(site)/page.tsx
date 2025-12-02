@@ -6,46 +6,10 @@ import { getSections } from '@/lib/headcode'
 import { cacheTag } from 'next/cache'
 import { Fragment } from 'react/jsx-runtime'
 import { Hero, HeroData } from '../../components/headcode/themes/custom/hero'
-import { Suspense } from 'react'
 import { Code } from '@/components/headcode/themes/custom/code'
 
-// export default function Home() {
-//   return <HomeSection />
-// }
-
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-  return (
-    <Suspense>
-      <HomePage searchParams={searchParams} />
-    </Suspense>
-  )
-}
-
-async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-  const { access } = await searchParams
-  return access ? <HomeSection /> : <AccessDenied />
-  // return <HomeSection />
-}
-
-async function AccessDenied() {
-  'use cache'
-
-  return (
-    <div className="bg-background fixed inset-0 z-50 flex h-screen w-full items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold">Headcode CMS</h1>
-        <p className="text-muted-foreground text-lg">Coming soon...</p>
-      </div>
-    </div>
-  )
+export default function Home() {
+  return <HomeSection />
 }
 
 async function HomeSection() {
