@@ -34,13 +34,6 @@ Default stack:
 
 Good for local development. For production, use providers like [Turso Cloud](https://turso.tech) and [Vercel Blob Storage](https://vercel.com/docs/storage/vercel-blob).
 
-
-```env
-LIBSQL_URL=<your‑database‑url>
-LIBSQL_AUTH_TOKEN=<your‑auth‑token>
-FILE_STORAGE_FOLDER=public/storage
-```
-
 ## Database Setup
 ```bash
 pnpm drizzle-kit push
@@ -167,20 +160,14 @@ The Headcode CMS Admin Interface  is built with **shadcn/ui** + **TanStack Forms
 3. Each Entry contains Sections, each Section contains Fields  
 4. All data stored via Drizzle ORM in SQLite / Turso  
 
-## Thank You
+## How You Can Help
+You can help by simply using it, reporting issues, suggesting improvements, or sending pull requests. Stars on GitHub and kind words on social media really help too (use #headcodecms or mention me directly @headcodecms).
 
-Headcode CMS is built on **Next.js**, **shadcn/ui**, **Tailwind CSS**, **TanStack**, **Drizzle ORM**, and **Better Auth**.  
-Thanks to everyone in the open‑source community whose work made this possible.
+Headcode CMS is a side project right now, but I’d love to spend more time on it. If you want to support that, I’ve set up a [GitHub Sponsors](https://github.com/sponsors/headcodecms) page. Any support, financial, feedback, or code, means a lot.
 
-## Contact
-- Email: **markus@headcodecms.com**  
-- X/Twitter: **[@headcodecms](https://x.com/headcodecms)**  
-- GitHub Sponsors for support  
+Markus, markus@headcodecms.com, https://mext.at
 
-## Contribute
-- Try it and share feedback  
-- Star the repo ❤️  
-- PRs welcome — keep it simple and readable  
+Created with ❤️ in Salzburg, Austria
 
 ## License
 MIT License
