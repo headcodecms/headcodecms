@@ -41,6 +41,15 @@ export async function AppSidebar({
     .sort((a, b) => (a.order < b.order ? -1 : 1))
 
   const nav = getNav(metas, slug)
+  const open = [
+    'Overview',
+    'Themes',
+    'Admin',
+    'Fields',
+    'Database',
+    'Storage',
+    'Auth',
+  ]
 
   return (
     <Sidebar {...props}>
@@ -48,7 +57,7 @@ export async function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <div>
                 <div className="bg-muted text-muted-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <GalleryVerticalEnd className="size-4" />
                 </div>
@@ -56,7 +65,7 @@ export async function AppSidebar({
                   <span className="font-medium">Documentation</span>
                   <span className="">v1.0.0</span>
                 </div>
-              </a>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -67,7 +76,7 @@ export async function AppSidebar({
             {nav.map((item, index) => (
               <Collapsible
                 key={index}
-                defaultOpen={true}
+                defaultOpen={open.includes(item.title)}
                 className="group/collapsible"
               >
                 <SidebarMenuItem>
