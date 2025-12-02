@@ -41,9 +41,10 @@
         "textarea",
         "tooltip",
         "https://diceui.com/r/sortable",
-        "@kibo-ui/dropzone", 
-        "@kibo-ui/editor", 
-        "@kibo-ui/typography"],
+        "@kibo-ui/dropzone",
+        "@kibo-ui/editor",
+        "@kibo-ui/typography"
+      ],
       "dependencies": [
         "@libsql/client@^0.15.15",
         "@tanstack/react-form@^1.25.0",
@@ -68,7 +69,7 @@
           "path": "registry/starter/app/(headcode)/headcode/alerts.tsx",
           "type": "registry:page",
           "target": "app/(headcode)/headcode/alerts.tsx"
-        },      
+        },
         {
           "path": "registry/starter/app/(headcode)/headcode/dialogs.tsx",
           "type": "registry:page",
@@ -78,7 +79,7 @@
           "path": "registry/starter/app/(headcode)/headcode/error.tsx",
           "type": "registry:page",
           "target": "app/(headcode)/headcode/error.tsx"
-        },      
+        },
         {
           "path": "registry/starter/app/(headcode)/headcode/globals.css",
           "type": "registry:page",
@@ -88,7 +89,7 @@
           "path": "registry/starter/app/(headcode)/headcode/layout.tsx",
           "type": "registry:page",
           "target": "app/(headcode)/headcode/layout.tsx"
-        },      
+        },
         {
           "path": "registry/starter/app/(headcode)/headcode/page.tsx",
           "type": "registry:page",
@@ -188,7 +189,6 @@
           "type": "registry:page",
           "target": "app/(headcode)/headcode/users/users.tsx"
         },
-
 
         {
           "path": "registry/starter/app/(site)/globals.css",
@@ -510,6 +510,40 @@
           "path": "registry/starter/drizzle.config.ts",
           "type": "registry:page",
           "target": "drizzle.config.ts"
+        }
+      ]
+    },
+    {
+      "name": "storage-uploadthing",
+      "type": "registry:component",
+      "title": "Storage Uploadthing",
+      "description": "Uploadthing storage for Headcode CMS",
+      "dependencies": ["@uploadthing/react@^7.3.3", "uploadthing@^7.7.4"],
+      "files": [
+        {
+          "path": "registry/uploadthing/app/api/uploadthing/route.ts",
+          "type": "registry:page",
+          "target": "app/api/uploadthing/route.ts"
+        },
+        {
+          "path": "registry/uploadthing/app/api/uploadthing/core.ts",
+          "type": "registry:page",
+          "target": "app/api/uploadthing/core.ts"
+        },
+        {
+          "path": "registry/uploadthing/components/headcode/form/image-field-uploadthing.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/form/image-field-uploadthing.tsx"
+        },
+        {
+          "path": "registry/uploadthing/lib/headcode/uploadthing.ts",
+          "type": "registry:lib",
+          "target": "lib/headcode/uploadthing.ts"
+        },
+        {
+          "path": "registry/uploadthing/components/headcode/form/image-field.ts",
+          "type": "registry:component",
+          "target": "components/headcode/form/image-field.ts"
         }
       ]
     }
