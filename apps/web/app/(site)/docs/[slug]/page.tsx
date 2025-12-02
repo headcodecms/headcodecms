@@ -41,7 +41,7 @@ const DocsSections = async ({
   return (
     <Container className="mb-8 lg:mb-16">
       <SidebarProvider>
-        <AppSidebar variant="floating" className="relative" />
+        <AppSidebar slug={slug} variant="floating" className="relative" />
         <SidebarInset>
           <div className="md:px-8 md:py-2">
             {sections.map((section) => (
@@ -52,7 +52,9 @@ const DocsSections = async ({
                   <Snippet sectionData={section.data} />
                 )}
                 {section.name === 'image' && (
-                  <SingleImage sectionData={section.data} />
+                  <div className="mx-auto mb-12 w-full max-w-3xl rounded-lg border p-4">
+                    <SingleImage sectionData={section.data} />
+                  </div>
                 )}
               </Fragment>
             ))}

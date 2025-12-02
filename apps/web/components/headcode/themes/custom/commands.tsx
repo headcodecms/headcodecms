@@ -43,7 +43,11 @@ export default function Commands({
         )}
       </SnippetHeader>
       {snippets.map((command) => (
-        <SnippetTabsContent key={command.title} value={command.title}>
+        <SnippetTabsContent
+          className="whitespace-pre-wrap"
+          key={command.title}
+          value={command.title}
+        >
           {command.code}
         </SnippetTabsContent>
       ))}

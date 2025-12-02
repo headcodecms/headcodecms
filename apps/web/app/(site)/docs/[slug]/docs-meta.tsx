@@ -14,6 +14,7 @@ export const docsMetaSection = {
       options: [
         { label: 'Overview', value: 'overview' },
         { label: 'Themes', value: 'themes' },
+        { label: 'Admin', value: 'admin' },
         { label: 'Fields', value: 'fields' },
         { label: 'Database', value: 'database' },
         { label: 'Storage', value: 'storage' },

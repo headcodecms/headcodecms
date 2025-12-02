@@ -1,135 +1,186 @@
-# Turborepo starter
+# Headcode CMS
 
-This Turborepo starter is maintained by the Turborepo core team.
+**Headcode CMS** is a minimal, open‑source content management system built for **Next.js**. It installs directly into your project through the **shadcn registry** and integrates neatly with modern React + TypeScript workflows.
 
-## Using this example
+## Features
+- **Next.js 16 + Cache Components** for modern performance  
+- **shadcn/ui**‑based admin and UI components  
+- **TanStack Forms** for structured content editing  
+- **Drizzle ORM** for clean database access  
+- **Better Auth** for authentication and users  
+- **Open architecture** — install directly into your codebase  
+- **Themes, Fields & Sections** via shadcn‑style registry  
+- Built‑in **Admin Interface** for managing content  
 
-Run the following command:
+## Getting Started
 
-```sh
-npx create-turbo@latest
+Headcode CMS and its components (themes, sections, fields …) are published as a **shadcn registry**. Install pieces with the CLI:
+
+### Install the Starter
+```bash
+pnpm dlx shadcn@latest add https://headcodecms/r/starter.json
 ```
 
-## What's inside?
+The starter installs:
+- **Next.js 16**
+- **shadcn/ui**
+- **Headcode CMS Admin**
+- **Vienna theme** (demo site)
 
-This Turborepo includes the following packages/apps:
+Default stack:
+- **SQLite (file)** database  
+- **Better Auth** authentication  
+- **File storage**
 
-### Apps and Packages
+Good for local development. For production, use providers like [Turso Cloud](https://turso.tech) and [Vercel Blob Storage](https://vercel.com/docs/storage/vercel-blob).
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```env
+LIBSQL_URL=<your‑database‑url>
+LIBSQL_AUTH_TOKEN=<your‑auth‑token>
+FILE_STORAGE_FOLDER=public/storage
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+## Database Setup
+```bash
+pnpm drizzle-kit push
+# or using migrations
+pnpm drizzle-kit generate
+pnpm drizzle-kit migrate
 ```
 
-### Develop
+## Project Structure
 
-To develop all apps and packages, run the following command:
+| App | Path | Description |
+|:----|:------|:-------------|
+| Admin | `app/(headcode)` | Headcode Admin interface |
+| Demo Site | `app/(site)` | Example Vienna theme |
 
+Remove default files to avoid conflicts:
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+app/layout.tsx
+app/page.tsx
 ```
+Keep `globals.css` for shadcn/ui styles.
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
+Start the server:
+```bash
+pnpm dev
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+- Website → http://localhost:3000  
+- Admin   → http://localhost:3000/headcode  
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+On first run you’ll create an administrator account.
 
-### Remote Caching
+## Configuration
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+Project structure lives in `headcode.config.ts`:
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```ts
+export const headcodeConfig: HeadcodeConfig = {
+ version: 'v02',
+ entries: [
+  { 
+    namespace: 'global', 
+    key: 'nav', 
+    sections:[
+      { section: navSection, pinned: true }
+    ] 
+  },
+  { 
+    namespace: 'blog', 
+    sections: [
+      {section: metaSection, pinned: true},
+      {section: heroSection},
+      {section: textSection}
+    ] 
+  }
+ ]
+};
 ```
 
-## Useful Links
+- **Entries**: pages / content items  
+- **Sections**: content blocks  
+- **Fields**: inputs ( Text, Textarea, Image …)  
+- **Pinned sections**: cannot be deleted (e.g., meta data)
 
-Learn more about the power of Turborepo:
+## Themes
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+Themes define reusable layouts and sections (Hero, Text, Features, Image, Footer …).
+
+Installed themes live in  
+```
+components/headcode/themes/[theme-name]
+```
+
+## Create a Custom Section
+
+```ts
+export const heroSection = {
+  name: 'hero',
+  label: 'Hero Section',
+  fields: {
+    title: TextField({
+      label: 'Title',
+    }),
+    subtitle: TextareaField({
+      label: 'Subtitle',
+    }),
+    primaryButton: LinkField({
+      label: 'Primary Button',
+    }),
+  } satisfies Fields,
+}
+export type HeroData = InferSectionData<typeof heroSection.fields>
+
+export function Hero({ sectionData }: { sectionData: unknown }) {
+  const { data } = parseSectionData(heroSection.fields, sectionData)
+
+  return (
+    <div>
+      <h1>{data.title}</h1>
+      <p>{data.subtitle}</p>
+      <Button href={data.primaryButton.url}>
+        {data.primaryButton.title}
+      </Button>
+    </div>
+  )
+}
+```
+
+## Users and Roles
+- **Admin** → manage content + users/roles  
+- **User** → edit content  
+
+Auth and sessions: **Better Auth**.
+
+## Versioning
+Clone content to new versions for campaigns or releases.
+
+## Admin Interface
+
+The Headcode CMS Admin Interface  is built with **shadcn/ui** + **TanStack Forms**. It builds forms from your `headcode.config.ts` schema automatically, single fields and arrays alike.
+
+## How It Works
+1. Define fields and sections in `headcode.config.ts`  
+2. Admin renders matching forms  
+3. Each Entry contains Sections, each Section contains Fields  
+4. All data stored via Drizzle ORM in SQLite / Turso  
+
+## Thank You
+
+Headcode CMS is built on **Next.js**, **shadcn/ui**, **Tailwind CSS**, **TanStack**, **Drizzle ORM**, and **Better Auth**.  
+Thanks to everyone in the open‑source community whose work made this possible.
+
+## Contact
+- Email: **markus@headcodecms.com**  
+- X/Twitter: **[@headcodecms](https://x.com/headcodecms)**  
+- GitHub Sponsors for support  
+
+## Contribute
+- Try it and share feedback  
+- Star the repo ❤️  
+- PRs welcome — keep it simple and readable  
+
+## License
+MIT License

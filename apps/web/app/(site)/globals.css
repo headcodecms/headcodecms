@@ -264,6 +264,9 @@
   .typography ul:not(.not-typography ul) > li {
     margin-top: calc(var(--spacing) * 2);
   }
+  .typography ul:not(.not-typography ul) ul {
+    margin-top: 0;
+  }
   .typography ul:not(.not-typography ul) p {
     margin-top: 0;
     margin-bottom: 0;

@@ -7,6 +7,7 @@ import { cacheTag } from 'next/cache'
 import { Fragment } from 'react/jsx-runtime'
 import { Hero, HeroData } from '../../components/headcode/themes/custom/hero'
 import { Suspense } from 'react'
+import { Code } from '@/components/headcode/themes/custom/code'
 
 // export default function Home() {
 //   return <HomeSection />
@@ -31,6 +32,7 @@ async function HomePage({
 }) {
   const { access } = await searchParams
   return access ? <HomeSection /> : <AccessDenied />
+  // return <HomeSection />
 }
 
 async function AccessDenied() {
@@ -73,23 +75,26 @@ async function HomeSection() {
         </Container>
       )}
       {section.name === 'features' && (
-        <Container className="py-8 lg:py-16">
+        <Container className="py-4 lg:py-8">
           <Features sectionData={section.data} />
         </Container>
       )}
       {section.name === 'text' && (
-        <Container className="py-8 lg:py-16">
+        <Container className="py-4 lg:py-8">
           <Text sectionData={section.data} />
         </Container>
       )}
       {section.name === 'image' && (
         <div className="py-4 lg:py-8">
-          <div className="mx-auto sm:max-w-7xl sm:px-6">
-            <div className="flex justify-center">
-              <SingleImage sectionData={section.data} />
-            </div>
+          <div className="mx-auto -mt-8 rounded-lg border p-4 sm:-mt-16 sm:max-w-3xl">
+            <SingleImage sectionData={section.data} />
           </div>
         </div>
+      )}
+      {section.name === 'code' && (
+        <Container className="py-4 lg:py-8">
+          <Code sectionData={section.data} />
+        </Container>
       )}
     </Fragment>
   ))

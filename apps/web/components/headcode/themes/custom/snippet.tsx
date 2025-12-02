@@ -27,7 +27,7 @@ export function Snippet({ sectionData }: { sectionData: unknown }) {
   const { data } = parseSectionData(snippetSection.fields, sectionData)
 
   return (
-    <div className="mb-12 w-full">
+    <div className="mx-auto mb-12 w-full max-w-3xl">
       <Commands snippets={data.snippets} />
     </div>
   )

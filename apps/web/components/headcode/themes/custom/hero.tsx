@@ -97,7 +97,7 @@ export function Hero({ sectionData }: { sectionData: unknown }) {
 
   return (
     <div className="flex flex-col items-center justify-center gap-8">
-      <h1 className="mb-0 text-5xl font-medium text-balance xl:text-6xl">
+      <h1 className="mb-0 text-5xl font-extrabold tracking-tight lg:text-6xl">
         {data.title}
       </h1>
 

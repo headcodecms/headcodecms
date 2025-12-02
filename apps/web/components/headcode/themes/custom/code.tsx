@@ -23,6 +23,7 @@ export const codeSection = {
             { label: 'HTML', value: 'html' },
             { label: 'CSS', value: 'css' },
             { label: 'JSON', value: 'json' },
+            { label: 'Dotenv', value: 'dotenv' },
           ],
         }),
         filename: TextField({
@@ -41,7 +42,7 @@ export function Code({ sectionData }: { sectionData: unknown }) {
   const { data } = parseSectionData(codeSection.fields, sectionData)
 
   return (
-    <div className="mb-12 w-full">
+    <div className="mx-auto mb-12 w-full max-w-3xl">
       <CodeBlocks code={data.codes} />
     </div>
   )
