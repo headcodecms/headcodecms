@@ -1,7 +1,7 @@
 import { lazy, type ComponentType } from 'react'
 import { z } from 'zod'
 import type { FieldProps } from '@/lib/headcode/types'
-import type { JSONContent } from '@/components/kibo-ui/editor'
+import type { JSONContent } from '@/components/headcode/editor'
 
 const DefaultEditorField: FieldProps<JSONContent | null, unknown> = {
   label: 'Editor Field',

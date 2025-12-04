@@ -40,6 +40,9 @@ async function uploadLocalFile(
 > {
   try {
     const storageFolder = process.env.FILE_STORAGE_FOLDER ?? 'public/storage'
+    if (!fs.existsSync(storageFolder)) {
+      fs.mkdirSync(storageFolder, { recursive: true })
+    }
 
     const name = generateUniqueImageName(file.name)
     const filePath = path.join(storageFolder, name)

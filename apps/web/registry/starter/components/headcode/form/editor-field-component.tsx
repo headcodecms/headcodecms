@@ -1,6 +1,6 @@
 'use client'
 
-import type { JSONContent } from '@/components/kibo-ui/editor'
+import type { JSONContent } from '@/components/headcode/editor'
 import {
   EditorBubbleMenu,
   EditorClearFormatting,
@@ -24,7 +24,7 @@ import {
   EditorNodeText,
   EditorProvider,
   EditorSelector,
-} from '@/components/kibo-ui/editor'
+} from '@/components/headcode/editor'
 import {
   Field,
   FieldContent,

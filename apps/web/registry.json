@@ -40,7 +40,7 @@
         "table",
         "textarea",
         "tooltip",
-        "https://diceui.com/r/sortable",
+        "@diceui/sortable",
         "@kibo-ui/dropzone",
         "@kibo-ui/editor",
         "@kibo-ui/typography"
@@ -337,6 +337,11 @@
           "path": "registry/starter/components/headcode/admin/titles.tsx",
           "type": "registry:component",
           "target": "components/headcode/admin/titles.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/editor/index.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/editor/index.tsx"
         },
 
         {
