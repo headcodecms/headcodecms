@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { uploadFile } from '@/app/(headcode)/headcode/section/[entryId]/[sectionId]/storage'
+import { ImagePreview } from '@/components/headcode/admin/image-preview'
+import { Dropzone, DropzoneEmptyState } from '@/components/kibo-ui/dropzone'
 import {
   Field,
   FieldContent,
@@ -8,12 +10,11 @@ import {
   FieldError,
   FieldLabel,
 } from '@/components/ui/field'
-import { Dropzone, DropzoneEmptyState } from '@/components/kibo-ui/dropzone'
-import { useFieldContext } from './app-form'
 import { calculateImageProps } from '@/lib/headcode/images'
-import { uploadFile } from '@/app/(headcode)/headcode/section/[entryId]/[sectionId]/storage'
 import type { ImageValue } from '@/lib/headcode/types'
-import { ImagePreview } from '@/components/headcode/admin/image-preview'
+import { Trash2Icon, Undo2Icon } from 'lucide-react'
+import { useState } from 'react'
+import { useFieldContext } from './app-form'
 
 export default function ImageFieldComponent({
   label,
@@ -109,10 +110,24 @@ export default function ImageFieldComponent({
 
   const imageValue = field.state.value
 
+  // trash icon when image is uploaded and preview is shown
+  // undo icon when no image and previous image has been deleted
+  // remove image in preview is deleted
   return (
     <Field data-invalid={isInvalid}>
       <FieldContent>
-        <FieldLabel>{label}</FieldLabel>
+        <FieldLabel className="flex w-full items-center justify-between gap-12">
+          <span>{label}</span>
+          <span className="flex shrink-0 items-center gap-4">
+            <button type="button">Media Library</button>
+            <button type="button">
+              <Trash2Icon className="size-4" />
+            </button>
+            <button type="button" disabled>
+              <Undo2Icon className="size-4" />
+            </button>
+          </span>
+        </FieldLabel>
         {description && <FieldDescription>{description}</FieldDescription>}
         {isInvalid && <FieldError errors={field.state.meta.errors} />}
         {error && <div className="text-destructive mt-1 text-sm">{error}</div>}
