@@ -1,5 +1,7 @@
 'use client'
 
+import { ConfirmationDialog } from '@/components/headcode/admin/dialogs'
+import type { AppFormInstance } from '@/components/headcode/form/app-form'
 import {
   Item,
   ItemActions,
@@ -14,17 +16,15 @@ import {
   SortableItemHandle,
   SortableOverlay,
 } from '@/components/ui/sortable'
-import type { Entry, Section } from '@/lib/headcode/types'
 import { getConfigSectionNames } from '@/lib/headcode/config'
+import type { Entry, Section } from '@/lib/headcode/types'
 import { GripVerticalIcon, PinIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { DialogAddSection } from '../dialogs'
 import { reorderSections } from './actions'
-import { ConfirmationDialog } from '@/components/headcode/admin/dialogs'
-import type { AppFormInstance } from '@/components/headcode/form/app-form'
 
 export function Sidebar({
   entry,
@@ -44,6 +44,10 @@ export function Sidebar({
     null,
   )
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+
+  useEffect(() => {
+    setEntries(sections)
+  }, [sections])
 
   const handleValueChange = async (items: Section[]) => {
     const oldEntries = entries
@@ -169,7 +173,6 @@ export function Sidebar({
     </>
   )
 
-  // Use form.Subscribe to track dirty state if form is available
   if (form) {
     return (
       <form.Subscribe selector={(state) => state.isDirty}>
