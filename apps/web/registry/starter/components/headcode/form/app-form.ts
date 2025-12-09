@@ -9,3 +9,5 @@ export const { useAppForm } = createFormHook({
   fieldContext,
   formContext,
 })
+
+export type AppFormInstance = ReturnType<typeof useAppForm>

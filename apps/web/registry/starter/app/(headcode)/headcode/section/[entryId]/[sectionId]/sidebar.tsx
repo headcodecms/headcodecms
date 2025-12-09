@@ -18,22 +18,32 @@ import type { Entry, Section } from '@/lib/headcode/types'
 import { getConfigSectionNames } from '@/lib/headcode/config'
 import { GripVerticalIcon, PinIcon } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { DialogAddSection } from '../dialogs'
 import { reorderSections } from './actions'
+import { ConfirmationDialog } from '@/components/headcode/admin/dialogs'
+import type { AppFormInstance } from '@/components/headcode/form/app-form'
 
 export function Sidebar({
   entry,
   sections,
   sectionId,
+  form,
 }: {
   entry: Entry
   sections: Section[]
   sectionId: number
+  form: AppFormInstance | null
 }) {
   const [entries, setEntries] = useState(sections)
   const sectionNames = getConfigSectionNames(entry.namespace, entry.key, false)
+  const router = useRouter()
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(
+    null,
+  )
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
 
   const handleValueChange = async (items: Section[]) => {
     const oldEntries = entries
@@ -53,7 +63,30 @@ export function Sidebar({
     }
   }
 
-  return (
+  const handleConfirmNavigation = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (pendingNavigation) {
+      setShowConfirmDialog(false)
+      router.push(pendingNavigation)
+      setPendingNavigation(null)
+    }
+  }
+
+  const handleLinkClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+    targetSectionId: number,
+    isDirty: boolean,
+  ) => {
+    if (isDirty && targetSectionId !== sectionId) {
+      e.preventDefault()
+      setPendingNavigation(href)
+      setShowConfirmDialog(true)
+    }
+  }
+
+  const renderSidebarContent = (isDirty: boolean = false) => (
     <>
       <h3 className="mb-4 text-base font-bold">Sections</h3>
       <Sortable
@@ -75,7 +108,17 @@ export function Sidebar({
                 size="sm"
                 asChild
               >
-                <Link href={`/headcode/section/${item.entryId}/${item.id}`}>
+                <Link
+                  href={`/headcode/section/${item.entryId}/${item.id}`}
+                  onClick={(e) =>
+                    handleLinkClick(
+                      e,
+                      `/headcode/section/${item.entryId}/${item.id}`,
+                      item.id,
+                      isDirty,
+                    )
+                  }
+                >
                   <SortableItemHandle asChild>
                     <ItemMedia variant="default">
                       <GripVerticalIcon className="text-muted-foreground size-4" />
@@ -109,6 +152,31 @@ export function Sidebar({
       {sectionNames.length > 0 && (
         <DialogAddSection entry={entry} sectionNames={sectionNames} />
       )}
+      <ConfirmationDialog
+        open={showConfirmDialog}
+        setOpen={(open) => {
+          setShowConfirmDialog(open)
+          if (!open) {
+            setPendingNavigation(null)
+          }
+        }}
+        title="You have unsaved changes"
+        description="You have unsaved changes. Leave and lose changes?"
+        buttonText="Leave and lose changes"
+        isSubmitting={false}
+        handleSubmit={handleConfirmNavigation}
+      />
     </>
   )
+
+  // Use form.Subscribe to track dirty state if form is available
+  if (form) {
+    return (
+      <form.Subscribe selector={(state) => state.isDirty}>
+        {(isDirty) => renderSidebarContent(isDirty)}
+      </form.Subscribe>
+    )
+  }
+
+  return renderSidebarContent(false)
 }
