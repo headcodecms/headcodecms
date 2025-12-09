@@ -117,6 +117,11 @@
           "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/page.tsx"
         },
         {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/[sectionId]/section-layout.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/section-layout.tsx"
+        },
+        {
           "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/[sectionId]/sidebar.tsx",
           "type": "registry:page",
           "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/sidebar.tsx"
@@ -245,6 +250,11 @@
           "path": "registry/starter/lib/headcode/config.ts",
           "type": "registry:lib",
           "target": "lib/headcode/config.ts"
+        },
+        {
+          "path": "registry/starter/lib/headcode/cache.ts",
+          "type": "registry:lib",
+          "target": "lib/headcode/cache.ts"
         },
         {
           "path": "registry/starter/lib/headcode/data.ts",

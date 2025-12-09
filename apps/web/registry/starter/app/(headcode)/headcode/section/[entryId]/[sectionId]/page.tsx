@@ -6,9 +6,7 @@ import type { Role } from '@/lib/headcode/types'
 import { requireRole } from '@/lib/auth'
 import { getValidatedSections } from '@/lib/headcode/admin'
 import { redirect } from 'next/navigation'
-import { Form } from './form'
-import { Sidebar } from './sidebar'
-import { cacheTag } from 'next/cache'
+import { SectionLayout } from './section-layout'
 
 export default async function Page({
   params,
@@ -39,9 +37,6 @@ export async function SectionPage({
   entryId: number
   sectionId: number
 }) {
-  'use cache'
-  cacheTag(`/headcode/entries/${entryId}`)
-
   const result = await getSection(sectionId)
   if (!result) {
     redirect(`/headcode/section/${entryId}`)
@@ -55,18 +50,11 @@ export async function SectionPage({
     <Container>
       <Header role={role} />
       <EntryTitle entry={result.entry} />
-      <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-        <div className="col-span-1">
-          <Sidebar
-            entry={result.entry}
-            sections={sections}
-            sectionId={sectionId}
-          />
-        </div>
-        <div className="col-span-1 md:col-span-2">
-          <Form entry={result.entry} section={result.section} />
-        </div>
-      </div>
+      <SectionLayout
+        entry={result.entry}
+        sections={sections}
+        sectionId={sectionId}
+      />
     </Container>
   )
 }

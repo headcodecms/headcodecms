@@ -34,8 +34,17 @@ import { GripVerticalIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { deleteSection, updateSection } from './actions'
+import type { AppFormInstance } from '@/components/headcode/form/app-form'
 
-export function Form({ entry, section }: { entry: Entry; section: Section }) {
+export function Form({
+  entry,
+  section,
+  onFormReady,
+}: {
+  entry: Entry
+  section: Section
+  onFormReady?: (form: AppFormInstance) => void
+}) {
   const [open, setOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -60,12 +69,26 @@ export function Form({ entry, section }: { entry: Entry; section: Section }) {
         data: JSON.stringify(value),
       })
       if (success) {
+        // Reset form with saved values to clear dirty state and update defaults
+        // In TanStack Form, isDirty is persistent and only clears on reset
+        // Passing the saved values ensures the form displays the new state
+        form.reset(value)
         toast.success('Section saved successfully')
       } else if (error) {
         toast.warning(error)
       }
     },
   })
+
+  // Reset form to original state when loaded
+  useEffect(() => {
+    form.reset()
+  }, [form])
+
+  // Expose form instance to parent
+  useEffect(() => {
+    onFormReady?.(form as unknown as AppFormInstance)
+  }, [form, onFormReady])
 
   const handleDeleteSection = () => {
     setOpen(true)
