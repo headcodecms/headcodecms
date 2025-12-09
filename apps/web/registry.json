@@ -117,6 +117,11 @@
           "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/page.tsx"
         },
         {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/[sectionId]/section-layout.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/section-layout.tsx"
+        },
+        {
           "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/[sectionId]/sidebar.tsx",
           "type": "registry:page",
           "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/sidebar.tsx"
