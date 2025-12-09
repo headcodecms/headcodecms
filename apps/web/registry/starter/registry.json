@@ -41,13 +41,11 @@
         "textarea",
         "tooltip",
         "https://diceui.com/r/sortable",
-        "@kibo-ui/dropzone", 
-        "@kibo-ui/editor", 
-        "@kibo-ui/typography"],
-      "dependencies": [
-        "thumbhash@^0.1",
-        "zod@^4.1"
+        "@kibo-ui/dropzone",
+        "@kibo-ui/editor",
+        "@kibo-ui/typography"
       ],
+      "dependencies": ["thumbhash@^0.1", "zod@^4.1"],
       "files": [
         {
           "path": "registry/starter/app/(headcode)/headcode/actions.ts",
@@ -58,7 +56,7 @@
           "path": "registry/starter/app/(headcode)/headcode/alerts.tsx",
           "type": "registry:page",
           "target": "app/(headcode)/headcode/alerts.tsx"
-        },      
+        },
         {
           "path": "registry/starter/app/(headcode)/headcode/dialogs.tsx",
           "type": "registry:page",
@@ -68,7 +66,7 @@
           "path": "registry/starter/app/(headcode)/headcode/error.tsx",
           "type": "registry:page",
           "target": "app/(headcode)/headcode/error.tsx"
-        },      
+        },
         {
           "path": "registry/starter/app/(headcode)/headcode/globals.css",
           "type": "registry:page",
@@ -78,7 +76,7 @@
           "path": "registry/starter/app/(headcode)/headcode/layout.tsx",
           "type": "registry:page",
           "target": "app/(headcode)/headcode/layout.tsx"
-        },      
+        },
         {
           "path": "registry/starter/app/(headcode)/headcode/page.tsx",
           "type": "registry:page",
@@ -104,6 +102,11 @@
           "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/[sectionId]/page.tsx",
           "type": "registry:page",
           "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/page.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/[sectionId]/section-layout.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/section/[entryId]/[sectionId]/section-layout.tsx"
         },
         {
           "path": "registry/starter/app/(headcode)/headcode/section/[entryId]/[sectionId]/sidebar.tsx",
@@ -178,7 +181,6 @@
           "type": "registry:page",
           "target": "app/(headcode)/headcode/users/users.tsx"
         },
-
 
         {
           "path": "registry/starter/app/(site)/globals.css",
