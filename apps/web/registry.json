@@ -247,6 +247,11 @@
           "target": "lib/headcode/config.ts"
         },
         {
+          "path": "registry/starter/lib/headcode/cache.ts",
+          "type": "registry:lib",
+          "target": "lib/headcode/cache.ts"
+        },
+        {
           "path": "registry/starter/lib/headcode/data.ts",
           "type": "registry:lib",
           "target": "lib/headcode/data.ts"

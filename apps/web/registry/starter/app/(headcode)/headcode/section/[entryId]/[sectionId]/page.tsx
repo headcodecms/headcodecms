@@ -40,6 +40,7 @@ export async function SectionPage({
 }) {
   'use cache'
   cacheTag(`/headcode/entries/${entryId}`)
+  cacheTag(`/headcode/sections/${sectionId}`)
 
   const result = await getSection(sectionId)
   if (!result) {
