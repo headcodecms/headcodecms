@@ -7,7 +7,6 @@ import { requireRole } from '@/lib/auth'
 import { getValidatedSections } from '@/lib/headcode/admin'
 import { redirect } from 'next/navigation'
 import { SectionLayout } from './section-layout'
-import { cacheTag } from 'next/cache'
 
 export default async function Page({
   params,
@@ -38,10 +37,6 @@ export async function SectionPage({
   entryId: number
   sectionId: number
 }) {
-  'use cache'
-  cacheTag(`/headcode/entries/${entryId}`)
-  cacheTag(`/headcode/sections/${sectionId}`)
-
   const result = await getSection(sectionId)
   if (!result) {
     redirect(`/headcode/section/${entryId}`)

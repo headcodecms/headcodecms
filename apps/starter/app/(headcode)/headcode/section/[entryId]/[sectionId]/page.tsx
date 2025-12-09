@@ -2,12 +2,11 @@ import { Container } from '@/components/headcode/admin/container'
 import { Header } from '@/components/headcode/admin/header'
 import { EntryTitle } from '@/components/headcode/admin/titles'
 import { getSection } from '@/db'
-import type { Role } from '@/lib/headcode/types'
 import { requireRole } from '@/lib/auth'
 import { getValidatedSections } from '@/lib/headcode/admin'
+import type { Role } from '@/lib/headcode/types'
 import { redirect } from 'next/navigation'
 import { SectionLayout } from './section-layout'
-import { cacheTag } from 'next/cache'
 
 export default async function Page({
   params,
@@ -38,10 +37,6 @@ export async function SectionPage({
   entryId: number
   sectionId: number
 }) {
-  'use cache'
-  cacheTag(`/headcode/entries/${entryId}`)
-  cacheTag(`/headcode/sections/${sectionId}`)
-
   const result = await getSection(sectionId)
   if (!result) {
     redirect(`/headcode/section/${entryId}`)
