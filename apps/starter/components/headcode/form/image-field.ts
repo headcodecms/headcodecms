@@ -1,10 +1,10 @@
-import { lazy, type ComponentType } from 'react'
-import { z } from 'zod'
 import type {
   FieldProps,
-  ImageValue,
   ImageFieldOptions,
+  ImageValue,
 } from '@/lib/headcode/types'
+import { lazy, type ComponentType } from 'react'
+import { z } from 'zod'
 
 const DefaultImageField: FieldProps<ImageValue | null, ImageFieldOptions> = {
   label: 'Image Field',
@@ -16,14 +16,19 @@ const DefaultImageField: FieldProps<ImageValue | null, ImageFieldOptions> = {
   defaultValue: null,
   validator: z
     .object({
+      id: z.number().default(0),
       src: z.string(),
-      alt: z.string().default('Image'),
+      alt: z.string(),
       width: z.number(),
       height: z.number(),
-      blurDataURL: z.string().optional(),
-      name: z.string().optional(),
-      type: z.union([z.string(), z.null(), z.undefined()]).optional(),
-      size: z.number().optional(),
+      blurDataURL: z.string().nullable(),
+      name: z.string().nullable(),
+      type: z.string().nullable(),
+      size: z.number().nullable(),
+      service: z.string().default(''),
+      serviceId: z.string().default(''),
+      createdAt: z.coerce.date().default(new Date()),
+      updatedAt: z.coerce.date().default(new Date()),
     })
     .nullable(),
   options: {

@@ -37,9 +37,6 @@ async function EntriesPage() {
 }
 
 export async function Entries() {
-  'use cache'
-  cacheTag('/headcode/entries')
-
   const { entryTypes, entries, emptyEntries } = await getEntries()
   const dynamicEntries = entryTypes.filter((entryType) => entryType.dynamic)
 

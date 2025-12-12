@@ -1,7 +1,14 @@
-import { and, asc, count, eq, getTableColumns } from 'drizzle-orm'
+import { and, asc, count, desc, eq, getTableColumns } from 'drizzle-orm'
 import { db } from './db'
-import { entries, sections, user } from './schema'
-import type { Entry, AddEntry, Section, AddSection } from '@/lib/headcode/types'
+import { entries, sections, user, images } from './schema'
+import type {
+  Entry,
+  AddEntry,
+  Section,
+  AddSection,
+  AddImage,
+  ImageValue,
+} from '@/lib/headcode/types'
 import { getVersion } from '@/lib/headcode/config'
 
 export const DBError = (error: unknown) => {
@@ -248,6 +255,39 @@ export async function cloneVersion(clone: string): Promise<void> {
         }
       }
     })
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function addImage(image: AddImage): Promise<ImageValue> {
+  try {
+    const result = await db.insert(images).values(image).returning()
+    return result[0]
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function getImages(): Promise<ImageValue[]> {
+  try {
+    const result = await db
+      .select()
+      .from(images)
+      .orderBy(desc(images.createdAt))
+    return result
+  } catch (error) {
+    throw DBError(error)
+  }
+}
+
+export async function deleteImage(id: number): Promise<ImageValue | null> {
+  try {
+    const deletedImage = await db
+      .delete(images)
+      .where(eq(images.id, id))
+      .returning()
+    return deletedImage.length > 0 ? deletedImage[0] : null
   } catch (error) {
     throw DBError(error)
   }

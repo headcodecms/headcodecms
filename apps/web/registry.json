@@ -159,6 +159,17 @@
         },
 
         {
+          "path": "registry/starter/app/(headcode)/headcode/media/page.tsx",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/media/page.tsx"
+        },
+        {
+          "path": "registry/starter/app/(headcode)/headcode/media/actions.ts",
+          "type": "registry:page",
+          "target": "app/(headcode)/headcode/media/actions.ts"
+        },
+
+        {
           "path": "registry/starter/app/(headcode)/headcode/sign-in/page.tsx",
           "type": "registry:page",
           "target": "app/(headcode)/headcode/sign-in/page.tsx"
@@ -277,6 +288,11 @@
           "target": "lib/headcode/index.ts"
         },
         {
+          "path": "registry/starter/lib/headcode/storage.ts",
+          "type": "registry:lib",
+          "target": "lib/headcode/storage.ts"
+        },
+        {
           "path": "registry/starter/lib/headcode/types.ts",
           "type": "registry:lib",
           "target": "lib/headcode/types.ts"
@@ -327,6 +343,11 @@
           "path": "registry/starter/components/headcode/admin/image-preview.tsx",
           "type": "registry:component",
           "target": "components/headcode/admin/image-preview.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/admin/media-table.tsx",
+          "type": "registry:component",
+          "target": "components/headcode/admin/media-table.tsx"
         },
         {
           "path": "registry/starter/components/headcode/admin/nav-buttons.tsx",
@@ -525,40 +546,6 @@
           "path": "registry/starter/drizzle.config.ts",
           "type": "registry:page",
           "target": "drizzle.config.ts"
-        }
-      ]
-    },
-    {
-      "name": "storage-uploadthing",
-      "type": "registry:component",
-      "title": "Storage Uploadthing",
-      "description": "Uploadthing storage for Headcode CMS",
-      "dependencies": ["@uploadthing/react@^7.3.3", "uploadthing@^7.7.4"],
-      "files": [
-        {
-          "path": "registry/uploadthing/app/api/uploadthing/route.ts",
-          "type": "registry:page",
-          "target": "app/api/uploadthing/route.ts"
-        },
-        {
-          "path": "registry/uploadthing/app/api/uploadthing/core.ts",
-          "type": "registry:page",
-          "target": "app/api/uploadthing/core.ts"
-        },
-        {
-          "path": "registry/uploadthing/components/headcode/form/image-field-uploadthing.tsx",
-          "type": "registry:component",
-          "target": "components/headcode/form/image-field-uploadthing.tsx"
-        },
-        {
-          "path": "registry/uploadthing/lib/headcode/uploadthing.ts",
-          "type": "registry:lib",
-          "target": "lib/headcode/uploadthing.ts"
-        },
-        {
-          "path": "registry/uploadthing/components/headcode/form/image-field.ts",
-          "type": "registry:component",
-          "target": "components/headcode/form/image-field.ts"
         }
       ]
     }

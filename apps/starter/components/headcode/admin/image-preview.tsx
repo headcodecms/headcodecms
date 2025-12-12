@@ -1,9 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import { Trash2Icon, ClipboardIcon } from 'lucide-react'
+import { ClipboardIcon } from 'lucide-react'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { compactNumber } from '@/lib/headcode/images'
 import type { ImageValue } from '@/lib/headcode/types'
 
@@ -12,14 +11,12 @@ export function ImagePreview({
   fieldName,
   isInvalid,
   onAltChange,
-  onDelete,
   onBlur,
 }: {
   imageValue: ImageValue
   fieldName: string
   isInvalid: boolean
   onAltChange: (alt: string) => void
-  onDelete: () => void
   onBlur: () => void
 }) {
   const handleCopyToClipboard = async () => {
@@ -45,17 +42,17 @@ export function ImagePreview({
           blurDataURL={imageValue.blurDataURL || undefined}
         />
       </div>
-      <div className="flex-1 space-y-2">
+      <div className="min-w-0 flex-1 space-y-2">
         <div className="text-sm">{imageValue.name}</div>
-        <div className="flex items-center space-x-2">
-          <span className="text-muted-foreground max-w-lg truncate overflow-hidden text-xs whitespace-nowrap">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
+          <span className="text-muted-foreground truncate text-xs">
             {imageValue.src}
           </span>
           {imageValue.src && (
             <button
               type="button"
               onClick={handleCopyToClipboard}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground shrink-0"
             >
               <ClipboardIcon className="size-4" />
             </button>
@@ -78,10 +75,6 @@ export function ImagePreview({
           {imageValue.size && <span>{compactNumber(imageValue.size)}</span>}
           <span>{imageValue.type}</span>
         </p>
-        <Button type="button" variant="outline" size="sm" onClick={onDelete}>
-          <Trash2Icon className="size-4" />
-          Remove image
-        </Button>
       </div>
     </div>
   )

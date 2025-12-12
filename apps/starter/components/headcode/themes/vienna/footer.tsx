@@ -1,9 +1,8 @@
+import { LinkField } from '@/components/headcode/form/link-field'
+import { TextField } from '@/components/headcode/form/text-field'
 import { parseSectionData } from '@/lib/headcode/data'
 import type { Fields, InferSectionData } from '@/lib/headcode/types'
-import { TextField } from '@/components/headcode/form/text-field'
-import { LinkField } from '@/components/headcode/form/link-field'
 import { SelectField } from '../../form/select-field'
-import { Container } from './container'
 
 export const footerSection = {
   name: 'footer',
