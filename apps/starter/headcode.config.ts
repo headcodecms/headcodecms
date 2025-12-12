@@ -1,3 +1,5 @@
+import { defaultHeader } from './app/(site)/layout'
+import { defaultFeatures, defaultHero, defaultText } from './app/(site)/page'
 import { featuresSection } from './components/headcode/themes/vienna/features'
 import { footerSection } from './components/headcode/themes/vienna/footer'
 import { headerSection } from './components/headcode/themes/vienna/header'
@@ -19,11 +21,35 @@ export const headcodeConfig: HeadcodeConfig = {
         { section: textSection },
         { section: imageSection },
       ],
+      presets: [
+        {
+          section: heroSection,
+          defaultValues: defaultHero,
+        },
+        {
+          section: textSection,
+          defaultValues: defaultText,
+        },
+        {
+          section: featuresSection,
+          defaultValues: defaultFeatures,
+        },
+        {
+          section: textSection,
+          defaultValues: defaultText,
+        },
+      ],
     },
     {
       namespace: 'global',
       key: 'header',
       sections: [{ section: headerSection, pinned: true }],
+      presets: [
+        {
+          section: headerSection,
+          defaultValues: defaultHeader,
+        },
+      ],
     },
     {
       namespace: 'global',
@@ -33,6 +59,16 @@ export const headcodeConfig: HeadcodeConfig = {
     {
       namespace: 'pages',
       sections: [{ section: heroSection }, { section: textSection }],
+      presets: [
+        {
+          section: heroSection,
+          defaultValues: defaultHero,
+        },
+        {
+          section: textSection,
+          defaultValues: defaultText,
+        },
+      ],
     },
   ],
 }

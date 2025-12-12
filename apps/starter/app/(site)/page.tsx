@@ -66,7 +66,7 @@ async function HomeSection() {
   ))
 }
 
-const defaultHero: HeroData = {
+export const defaultHero: HeroData = {
   title: 'Welcome to Headcode CMS',
   subtitle:
     'A minimalistic web content management system for Next.js. Start with editing content in the Headcode Admin.',
@@ -82,7 +82,7 @@ const defaultHero: HeroData = {
   },
 }
 
-const defaultFeatures: FeaturesData = {
+export const defaultFeatures: FeaturesData = {
   title: 'Features',
   subtitle:
     'A minimalistic web content management system for Next.js. Start with editing content in the Headcode Admin.',
@@ -124,7 +124,7 @@ const defaultFeatures: FeaturesData = {
   ],
 }
 
-const defaultText: TextData = {
+export const defaultText: TextData = {
   text: {
     type: 'doc',
     content: [

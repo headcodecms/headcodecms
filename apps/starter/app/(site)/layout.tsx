@@ -51,7 +51,7 @@ async function FooterSection() {
   )
 }
 
-const defaultHeader: HeaderData = {
+export const defaultHeader: HeaderData = {
   logo: null,
   name: 'Headcode CMS',
   nav: [
