@@ -1,5 +1,5 @@
 import { ZodType } from 'zod'
-import { entries, sections } from '@/db/schema'
+import { entries, images, sections } from '@/db/schema'
 
 export type Role = 'user' | 'admin'
 
@@ -8,6 +8,9 @@ export type AddEntry = typeof entries.$inferInsert
 
 export type Section = typeof sections.$inferSelect
 export type AddSection = typeof sections.$inferInsert
+
+export type ImageValue = typeof images.$inferSelect
+export type AddImage = typeof images.$inferInsert
 
 export type FieldProps<T, TOptions = unknown> = {
   label: string
@@ -86,17 +89,6 @@ export type ImageSize = {
   height: number
 }
 
-export type ImageValue = {
-  src: string
-  alt: string
-  width: number
-  height: number
-  blurDataURL?: string
-  name?: string
-  type?: string | null | undefined
-  size?: number
-}
-
 export type ImageFieldOptions = {
   accept?: Record<string, string[]>
   maxFiles?: number
@@ -115,3 +107,14 @@ export type UIEntry = {
   key: string
   isDynamic: boolean
 }
+
+export type StorageData =
+  | {
+      name: string
+      url: string
+      type: string
+      size: number
+      service: string
+      serviceId: string
+    }
+  | { error: string }

@@ -15,6 +15,16 @@ export function Nav({ role }: { role?: string }) {
   return (
     <NavigationMenu>
       <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild>
+            <Link href="/headcode/media">
+              <span className="hidden sm:inline">Media</span>
+              <span className="inline sm:hidden">
+                <ImageIcon className="size-4" />
+              </span>
+            </Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
         {role === 'admin' && storageUrl && (
           <NavigationMenuItem>
             <NavigationMenuLink asChild>

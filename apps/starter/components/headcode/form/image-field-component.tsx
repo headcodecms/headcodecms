@@ -1,7 +1,11 @@
 'use client'
 
-import { uploadFile } from '@/app/(headcode)/headcode/section/[entryId]/[sectionId]/storage'
+import {
+  addImage,
+  uploadFile,
+} from '@/app/(headcode)/headcode/section/[entryId]/[sectionId]/storage'
 import { ImagePreview } from '@/components/headcode/admin/image-preview'
+import { MediaLibraryDialog } from '@/components/headcode/admin/dialogs'
 import { Dropzone, DropzoneEmptyState } from '@/components/kibo-ui/dropzone'
 import {
   Field,
@@ -11,10 +15,11 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { calculateImageProps } from '@/lib/headcode/images'
-import type { ImageValue } from '@/lib/headcode/types'
+import type { AddImage, ImageValue } from '@/lib/headcode/types'
 import { Trash2Icon, Undo2Icon } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useFieldContext } from './app-form'
+import { Button } from '@/components/ui/button'
 
 export default function ImageFieldComponent({
   label,
@@ -34,6 +39,20 @@ export default function ImageFieldComponent({
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false)
+  // Store the initial value to restore on undo
+  const initialValueRef = useRef<ImageValue | null>(field.state.value)
+
+  // Update initial value when field is reset (e.g., after form save)
+  useEffect(() => {
+    if (!field.state.meta.isDirty) {
+      initialValueRef.current = field.state.value
+    }
+  }, [field.state.meta.isDirty, field.state.value])
+
+  const imageValue = field.state.value
+  const isDirty = field.state.meta.isDirty
+  const hasImage = imageValue !== null
 
   const accept = options?.accept ?? { 'image/*': [] }
   const maxFiles = options?.maxFiles ?? 1
@@ -58,14 +77,14 @@ export default function ImageFieldComponent({
       const img = new window.Image()
       const objectUrl = URL.createObjectURL(file)
 
-      img.onload = () => {
+      img.onload = async () => {
         const imageProps = calculateImageProps(img)
 
         const fileName = result.name.includes('/')
           ? result.name.split('/').pop() || result.name
           : result.name
 
-        const imageValue: ImageValue = {
+        const addImageValue: AddImage = {
           src: result.url,
           alt: fileName.replace(/\.[^/.]+$/, ''), // Remove extension for default alt
           width: imageProps.width,
@@ -74,7 +93,11 @@ export default function ImageFieldComponent({
           name: fileName,
           type: result.type,
           size: result.size,
+          service: result.service,
+          serviceId: result.serviceId,
         }
+
+        const imageValue = await addImage(addImageValue)
 
         field.handleChange(imageValue)
         setUploading(false)
@@ -103,29 +126,60 @@ export default function ImageFieldComponent({
     }
   }
 
-  const handleDelete = () => {
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     field.handleChange(null)
     setError(null)
   }
 
-  const imageValue = field.state.value
+  const handleImageSelect = (image: ImageValue) => {
+    field.handleChange(image)
+    setError(null)
+  }
 
-  // trash icon when image is uploaded and preview is shown
-  // undo icon when no image and previous image has been deleted
-  // remove image in preview is deleted
+  const handleUndo = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    // Reset field to its initial value (before it became dirty)
+    field.setValue(initialValueRef.current)
+    setError(null)
+  }
+
   return (
     <Field data-invalid={isInvalid}>
       <FieldContent>
         <FieldLabel className="flex w-full items-center justify-between gap-12">
           <span>{label}</span>
-          <span className="flex shrink-0 items-center gap-4">
-            <button type="button">Media Library</button>
-            <button type="button">
-              <Trash2Icon className="size-4" />
-            </button>
-            <button type="button" disabled>
-              <Undo2Icon className="size-4" />
-            </button>
+          <span className="flex shrink-0 items-center gap-1">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setMediaLibraryOpen(true)}
+            >
+              Media Library
+            </Button>
+            {hasImage && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleDelete}
+              >
+                <Trash2Icon className="size-4" />
+              </Button>
+            )}
+            {!hasImage && isDirty && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleUndo}
+              >
+                <Undo2Icon className="size-4" />
+              </Button>
+            )}
           </span>
         </FieldLabel>
         {description && <FieldDescription>{description}</FieldDescription>}
@@ -155,10 +209,14 @@ export default function ImageFieldComponent({
           fieldName={field.name}
           isInvalid={isInvalid}
           onAltChange={handleAltChange}
-          onDelete={handleDelete}
           onBlur={field.handleBlur}
         />
       )}
+      <MediaLibraryDialog
+        open={mediaLibraryOpen}
+        onOpenChange={setMediaLibraryOpen}
+        onSelect={handleImageSelect}
+      />
     </Field>
   )
 }

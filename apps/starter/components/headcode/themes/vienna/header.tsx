@@ -1,5 +1,5 @@
 import { ImageField } from '@/components/headcode/form/image-field'
-import { LinkField, LinkValue } from '@/components/headcode/form/link-field'
+import { LinkField } from '@/components/headcode/form/link-field'
 import { TextField } from '@/components/headcode/form/text-field'
 import { Button } from '@/components/ui/button'
 import {
@@ -51,7 +51,14 @@ export function Header({ sectionData }: { sectionData: unknown }) {
     <div className="flex items-center justify-between">
       <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
         {data.logo && (
-          <Image className="h-8 w-auto" {...data.logo} alt={data.logo.alt} />
+          <Image
+            className="h-8 w-auto"
+            src={data.logo.src}
+            alt={data.logo.alt}
+            width={data.logo.width}
+            height={data.logo.height}
+            blurDataURL={data.logo.blurDataURL || undefined}
+          />
         )}
         {data.name}
       </Link>

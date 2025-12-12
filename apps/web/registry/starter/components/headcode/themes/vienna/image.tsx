@@ -17,5 +17,13 @@ export type ImageData = InferSectionData<typeof imageSection.fields>
 export function SingleImage({ sectionData }: { sectionData: unknown }) {
   const { data } = parseSectionData(imageSection.fields, sectionData)
 
-  return data.image ? <Image {...data.image} alt={data.image.alt} /> : null
+  return data.image ? (
+    <Image
+      src={data.image.src}
+      alt={data.image.alt}
+      width={data.image.width}
+      height={data.image.height}
+      blurDataURL={data.image.blurDataURL || undefined}
+    />
+  ) : null
 }
