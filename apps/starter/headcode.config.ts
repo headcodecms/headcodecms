@@ -21,7 +21,7 @@ export const headcodeConfig: HeadcodeConfig = {
         { section: textSection },
         { section: imageSection },
       ],
-      presets: [
+      defaultSections: [
         {
           section: heroSection,
           defaultValues: defaultHero,
@@ -44,7 +44,7 @@ export const headcodeConfig: HeadcodeConfig = {
       namespace: 'global',
       key: 'header',
       sections: [{ section: headerSection, pinned: true }],
-      presets: [
+      defaultSections: [
         {
           section: headerSection,
           defaultValues: defaultHeader,
@@ -59,7 +59,7 @@ export const headcodeConfig: HeadcodeConfig = {
     {
       namespace: 'pages',
       sections: [{ section: heroSection }, { section: textSection }],
-      presets: [
+      defaultSections: [
         {
           section: heroSection,
           defaultValues: defaultHero,
