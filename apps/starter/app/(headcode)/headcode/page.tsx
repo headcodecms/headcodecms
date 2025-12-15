@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server'
 import { Container } from '@/components/headcode/admin/container'
 import { Header } from '@/components/headcode/admin/header'
 import { DefaultSkeleton, PageSkeleton } from '@/components/headcode/skeletons'
@@ -5,12 +6,11 @@ import { Separator } from '@/components/ui/separator'
 import { getEntriesCount } from '@/db'
 import { requireRole } from '@/lib/auth'
 import { getEntries } from '@/lib/headcode/admin'
-import { getVersion, getClone, hasClone } from '@/lib/headcode/config'
+import { getClone, getVersion, hasClone } from '@/lib/headcode/config'
 import { Suspense } from 'react'
 import { AlertClone, AlertNewInstallation } from './alerts'
 import { DialogAddEntry } from './dialogs'
 import { EntriesTable } from './table'
-import { cacheTag } from 'next/cache'
 
 export default function Page() {
   return (
@@ -37,6 +37,7 @@ async function EntriesPage() {
 }
 
 export async function Entries() {
+  const t = await getTranslations('entries')
   const { entryTypes, entries, emptyEntries } = await getEntries()
   const dynamicEntries = entryTypes.filter((entryType) => entryType.dynamic)
 

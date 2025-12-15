@@ -16,14 +16,25 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { authClient } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
 import { useForm } from '@tanstack/react-form'
 import { AlertCircleIcon } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { z } from 'zod'
+import { setUserLocale } from '@/i18n/locale'
 
 const formSchema = z.object({
   email: z.email('Invalid email address'),
@@ -34,6 +45,7 @@ const formSchema = z.object({
 })
 
 export function SignInForm({ className }: React.ComponentProps<'div'>) {
+  const t = useTranslations('sign-in')
   const [error, setError] = useState<string | null>(null)
 
   const router = useRouter()
@@ -69,9 +81,10 @@ export function SignInForm({ className }: React.ComponentProps<'div'>) {
       <h2 className="text-center text-3xl font-bold tracking-tight">
         Headcode CMS
       </h2>
+      <LanguageSelector />
       <Card>
         <CardHeader>
-          <CardTitle>Sign in</CardTitle>
+          <CardTitle>{t('title')}</CardTitle>
           <CardDescription>
             Sign in to your account to continue. If you don&apos;t have an
             account, please contact your administrator.
@@ -162,5 +175,37 @@ export function SignInForm({ className }: React.ComponentProps<'div'>) {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+function LanguageSelector() {
+  const locale = useLocale()
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+
+  const handleLanguageChange = (newLocale: string) => {
+    startTransition(async () => {
+      await setUserLocale(newLocale)
+      router.refresh()
+    })
+  }
+
+  return (
+    <Select
+      value={locale}
+      onValueChange={handleLanguageChange}
+      disabled={isPending}
+    >
+      <SelectTrigger className="mx-auto w-2/3">
+        <SelectValue placeholder="Select language" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>Languages</SelectLabel>
+          <SelectItem value="en">English</SelectItem>
+          <SelectItem value="de">Deutsch</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   )
 }
