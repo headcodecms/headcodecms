@@ -49,8 +49,9 @@ export type SectionName = {
 }
 
 export type DefaultSection = {
-  section: SectionDefinition
-  defaultValues: InferSectionData<Fields>
+  name: string
+  pinned?: boolean
+  data: InferSectionData<Fields>
 }
 
 export type HeadcodeConfigEntry =

@@ -49,7 +49,32 @@ export const getDefaultSectionValues = (
   const defaultValues = getDefaultValues(fields)
 
   if (data) {
-    const parsedData = JSON.parse(data as string)
+    let parsedData: Record<string, unknown>
+    
+    // Handle case where data is already an object (e.g., from Drizzle with mode: 'json')
+    if (
+      typeof data === 'object' &&
+      !Array.isArray(data) &&
+      data !== null
+    ) {
+      parsedData = data as Record<string, unknown>
+    } else if (typeof data === 'string') {
+      // Handle case where data is a JSON string
+      try {
+        parsedData = JSON.parse(data) as Record<string, unknown>
+      } catch (error) {
+        // If parsing fails, return default values
+        console.error('JSON parsing failed in getDefaultSectionValues', {
+          error,
+          data,
+        })
+        return defaultValues
+      }
+    } else {
+      // Unexpected type, return default values
+      return defaultValues
+    }
+
     Object.entries(parsedData).forEach(([key, value]) => {
       if (key in defaultValues) {
         defaultValues[key] = value

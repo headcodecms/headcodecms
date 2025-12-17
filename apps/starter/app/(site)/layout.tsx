@@ -1,6 +1,10 @@
 import { Container } from '@/components/headcode/themes/vienna/container'
-import { Footer, FooterData } from '@/components/headcode/themes/vienna/footer'
-import { Header, HeaderData } from '@/components/headcode/themes/vienna/header'
+import { Footer } from '@/components/headcode/themes/vienna/footer'
+import { Header } from '@/components/headcode/themes/vienna/header'
+import {
+  defaultFooter,
+  defaultHeader,
+} from '@/components/headcode/themes/vienna/defaults'
 import { getSection } from '@/lib/headcode'
 import type { Metadata } from 'next'
 import { cacheTag } from 'next/cache'
@@ -49,77 +53,4 @@ async function FooterSection() {
       <Footer sectionData={section ? section.data : defaultFooter} />
     </Container>
   )
-}
-
-export const defaultHeader: HeaderData = {
-  logo: null,
-  name: 'Headcode CMS',
-  nav: [
-    {
-      link: {
-        title: 'headcodecms.com',
-        url: 'https://headcodecms.com',
-        openInNewWindow: true,
-      },
-    },
-    {
-      link: {
-        title: 'Admin',
-        url: '/headcode',
-        openInNewWindow: true,
-      },
-    },
-    {
-      link: {
-        title: 'Docs',
-        url: 'https://headcodecms.com/docs',
-        openInNewWindow: true,
-      },
-    },
-    {
-      link: {
-        title: 'Pages',
-        url: '/pages',
-        openInNewWindow: false,
-      },
-    },
-  ],
-}
-
-const defaultFooter: FooterData = {
-  company: '© 2026 Headcode CMS. All rights reserved.',
-  nav: [
-    {
-      link: {
-        title: 'Website',
-        url: 'https://headcodecms.com',
-        openInNewWindow: true,
-      },
-    },
-    {
-      link: {
-        title: 'Docs',
-        url: 'https://headcodecms.com/docs',
-        openInNewWindow: true,
-      },
-    },
-  ],
-  social: [
-    {
-      link: {
-        title: 'Facebook',
-        url: 'https://headcodecms.com',
-        openInNewWindow: true,
-      },
-      icon: 'facebook',
-    },
-    {
-      link: {
-        title: 'Instagram',
-        url: 'https://headcodecms.com/docs',
-        openInNewWindow: true,
-      },
-      icon: 'instagram',
-    },
-  ],
 }

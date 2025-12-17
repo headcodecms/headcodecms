@@ -1,11 +1,15 @@
-import { defaultHeader } from './app/(site)/layout'
-import { defaultFeatures, defaultHero, defaultText } from './app/(site)/page'
 import { featuresSection } from './components/headcode/themes/vienna/features'
 import { footerSection } from './components/headcode/themes/vienna/footer'
 import { headerSection } from './components/headcode/themes/vienna/header'
 import { heroSection } from './components/headcode/themes/vienna/hero'
 import { imageSection } from './components/headcode/themes/vienna/image'
 import { textSection } from './components/headcode/themes/vienna/text'
+import {
+  defaultHeader,
+  defaultFeatures,
+  defaultHero,
+  defaultText,
+} from './components/headcode/themes/vienna/defaults'
 import type { HeadcodeConfig } from './lib/headcode/types'
 
 export const headcodeConfig: HeadcodeConfig = {
@@ -22,22 +26,9 @@ export const headcodeConfig: HeadcodeConfig = {
         { section: imageSection },
       ],
       defaultSections: [
-        {
-          section: heroSection,
-          defaultValues: defaultHero,
-        },
-        {
-          section: textSection,
-          defaultValues: defaultText,
-        },
-        {
-          section: featuresSection,
-          defaultValues: defaultFeatures,
-        },
-        {
-          section: textSection,
-          defaultValues: defaultText,
-        },
+        { name: heroSection.name, data: defaultHero },
+        { name: textSection.name, data: defaultText },
+        { name: featuresSection.name, data: defaultFeatures },
       ],
     },
     {
@@ -46,8 +37,9 @@ export const headcodeConfig: HeadcodeConfig = {
       sections: [{ section: headerSection, pinned: true }],
       defaultSections: [
         {
-          section: headerSection,
-          defaultValues: defaultHeader,
+          name: headerSection.name,
+          data: defaultHeader,
+          pinned: true,
         },
       ],
     },
@@ -60,14 +52,8 @@ export const headcodeConfig: HeadcodeConfig = {
       namespace: 'pages',
       sections: [{ section: heroSection }, { section: textSection }],
       defaultSections: [
-        {
-          section: heroSection,
-          defaultValues: defaultHero,
-        },
-        {
-          section: textSection,
-          defaultValues: defaultText,
-        },
+        { name: heroSection.name, data: defaultHero },
+        { name: textSection.name, data: defaultText },
       ],
     },
   ],
