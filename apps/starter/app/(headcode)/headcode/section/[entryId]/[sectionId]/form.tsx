@@ -26,15 +26,60 @@ import {
   SortableOverlay,
 } from '@/components/ui/sortable'
 import { Spinner } from '@/components/ui/spinner'
-import type { Entry, Section } from '@/lib/headcode/types'
+import type {
+  Entry,
+  Section,
+  ChildFields,
+  FieldProps,
+} from '@/lib/headcode/types'
 import { getConfigSection } from '@/lib/headcode/config'
 import { getDefaultSectionValues, getSchema } from '@/lib/headcode/fields'
-import { ChildFields, FieldProps } from '@/lib/headcode/types'
+import { preloadFieldComponents, isLazyComponent } from '@/lib/headcode/preload'
 import { GripVerticalIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { deleteSection, updateSection } from './actions'
 import type { AppFormInstance } from '@/components/headcode/form/app-form'
+
+const PreloadComponents = ({
+  childFields,
+}: {
+  childFields: Record<string, FieldProps<unknown, unknown>>
+}): React.JSX.Element => {
+  return (
+    <div
+      style={{ display: 'none', position: 'absolute', left: '-9999px' }}
+      aria-hidden="true"
+    >
+      <Suspense fallback={null}>
+        {Object.values(childFields).map((childField, index) => {
+          if (
+            childField &&
+            childField.component &&
+            isLazyComponent(childField.component)
+          ) {
+            const Component = childField.component as React.LazyExoticComponent<
+              React.ComponentType<{
+                label: string
+                description?: string
+                options?: unknown
+              }>
+            >
+            return (
+              <Component
+                key={index}
+                label=""
+                description={undefined}
+                options={undefined}
+              />
+            )
+          }
+          return null
+        })}
+      </Suspense>
+    </div>
+  )
+}
 
 export function Form({
   entry,
@@ -57,6 +102,11 @@ export function Form({
   const fields = configSection.fields
   const formSchema = getSchema(fields)
   const defaultValues = getDefaultSectionValues(fields, section.data)
+
+  // Preload all lazy field components when form mounts
+  useEffect(() => {
+    preloadFieldComponents(fields)
+  }, [fields])
 
   const form = useAppForm({
     defaultValues,
@@ -183,6 +233,9 @@ export function Form({
 
     const firstTextFieldKey = getFirstTextFieldKey()
 
+    // Track which items have been preloaded
+    const [preloadedItems, setPreloadedItems] = useState<Set<number>>(new Set())
+
     return (
       <form.AppField key={nameKey} name={nameKey} mode="array">
         {(formField) => {
@@ -285,6 +338,13 @@ export function Form({
                   getItemValue={(item) => item.id}
                 >
                   <SortableContent>
+                    {/* Preload components for items marked for preload - render outside collapsible to start loading early */}
+                    {Array.from(preloadedItems).map((preloadIndex) => (
+                      <PreloadComponents
+                        key={`preload-${preloadIndex}`}
+                        childFields={field.fields}
+                      />
+                    ))}
                     {formFieldValues?.map((child, index) => {
                       const stableId =
                         stableIdsRef.current.get(index) || index.toString()
@@ -298,6 +358,12 @@ export function Form({
                           <Collapsible
                             open={openStates[index] ?? false}
                             onOpenChange={(isOpen) => {
+                              // Mark for preload when opening
+                              if (isOpen && !preloadedItems.has(index)) {
+                                setPreloadedItems((prev) =>
+                                  new Set(prev).add(index),
+                                )
+                              }
                               setOpenStates((prev) => ({
                                 ...prev,
                                 [index]: isOpen,
@@ -310,7 +376,20 @@ export function Form({
                                   <GripVerticalIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
                                 </div>
                               </SortableItemHandle>
-                              <CollapsibleTrigger className="grow">
+                              <CollapsibleTrigger
+                                className="grow"
+                                onMouseEnter={() => {
+                                  // Preload components on hover by marking for preload
+                                  if (
+                                    !(openStates[index] ?? false) &&
+                                    !preloadedItems.has(index)
+                                  ) {
+                                    setPreloadedItems((prev) =>
+                                      new Set(prev).add(index),
+                                    )
+                                  }
+                                }}
+                              >
                                 <div className="flex w-full items-center justify-between">
                                   <div className="flex items-center gap-2">
                                     {field.label}

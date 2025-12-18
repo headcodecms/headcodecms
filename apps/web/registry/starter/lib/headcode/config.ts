@@ -1,4 +1,12 @@
-import type { SectionName, SectionReference } from './types'
+import type {
+  AddSection,
+  DefaultSection,
+  InferSectionData,
+  Section,
+  SectionDefinition,
+  SectionName,
+  SectionReference,
+} from './types'
 import { headcodeConfig } from '@/headcode.config'
 
 export const getVersion = () => headcodeConfig.version
@@ -54,4 +62,34 @@ export const getConfigSectionNames = (
     name: section.section.name,
     label: section.section.label,
   })) as SectionName[]
+}
+
+export const getDefaultSections = (
+  namespace: string,
+  key?: string | undefined,
+  entryId?: number | undefined,
+): Section[] | AddSection[] | null => {
+  const configEntry = getConfigEntry(namespace, key)
+  if (!configEntry || !configEntry.defaultSections) {
+    return null
+  }
+
+  return entryId
+    ? configEntry.defaultSections.map((section, index) => ({
+        name: section.name,
+        pos: index,
+        pinned: section.pinned ?? false,
+        data: section.data,
+        entryId: entryId,
+      }))
+    : configEntry.defaultSections.map((section, index) => ({
+        id: (1 + index) * -1,
+        name: section.name,
+        pos: index,
+        pinned: section.pinned ?? false,
+        data: section.data,
+        entryId: -1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }))
 }

@@ -16,7 +16,7 @@ import type {
   UIEntryType,
 } from './types'
 import { headcodeConfig } from '@/headcode.config'
-import { getConfigSectionNames } from './config'
+import { getConfigSectionNames, getDefaultSections } from './config'
 
 export async function getEntries() {
   const entryTypes: UIEntryType[] = []
@@ -91,14 +91,25 @@ export async function addEntryAndSections(entry: AddEntry): Promise<Entry> {
   const newEntry = await addEntry(entry)
   const pinnedSections = getConfigSectionNames(entry.namespace, entry.key, true)
 
+  const defaultSections =
+    getDefaultSections(newEntry.namespace, newEntry.key, newEntry.id) ?? []
   for (let i = 0; i < pinnedSections.length; i++) {
-    await addDBSection({
-      name: pinnedSections[i].name,
-      pos: i,
-      entryId: newEntry.id,
-      data: null,
-      pinned: true,
-    })
+    const foundPinned = defaultSections.find(
+      (item) => item.name === pinnedSections[i].name && item.pinned === true,
+    )
+    if (!foundPinned) {
+      defaultSections.push({
+        name: pinnedSections[i].name,
+        pos: i,
+        pinned: true,
+        data: null,
+        entryId: newEntry.id,
+      })
+    }
+  }
+
+  for (let i = 0; i < pinnedSections.length; i++) {
+    await addDBSection(defaultSections[i])
   }
 
   return newEntry

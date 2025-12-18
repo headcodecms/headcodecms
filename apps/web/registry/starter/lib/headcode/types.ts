@@ -48,16 +48,24 @@ export type SectionName = {
   label: string
 }
 
+export type DefaultSection = {
+  name: string
+  pinned?: boolean
+  data: InferSectionData<Fields>
+}
+
 export type HeadcodeConfigEntry =
   | {
       namespace: string
       key: string
       sections: readonly SectionReference[]
+      defaultSections?: readonly DefaultSection[]
     }
   | {
       namespace: string
       key?: never
       sections: readonly SectionReference[]
+      defaultSections?: readonly DefaultSection[]
     }
 
 export type HeadcodeConfig = {
