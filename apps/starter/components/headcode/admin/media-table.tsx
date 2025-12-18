@@ -109,7 +109,7 @@ const getMediaColumns = (action: MediaTableAction): ColumnDef<ImageValue>[] => [
       return (
         <div className="min-w-0 space-y-1">
           <div className="font-medium">{image.name || 'Untitled'}</div>
-          <div className="flex max-w-64 min-w-0 items-center gap-2 overflow-hidden lg:max-w-lg xl:max-w-2xl 2xl:max-w-4xl">
+          <div className="flex max-w-64 min-w-0 items-center gap-2 overflow-hidden sm:max-w-96">
             <span className="text-muted-foreground min-w-0 truncate text-sm">
               {image.src}
             </span>

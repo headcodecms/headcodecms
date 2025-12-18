@@ -1,20 +1,18 @@
 import { Container } from '@/components/headcode/themes/vienna/container'
-import {
-  Features,
-  FeaturesData,
-} from '@/components/headcode/themes/vienna/features'
-import { Hero, HeroData } from '@/components/headcode/themes/vienna/hero'
+import { Features } from '@/components/headcode/themes/vienna/features'
+import { Hero } from '@/components/headcode/themes/vienna/hero'
 import { SingleImage } from '@/components/headcode/themes/vienna/image'
-import { Text, TextData } from '@/components/headcode/themes/vienna/text'
+import { Text } from '@/components/headcode/themes/vienna/text'
+import {
+  defaultFeatures,
+  defaultHero,
+  defaultText,
+} from '@/components/headcode/themes/vienna/defaults'
 import { getSections } from '@/lib/headcode'
 import { cacheTag } from 'next/cache'
 import { Fragment } from 'react/jsx-runtime'
 
-export default function Home() {
-  return <HomeSection />
-}
-
-async function HomeSection() {
+export default async function Home() {
   'use cache'
   cacheTag('/headcode/entries/global/home')
 
@@ -64,79 +62,4 @@ async function HomeSection() {
       )}
     </Fragment>
   ))
-}
-
-const defaultHero: HeroData = {
-  title: 'Welcome to Headcode CMS',
-  subtitle:
-    'A minimalistic web content management system for Next.js. Start with editing content in the Headcode Admin.',
-  primaryButton: {
-    title: 'Headcode Admin',
-    url: '/headcode',
-    openInNewWindow: false,
-  },
-  secondaryButton: {
-    title: 'Documentation',
-    url: 'https://headcodecms.com/docs',
-    openInNewWindow: true,
-  },
-}
-
-const defaultFeatures: FeaturesData = {
-  title: 'Features',
-  subtitle:
-    'A minimalistic web content management system for Next.js. Start with editing content in the Headcode Admin.',
-  tagline: 'Features',
-  features: [
-    {
-      title: 'Feature 1',
-      description:
-        'Feature 1 lorem ipsum dolor sit amet. Consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      icon: 'cloud',
-      link: {
-        title: 'Feature 1',
-        url: 'https://headcodecms.com',
-        openInNewWindow: true,
-      },
-    },
-    {
-      title: 'Feature 2',
-      description:
-        'Feature 2 lorem ipsum dolor sit amet. Consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      icon: 'refresh',
-      link: {
-        title: 'Feature 2',
-        url: 'https://headcodecms.com',
-        openInNewWindow: true,
-      },
-    },
-    {
-      title: 'Feature 3',
-      description:
-        'Feature 3 lorem ipsum dolor sit amet. Consectetur adipiscing elit.',
-      icon: 'settings',
-      link: {
-        title: 'Feature 3',
-        url: 'https://headcodecms.com',
-        openInNewWindow: true,
-      },
-    },
-  ],
-}
-
-const defaultText: TextData = {
-  text: {
-    type: 'doc',
-    content: [
-      {
-        type: 'paragraph',
-        content: [
-          {
-            type: 'text',
-            text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          },
-        ],
-      },
-    ],
-  },
 }

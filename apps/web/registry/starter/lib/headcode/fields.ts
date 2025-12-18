@@ -50,13 +50,9 @@ export const getDefaultSectionValues = (
 
   if (data) {
     let parsedData: Record<string, unknown>
-    
+
     // Handle case where data is already an object (e.g., from Drizzle with mode: 'json')
-    if (
-      typeof data === 'object' &&
-      !Array.isArray(data) &&
-      data !== null
-    ) {
+    if (typeof data === 'object' && !Array.isArray(data) && data !== null) {
       parsedData = data as Record<string, unknown>
     } else if (typeof data === 'string') {
       // Handle case where data is a JSON string

@@ -278,6 +278,11 @@
           "target": "lib/headcode/fields.ts"
         },
         {
+          "path": "registry/starter/lib/headcode/preload.ts",
+          "type": "registry:lib",
+          "target": "lib/headcode/preload.ts"
+        },
+        {
           "path": "registry/starter/lib/headcode/images.ts",
           "type": "registry:lib",
           "target": "lib/headcode/images.ts"
@@ -490,6 +495,11 @@
           "path": "registry/starter/components/headcode/themes/vienna/container.tsx",
           "type": "registry:component",
           "target": "components/headcode/themes/vienna/container.tsx"
+        },
+        {
+          "path": "registry/starter/components/headcode/themes/vienna/defaults.ts",
+          "type": "registry:component",
+          "target": "components/headcode/themes/vienna/defaults.ts"
         },
         {
           "path": "registry/starter/components/headcode/themes/vienna/features.tsx",
