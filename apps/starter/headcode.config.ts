@@ -49,6 +49,12 @@ export const headcodeConfig: HeadcodeConfig = {
       sections: [{ section: footerSection, pinned: true }],
     },
     {
+      namespace: 'global',
+      key: 'sections',
+      sections: [{ section: headerSection }],
+      defaultSections: [{ name: headerSection.name, data: defaultHeader }],
+    },
+    {
       namespace: 'pages',
       sections: [{ section: heroSection }, { section: textSection }],
       defaultSections: [

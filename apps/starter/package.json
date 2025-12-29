@@ -63,6 +63,7 @@
     "react-day-picker": "^9.11.1",
     "react-dom": "^19.2.0",
     "react-dropzone": "^14.3.8",
+    "react-resizable-panels": "^4.0.15",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "thumbhash": "^0.1",
