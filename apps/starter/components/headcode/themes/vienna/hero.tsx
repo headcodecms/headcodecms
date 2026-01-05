@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { parseSectionData } from '@/lib/headcode/data'
 import type { Fields, InferSectionData } from '@/lib/headcode/types'
 import { ALink } from '../../links'
+import { isEmpty } from '@/lib/headcode/utils'
 
 export const heroSection = {
   name: 'hero',
@@ -30,21 +31,30 @@ export function Hero({ sectionData }: { sectionData: unknown }) {
   const { data } = parseSectionData(heroSection.fields, sectionData)
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8">
-      <h1 className="mb-0 text-6xl font-medium text-balance md:text-7xl xl:text-[5.25rem]">
+    <div className="flex flex-col justify-center gap-8 md:items-center">
+      <h1 className="mb-0 text-6xl font-medium md:text-7xl xl:text-[5.25rem]">
         {data.title}
       </h1>
-      <p className="text-muted-foreground mt-0 mb-0 text-lg text-balance">
-        {data.subtitle}
-      </p>
-      <div className="flex items-center gap-2">
-        <Button asChild>
-          <ALink link={data.primaryButton} />
-        </Button>
-        <Button asChild variant="outline">
-          <ALink link={data.secondaryButton} />
-        </Button>
-      </div>
+      {!isEmpty(data.subtitle) && (
+        <p className="text-muted-foreground mt-0 mb-0 text-lg">
+          {data.subtitle}
+        </p>
+      )}
+      {(!isEmpty(data.primaryButton.title) ||
+        !isEmpty(data.secondaryButton.title)) && (
+        <div className="flex flex-col items-center gap-2 sm:flex-row">
+          {!isEmpty(data.primaryButton.title) && (
+            <Button className="w-full sm:w-auto" asChild>
+              <ALink link={data.primaryButton} />
+            </Button>
+          )}
+          {!isEmpty(data.secondaryButton.title) && (
+            <Button className="w-full sm:w-auto" asChild variant="outline">
+              <ALink link={data.secondaryButton} />
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

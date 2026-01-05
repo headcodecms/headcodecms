@@ -4,11 +4,14 @@ import { Header } from '@/components/headcode/themes/vienna/header'
 import {
   defaultFooter,
   defaultHeader,
+  defaultHeaderMega,
+  getDefaultPages,
 } from '@/components/headcode/themes/vienna/defaults'
 import { getSection } from '@/lib/headcode'
 import type { Metadata } from 'next'
 import { cacheTag } from 'next/cache'
 import './globals.css'
+import { HeaderMega } from '@/components/headcode/themes/vienna/header-mega'
 
 export const metadata: Metadata = {
   title: 'Headcode CMS Starter Theme Vienna',
@@ -36,9 +39,12 @@ async function HeaderSection() {
   cacheTag('/headcode/entries/global/header')
 
   const section = await getSection('global', 'header', 'header')
+  const sectionData = section ? section.data : defaultHeaderMega
+  const pages = getDefaultPages()
+
   return (
     <Container className="py-8">
-      <Header sectionData={section ? section.data : defaultHeader} />
+      <HeaderMega pages={pages} sectionData={sectionData} />
     </Container>
   )
 }

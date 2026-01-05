@@ -1,3 +1,4 @@
+import HeadcodeLogo from '@/public/headcode-logo.svg'
 import { ImageField } from '@/components/headcode/form/image-field'
 import { LinkField } from '@/components/headcode/form/link-field'
 import { TextField } from '@/components/headcode/form/text-field'
@@ -46,20 +47,19 @@ export type HeaderData = InferSectionData<typeof headerSection.fields>
 
 export function Header({ sectionData }: { sectionData: unknown }) {
   const { data } = parseSectionData(headerSection.fields, sectionData)
+  const logo = data.logo ? data.logo : HeadcodeLogo
 
   return (
     <div className="flex items-center justify-between">
       <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
-        {data.logo && (
-          <Image
-            className="h-8 w-auto"
-            src={data.logo.src}
-            alt={data.logo.alt}
-            width={data.logo.width}
-            height={data.logo.height}
-            blurDataURL={data.logo.blurDataURL || undefined}
-          />
-        )}
+        <Image
+          className="h-8 w-auto"
+          src={logo.src}
+          alt={logo.alt || 'Headcode Logo'}
+          width={logo.width}
+          height={logo.height}
+          blurDataURL={logo.blurDataURL || undefined}
+        />
         {data.name}
       </Link>
 
@@ -98,16 +98,7 @@ function MobileSheet({ nav }: { nav: HeaderData['nav'] }) {
         </SheetHeader>
         {nav.map((link, index) => (
           <div key={index} className="px-4">
-            {link.link.url.startsWith('http') ? (
-              <a
-                href={link.link.url}
-                target={link.link.openInNewWindow ? '_blank' : '_self'}
-              >
-                {link.link.title}
-              </a>
-            ) : (
-              <Link href={link.link.url}>{link.link.title}</Link>
-            )}
+            <ALink link={link.link} />
           </div>
         ))}
       </SheetContent>

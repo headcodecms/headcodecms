@@ -13,68 +13,85 @@ import { getDefaultSections } from '@/lib/headcode/config'
 import { cacheTag } from 'next/cache'
 import { Fragment } from 'react/jsx-runtime'
 import { Iframe } from './iframe'
+import { HeaderMega } from '@/components/headcode/themes/vienna/header-mega'
+import { cn } from '@/lib/utils'
+import { getDefaultPages } from '@/components/headcode/themes/vienna/defaults'
 
 export default async function AllSections() {
   'use cache'
   cacheTag('/headcode/entries/global/sections')
 
   const sections = getDefaultSections('global', 'sections')
+  const pages = getDefaultPages()
+
   if (!sections) return null
 
-  return (
-    <Container className="py-8 lg:py-16">
-      {sections.map((section) => (
-        <Fragment key={section.id}>
-          {section.name === 'header' && (
-            <Resizable>
-              <Header sectionData={section.data} />
-            </Resizable>
-          )}
-          {section.name === 'hero' && (
-            <Container className="py-8 lg:py-16">
-              <Hero sectionData={section.data} />
-            </Container>
-          )}
-          {section.name === 'features' && (
-            <Container className="py-8 lg:py-16">
-              <Features sectionData={section.data} />
-            </Container>
-          )}
-          {section.name === 'text' && (
-            <Container className="py-8 lg:py-16">
-              <Text sectionData={section.data} />
-            </Container>
-          )}
-          {section.name === 'image' && (
-            <div className="py-4 lg:py-8">
-              <div className="mx-auto sm:max-w-7xl sm:px-6">
-                <div className="flex justify-center">
-                  <SingleImage sectionData={section.data} />
-                </div>
-              </div>
+  return sections.map((section) => (
+    <Fragment key={section.id}>
+      {section.name === 'header-mega' && (
+        <Resizable>
+          <HeaderMega sectionData={section.data} pages={pages} />
+        </Resizable>
+      )}
+      {section.name === 'header' && (
+        <Resizable className="min-h-[100px]">
+          <Header sectionData={section.data} />
+        </Resizable>
+      )}
+      {section.name === 'hero' && (
+        <Resizable>
+          <Hero sectionData={section.data} />
+        </Resizable>
+      )}
+      {section.name === 'features' && (
+        <Resizable className="min-h-[800px]">
+          <Features sectionData={section.data} />
+        </Resizable>
+      )}
+      {section.name === 'text' && (
+        <Container className="py-8 lg:py-16">
+          <Text sectionData={section.data} />
+        </Container>
+      )}
+      {section.name === 'image' && (
+        <div className="py-4 lg:py-8">
+          <div className="mx-auto sm:max-w-7xl sm:px-6">
+            <div className="flex justify-center">
+              <SingleImage sectionData={section.data} />
             </div>
-          )}
-        </Fragment>
-      ))}
-    </Container>
-  )
+          </div>
+        </div>
+      )}
+    </Fragment>
+  ))
 }
 
-const Resizable = ({ children }: { children: React.ReactNode }) => {
+const Resizable = ({
+  className,
+  children,
+}: {
+  className?: string
+  children: React.ReactNode
+}) => {
   return (
-    <ResizablePanelGroup
-      orientation="horizontal"
-      className="bg-muted min-h-[200px] w-full rounded-lg border py-5 pr-2 pl-5 md:min-w-[450px]"
-    >
-      <ResizablePanel defaultSize={99}>
-        <div className="h-full w-full bg-white p-5">
-          <Iframe className="w-full">{children}</Iframe>
-        </div>
-      </ResizablePanel>
-      <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={1}>
-        <div className="h-full w-full"></div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
+    <Container className="py-4 lg:py-8">
+      <ResizablePanelGroup
+        orientation="horizontal"
+        className={cn(
+          'bg-muted min-h-[500px] w-full rounded-lg border py-5 pr-2 pl-5 md:min-w-[450px]',
+          className,
+        )}
+      >
+        <ResizablePanel defaultSize={99}>
+          <div className="h-full w-full bg-white p-5">
+            <Iframe className="h-full w-full">{children}</Iframe>
+          </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={1}>
+          <div className="h-full w-full"></div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </Container>
   )
 }
