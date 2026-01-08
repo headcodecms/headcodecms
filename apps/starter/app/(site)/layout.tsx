@@ -1,9 +1,7 @@
 import { Container } from '@/components/headcode/themes/vienna/container'
 import { Footer } from '@/components/headcode/themes/vienna/footer'
-import { Header } from '@/components/headcode/themes/vienna/header'
 import {
   defaultFooter,
-  defaultHeader,
   defaultHeaderMega,
   getDefaultPages,
 } from '@/components/headcode/themes/vienna/defaults'
@@ -43,7 +41,7 @@ async function HeaderSection() {
   const pages = getDefaultPages()
 
   return (
-    <Container className="py-8">
+    <Container className="relative isolate z-10 py-8">
       <HeaderMega pages={pages} sectionData={sectionData} />
     </Container>
   )

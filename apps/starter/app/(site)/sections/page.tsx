@@ -1,4 +1,5 @@
 import { Container } from '@/components/headcode/themes/vienna/container'
+import { Feature } from '@/components/headcode/themes/vienna/feature'
 import { Features } from '@/components/headcode/themes/vienna/features'
 import { Header } from '@/components/headcode/themes/vienna/header'
 import { Hero } from '@/components/headcode/themes/vienna/hero'
@@ -16,6 +17,7 @@ import { Iframe } from './iframe'
 import { HeaderMega } from '@/components/headcode/themes/vienna/header-mega'
 import { cn } from '@/lib/utils'
 import { getDefaultPages } from '@/components/headcode/themes/vienna/defaults'
+import { Footer } from '@/components/headcode/themes/vienna/footer'
 
 export default async function AllSections() {
   'use cache'
@@ -25,6 +27,12 @@ export default async function AllSections() {
   const pages = getDefaultPages()
 
   if (!sections) return null
+
+  for (const section of sections) {
+    if (section.name === 'text') {
+      console.log('text section', section)
+    }
+  }
 
   return sections.map((section) => (
     <Fragment key={section.id}>
@@ -48,19 +56,30 @@ export default async function AllSections() {
           <Features sectionData={section.data} />
         </Resizable>
       )}
+      {section.name === 'feature' && (
+        <Resizable className="min-h-[600px]">
+          <Feature sectionData={section.data} />
+        </Resizable>
+      )}
       {section.name === 'text' && (
         <Container className="py-8 lg:py-16">
           <Text sectionData={section.data} />
         </Container>
       )}
+      {section.name === 'textResizable' && (
+        <Resizable className="min-h-[500px]">
+          <Text sectionData={section.data} />
+        </Resizable>
+      )}
       {section.name === 'image' && (
-        <div className="py-4 lg:py-8">
-          <div className="mx-auto sm:max-w-7xl sm:px-6">
-            <div className="flex justify-center">
-              <SingleImage sectionData={section.data} />
-            </div>
-          </div>
-        </div>
+        <Resizable>
+          <SingleImage sectionData={section.data} />
+        </Resizable>
+      )}
+      {section.name === 'footer' && (
+        <Resizable className="min-h-[300px]">
+          <Footer sectionData={section.data} />
+        </Resizable>
       )}
     </Fragment>
   ))

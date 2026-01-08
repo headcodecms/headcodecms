@@ -1,10 +1,12 @@
 import { getDefaultImage } from '@/lib/headcode/images'
+import type { FeatureData } from './feature'
 import type { FeaturesData } from './features'
 import type { FooterData } from './footer'
 import type { HeaderData } from './header'
 import { HeaderMegaData } from './header-mega'
 import type { HeroData } from './hero'
 import type { TextData } from './text'
+import { ImageData } from './image'
 
 export const defaultHeaderMegaText: TextData = {
   text: {
@@ -421,6 +423,376 @@ export const defaultFeatures: FeaturesData = {
   ],
 }
 
+export const defaultFeatureText: TextData = {
+  text: {
+    type: 'doc',
+    content: [
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'Feature' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Feature section with image on one side and text content on the other. Use the "Image on Right" switch to toggle the image position. On mobile, the image is always displayed on top with text below.',
+          },
+        ],
+      },
+    ],
+  },
+}
+
+export const defaultFeature: FeatureData = {
+  title: 'AI-Powered Ticket Routing',
+  subtitle:
+    'Automatically categorize and assign incoming tickets to the right team members based on content and urgency.',
+  tagline: 'Smart Automation',
+  description: {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Our intelligent routing system analyzes incoming support requests in real-time, using natural language processing to understand intent and sentiment.',
+          },
+        ],
+      },
+      {
+        type: 'bulletList',
+        content: [
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  { type: 'text', text: 'Reduce first response time by 40%' },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Automatically prioritize urgent issues',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  { type: 'text', text: 'Match tickets to agent expertise' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  link: {
+    title: 'Learn More About Routing',
+    url: '/products#routing',
+    openInNewWindow: false,
+  },
+  image: getDefaultImage(
+    'https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2670&auto=format',
+    'Team collaborating on customer support',
+    2670,
+    1780,
+  ),
+  imageRight: false,
+}
+
+export const defaultFeatureRight: FeatureData = {
+  title: 'Customer Satisfaction Analytics',
+  subtitle:
+    'Track CSAT scores, response times, and resolution rates with beautiful, actionable dashboards.',
+  tagline: 'Data-Driven Insights',
+  description: {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Get a complete picture of your support performance with comprehensive analytics. Identify trends, spot bottlenecks, and celebrate wins with your team.',
+          },
+        ],
+      },
+      {
+        type: 'bulletList',
+        content: [
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  { type: 'text', text: 'Real-time performance dashboards' },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  { type: 'text', text: 'Custom reporting and exports' },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  { type: 'text', text: 'Team and individual metrics' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  link: {
+    title: 'Explore Analytics',
+    url: '/products#analytics',
+    openInNewWindow: false,
+  },
+  image: getDefaultImage(
+    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format',
+    'Analytics dashboard showing customer support metrics',
+    2426,
+    1617,
+  ),
+  imageRight: true,
+}
+
+export const defaultTextPreview: TextData = {
+  text: {
+    type: 'doc',
+    content: [
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'Text' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Simple section of rich text content. It uses the Kibo-UI editor component which uses the TipTap WYSIWYG editor under the hood.',
+          },
+        ],
+      },
+    ],
+  },
+}
+
+export const defaultTextPreviewText: TextData = {
+  text: {
+    type: 'doc',
+    content: [
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'Modern Customer Support Platform' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Our customer support platform helps teams deliver fast, reliable, and human support experiences.',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'By bringing conversations, automation, and insights together, we enable support teams to focus on what matters most—helping customers succeed.',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'The platform is designed for growing businesses that need scalable tools without added complexity.',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Whether you support dozens or thousands of customers, our products adapt to your workflows and channels.',
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 3 },
+        content: [{ type: 'text', text: 'Core Products' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Our product suite covers the full customer support lifecycle, from first contact to resolution.',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Each product works seamlessly together, creating a unified experience for agents and customers alike.',
+          },
+        ],
+      },
+      {
+        type: 'bulletList',
+        content: [
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Unified Inbox for managing all conversations in one place',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Knowledge Base for enabling fast, self‑service support',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Support Analytics for tracking performance and satisfaction',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'These tools reduce response times, improve collaboration, and provide actionable insights.',
+          },
+        ],
+      },
+    ],
+  },
+}
+
+export const defaultImageText: TextData = {
+  text: {
+    type: 'doc',
+    content: [
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'Image' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Simple section with an image. The image is displayed full width and can be easily combined with text content.',
+          },
+        ],
+      },
+    ],
+  },
+}
+
+export const defaultImage: ImageData = {
+  image: getDefaultImage(
+    'https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2670&auto=format',
+    'Team collaborating on customer support',
+    2670,
+    1780,
+  ),
+}
+
+export const defaultFooterText: TextData = {
+  text: {
+    type: 'doc',
+    content: [
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'Footer' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Simple footer section with a company name and navigation links.',
+          },
+        ],
+      },
+    ],
+  },
+}
+
 export const defaultFooter: FooterData = {
   company: '© 2026 Headcode CMS. All rights reserved.',
   nav: [
@@ -489,4 +861,8 @@ export const getDefaultPages = () => {
       openInNewWindow: false,
     },
   ]
+}
+
+export const getDefaultBlogEntries = () => {
+  return []
 }

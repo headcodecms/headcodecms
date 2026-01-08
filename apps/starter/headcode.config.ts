@@ -1,14 +1,24 @@
 import {
+  defaultFeature,
+  defaultFeatureRight,
   defaultFeatures,
   defaultFeaturesText,
+  defaultFeatureText,
+  defaultFooter,
+  defaultFooterText,
   defaultHeader,
   defaultHeaderMega,
   defaultHeaderMegaText,
   defaultHeaderText,
   defaultHero,
   defaultHeroText,
+  defaultImage,
+  defaultImageText,
   defaultText,
+  defaultTextPreview,
+  defaultTextPreviewText,
 } from './components/headcode/themes/vienna/defaults'
+import { featureSection } from './components/headcode/themes/vienna/feature'
 import { featuresSection } from './components/headcode/themes/vienna/features'
 import { footerSection } from './components/headcode/themes/vienna/footer'
 import { headerSection } from './components/headcode/themes/vienna/header'
@@ -67,6 +77,15 @@ export const headcodeConfig: HeadcodeConfig = {
         { name: heroSection.name, data: defaultHero },
         { name: textSection.name, data: defaultFeaturesText },
         { name: featuresSection.name, data: defaultFeatures },
+        { name: textSection.name, data: defaultFeatureText },
+        { name: featureSection.name, data: defaultFeature },
+        { name: featureSection.name, data: defaultFeatureRight },
+        { name: textSection.name, data: defaultTextPreview },
+        { name: textSection.name + 'Resizable', data: defaultTextPreviewText },
+        { name: textSection.name, data: defaultImageText },
+        { name: imageSection.name, data: defaultImage },
+        { name: textSection.name, data: defaultFooterText },
+        { name: footerSection.name, data: defaultFooter },
       ],
     },
     {
