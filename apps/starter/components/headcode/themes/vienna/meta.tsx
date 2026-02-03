@@ -24,34 +24,52 @@ export const metaSection = {
 }
 
 export const blogCategoryOptions: { label: string; value: string }[] = [
-  { label: 'News', value: 'news' },
-  { label: 'Tutorial', value: 'tutorial' },
-  { label: 'Press Release', value: 'press-release' },
+  { label: 'Destinations', value: 'destinations' },
+  { label: 'Lifestyle', value: 'lifestyle' },
+  { label: 'Reflections', value: 'reflections' },
+  { label: 'Product Updates', value: 'product-updates' },
+  { label: 'Best Practices', value: 'best-practices' },
 ]
+
 export const blogMetaSection = {
   name: 'blog-meta',
-  label: 'Blog Meta Section',
+  label: 'Blog Meta',
   fields: {
-    ...metaSection.fields,
-
+    title: TextField({
+      label: 'Title',
+    }),
+    description: TextareaField({
+      label: 'Description',
+    }),
+    heroImage: ImageField({
+      label: 'Hero Image',
+      description: 'Featured image for the blog post',
+    }),
     author: TextField({
-      label: 'Author',
+      label: 'Author Name',
+    }),
+    authorImage: ImageField({
+      label: 'Author Image',
+      description: 'Small avatar image for the author',
     }),
     date: DatePickerField({
       label: 'Published Date',
-    }),
-    featured: SwitchField({
-      label: 'Featured',
-      defaultValue: false,
     }),
     category: SelectField({
       label: 'Category',
       options: blogCategoryOptions,
     }),
-    order: TextField({
-      label: 'Order',
-      defaultValue: '100',
+    featured: SwitchField({
+      label: 'Featured Post',
+      description: 'Show as featured post',
+      defaultValue: false,
+    }),
+    readTime: TextField({
+      label: 'Read Time',
+      description: 'e.g. "5 min read"',
+      defaultValue: '3 min read',
     }),
   } satisfies Fields,
 }
-export type DocsMetaData = InferSectionData<typeof blogMetaSection.fields>
+
+export type BlogMetaData = InferSectionData<typeof blogMetaSection.fields>

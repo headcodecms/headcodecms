@@ -34,32 +34,42 @@ export default async function AllSections() {
     }
   }
 
-  return sections.map((section) => (
+  return sections.map((section, index) => (
     <Fragment key={section.id}>
       {section.name === 'header-mega' && (
-        <Resizable>
-          <HeaderMega sectionData={section.data} pages={pages} />
-        </Resizable>
+        <div id="header-mega">
+          <Resizable>
+            <HeaderMega sectionData={section.data} pages={pages} />
+          </Resizable>
+        </div>
       )}
       {section.name === 'header' && (
-        <Resizable className="min-h-[100px]">
-          <Header sectionData={section.data} />
-        </Resizable>
+        <div id="header">
+          <Resizable className="min-h-[100px]">
+            <Header sectionData={section.data} />
+          </Resizable>
+        </div>
       )}
       {section.name === 'hero' && (
-        <Resizable>
-          <Hero sectionData={section.data} />
-        </Resizable>
+        <div id="hero">
+          <Resizable>
+            <Hero sectionData={section.data} />
+          </Resizable>
+        </div>
       )}
       {section.name === 'features' && (
-        <Resizable className="min-h-[800px]">
-          <Features sectionData={section.data} />
-        </Resizable>
+        <div id="features">
+          <Resizable className="min-h-[800px]">
+            <Features sectionData={section.data} />
+          </Resizable>
+        </div>
       )}
       {section.name === 'feature' && (
-        <Resizable className="min-h-[600px]">
-          <Feature sectionData={section.data} />
-        </Resizable>
+        <div id={`feature-${index}`}>
+          <Resizable className="min-h-[600px]">
+            <Feature sectionData={section.data} />
+          </Resizable>
+        </div>
       )}
       {section.name === 'text' && (
         <Container className="py-8 lg:py-16">
@@ -67,19 +77,25 @@ export default async function AllSections() {
         </Container>
       )}
       {section.name === 'textResizable' && (
-        <Resizable className="min-h-[500px]">
-          <Text sectionData={section.data} />
-        </Resizable>
+        <div id="text">
+          <Resizable className="min-h-[500px]">
+            <Text sectionData={section.data} />
+          </Resizable>
+        </div>
       )}
       {section.name === 'image' && (
-        <Resizable>
-          <SingleImage sectionData={section.data} />
-        </Resizable>
+        <div id="image">
+          <Resizable>
+            <SingleImage sectionData={section.data} />
+          </Resizable>
+        </div>
       )}
       {section.name === 'footer' && (
-        <Resizable className="min-h-[300px]">
-          <Footer sectionData={section.data} />
-        </Resizable>
+        <div id="footer">
+          <Resizable className="min-h-[300px]">
+            <Footer sectionData={section.data} />
+          </Resizable>
+        </div>
       )}
     </Fragment>
   ))

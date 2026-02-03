@@ -152,42 +152,54 @@ function MobileSheet({
           <MenuIcon className="size-4" />
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="flex flex-col">
         <SheetHeader>
           <SheetTitle>Navigation</SheetTitle>
         </SheetHeader>
 
-        <div className="px-4">{data.mega1Title}</div>
-        {data.mega1Links.map((link, index) => (
-          <div key={index} className="text-muted-foreground px-8">
-            <ALink link={link.link} />
-          </div>
-        ))}
+        <div className="min-h-0 flex-1 overflow-y-auto py-4">
+          <div className="flex flex-col gap-4">
+            <div>
+              <div className="px-4 font-medium">{data.mega1Title}</div>
+              {data.mega1Links.map((link, index) => (
+                <div key={index} className="text-muted-foreground px-8 py-1">
+                  <ALink link={link.link} />
+                </div>
+              ))}
+            </div>
 
-        <div className="px-4">{data.mega2Title}</div>
-        {data.mega2Links.map((link, index) => (
-          <div key={index} className="text-muted-foreground px-8">
-            <ALink link={link.link} />
-          </div>
-        ))}
+            <div>
+              <div className="px-4 font-medium">{data.mega2Title}</div>
+              {data.mega2Links.map((link, index) => (
+                <div key={index} className="text-muted-foreground px-8 py-1">
+                  <ALink link={link.link} />
+                </div>
+              ))}
+            </div>
 
-        <div className="px-4">Pages</div>
-        {pages.map((page, index) => (
-          <div key={index} className="text-muted-foreground px-8">
-            <ALink link={page} />
-          </div>
-        ))}
+            <div>
+              <div className="px-4 font-medium">Pages</div>
+              {pages.map((page, index) => (
+                <div key={index} className="text-muted-foreground px-8 py-1">
+                  <ALink link={page} />
+                </div>
+              ))}
+            </div>
 
-        <div className="px-4">
-          <Link href="/blog">Blog</Link>
+            <div className="px-4 font-medium">
+              <Link href="/blog">Blog</Link>
+            </div>
+
+            <div>
+              <div className="px-4 font-medium">Sections</div>
+              {data.sections.map((link, index) => (
+                <div key={index} className="text-muted-foreground px-8 py-1">
+                  <ALink link={link.link} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-
-        <div className="px-4">Sections</div>
-        {data.sections.map((link, index) => (
-          <div key={index} className="text-muted-foreground px-8">
-            <ALink link={link.link} />
-          </div>
-        ))}
       </SheetContent>
     </Sheet>
   )

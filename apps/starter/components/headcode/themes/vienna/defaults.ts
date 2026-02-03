@@ -194,21 +194,21 @@ export const defaultHeaderMega: HeaderMegaData = {
   sections: [
     {
       link: {
-        title: 'All Sections Types',
+        title: 'All Sections',
         url: '/sections',
         openInNewWindow: false,
       },
     },
     {
       link: {
-        title: 'Header (with Mega Menu)',
+        title: 'Header (Mega Menu)',
         url: '/sections#header-mega',
         openInNewWindow: false,
       },
     },
     {
       link: {
-        title: 'Header (with Simple Menu)',
+        title: 'Header (Simple)',
         url: '/sections#header',
         openInNewWindow: false,
       },
@@ -217,6 +217,48 @@ export const defaultHeaderMega: HeaderMegaData = {
       link: {
         title: 'Hero',
         url: '/sections#hero',
+        openInNewWindow: false,
+      },
+    },
+    {
+      link: {
+        title: 'Features',
+        url: '/sections#features',
+        openInNewWindow: false,
+      },
+    },
+    {
+      link: {
+        title: 'Feature (Left)',
+        url: '/sections#feature-9',
+        openInNewWindow: false,
+      },
+    },
+    {
+      link: {
+        title: 'Feature (Right)',
+        url: '/sections#feature-10',
+        openInNewWindow: false,
+      },
+    },
+    {
+      link: {
+        title: 'Text',
+        url: '/sections#text',
+        openInNewWindow: false,
+      },
+    },
+    {
+      link: {
+        title: 'Image',
+        url: '/sections#image',
+        openInNewWindow: false,
+      },
+    },
+    {
+      link: {
+        title: 'Footer',
+        url: '/sections#footer',
         openInNewWindow: false,
       },
     },
@@ -856,6 +898,11 @@ export const getDefaultPages = () => {
       openInNewWindow: false,
     },
     {
+      title: 'Pricing',
+      url: '/pages/pricing',
+      openInNewWindow: false,
+    },
+    {
       title: 'Contact',
       url: '/pages/contact',
       openInNewWindow: false,
@@ -863,6 +910,1286 @@ export const getDefaultPages = () => {
   ]
 }
 
+// Page Defaults
+export const defaultPageAboutHero: HeroData = {
+  title: 'About Helpstack',
+  subtitle:
+    'We believe every customer deserves exceptional support. Our mission is to empower businesses with the tools they need to deliver fast, personal, and effective customer service.',
+  primaryButton: {
+    title: 'Meet Our Team',
+    url: '#team',
+    openInNewWindow: false,
+  },
+  secondaryButton: {
+    title: 'Our Story',
+    url: '#story',
+    openInNewWindow: false,
+  },
+}
+
+export const defaultPageAboutText: TextData = {
+  text: {
+    type: 'doc',
+    content: [
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'Our Story' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Helpstack was founded in 2020 by a team of customer support veterans who saw a gap in the market. Too many businesses were struggling with fragmented tools, slow response times, and frustrated customers. We set out to build something better.',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Today, Helpstack serves over 2,000 companies worldwide, from fast-growing startups to Fortune 500 enterprises. Our platform handles millions of support interactions every month, helping businesses deliver the kind of customer experience that builds loyalty and drives growth.',
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'Our Values' }],
+      },
+      {
+        type: 'bulletList',
+        content: [
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    marks: [{ type: 'bold' }],
+                    text: 'Customer Obsession',
+                  },
+                  {
+                    type: 'text',
+                    text: ' — We practice what we preach. Every decision starts with asking how it will impact our customers.',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    marks: [{ type: 'bold' }],
+                    text: 'Radical Simplicity',
+                  },
+                  {
+                    type: 'text',
+                    text: ' — Complex problems deserve elegant solutions. We obsess over making our platform intuitive and powerful.',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    marks: [{ type: 'bold' }],
+                    text: 'Continuous Innovation',
+                  },
+                  {
+                    type: 'text',
+                    text: ' — The support landscape is always evolving. We stay ahead with cutting-edge AI and automation.',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    marks: [{ type: 'bold' }],
+                    text: 'Transparency',
+                  },
+                  {
+                    type: 'text',
+                    text: ' — We believe in honest communication with our customers, partners, and each other.',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'The Team' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'We are a remote-first team of 85 passionate individuals spread across 15 countries. United by our mission to transform customer support, we bring together expertise in engineering, design, customer success, and support operations.',
+          },
+        ],
+      },
+    ],
+  },
+}
+
+export const defaultPagePricingHero: HeroData = {
+  title: 'Enterprise-Grade Support',
+  subtitle:
+    'Helpstack scales with your business. Get a custom plan tailored to your team size, support volume, and specific requirements.',
+  primaryButton: {
+    title: 'Contact Sales',
+    url: '/pages/contact',
+    openInNewWindow: false,
+  },
+  secondaryButton: {
+    title: 'Book a Demo',
+    url: '/demo',
+    openInNewWindow: false,
+  },
+}
+
+export const defaultPagePricingFeature: FeatureData = {
+  title: 'Custom Plans for Every Business',
+  subtitle:
+    'Our sales team will work with you to create a pricing plan that fits your unique needs and budget.',
+  tagline: 'Tailored Solutions',
+  description: {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Every business is different. Whether you are a growing startup or an established enterprise, we offer flexible pricing that scales with your support operations.',
+          },
+        ],
+      },
+      {
+        type: 'bulletList',
+        content: [
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Volume-based discounts for larger teams',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Flexible payment terms and billing cycles',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Custom integrations and dedicated support included',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'SLA guarantees tailored to your requirements',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  link: {
+    title: 'Get a Custom Quote',
+    url: '/pages/contact',
+    openInNewWindow: false,
+  },
+  image: getDefaultImage(
+    'https://images.unsplash.com/photo-1553775282-20af80779df7?q=80&w=2670&auto=format',
+    'Business meeting',
+    2670,
+    1780,
+  ),
+  imageRight: false,
+}
+
+export const defaultPagePricingText: TextData = {
+  text: {
+    type: 'doc',
+    content: [
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'All Plans Include' }],
+      },
+      {
+        type: 'bulletList',
+        content: [
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  { type: 'text', text: 'Unlimited tickets and conversations' },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Email, chat, and social channel support',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  { type: 'text', text: 'Mobile apps for iOS and Android' },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: '99.9% uptime SLA' }],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: 'GDPR and SOC 2 compliance' }],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'Frequently Asked Questions' }],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 3 },
+        content: [{ type: 'text', text: 'Can I switch plans at any time?' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we will prorate your billing accordingly.',
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 3 },
+        content: [{ type: 'text', text: 'What happens after my free trial?' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'After your 14-day free trial, you can choose to subscribe to any plan. If you decide not to continue, your account will be paused, but your data will be preserved for 30 days.',
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 3 },
+        content: [
+          { type: 'text', text: 'Do you offer discounts for nonprofits?' },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Yes, we offer a 50% discount for registered nonprofits and educational institutions. Contact our sales team to learn more.',
+          },
+        ],
+      },
+    ],
+  },
+}
+
+export const defaultPageContactHero: HeroData = {
+  title: 'Get in Touch',
+  subtitle:
+    'Have questions? We would love to hear from you. Our team typically responds within 24 hours on business days.',
+  primaryButton: {
+    title: 'Email Us',
+    url: 'mailto:hello@helpstack.io',
+    openInNewWindow: false,
+  },
+  secondaryButton: {
+    title: 'Schedule a Demo',
+    url: '/demo',
+    openInNewWindow: false,
+  },
+}
+
+export const defaultPageContactText: TextData = {
+  text: {
+    type: 'doc',
+    content: [
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'Contact Information' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            marks: [{ type: 'bold' }],
+            text: 'General Inquiries',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'hello@helpstack.io',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            marks: [{ type: 'bold' }],
+            text: 'Sales',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'sales@helpstack.io',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            marks: [{ type: 'bold' }],
+            text: 'Support',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'support@helpstack.io',
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'Office Locations' }],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 3 },
+        content: [{ type: 'text', text: 'San Francisco (Headquarters)' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: '123 Market Street, Suite 400\nSan Francisco, CA 94105\nUnited States',
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 3 },
+        content: [{ type: 'text', text: 'London' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: '45 Shoreditch High Street\nLondon, E1 6JE\nUnited Kingdom',
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 3 },
+        content: [{ type: 'text', text: 'Singapore' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: '1 Raffles Place, #20-61\nSingapore 048616',
+          },
+        ],
+      },
+    ],
+  },
+}
+
+export const getDefaultPageEntries = () => {
+  const now = new Date()
+  return [
+    {
+      entry: {
+        key: 'about',
+        namespace: 'pages',
+        id: 1,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      sections: [
+        {
+          id: 1,
+          name: 'hero',
+          data: defaultPageAboutHero,
+          pinned: false,
+          createdAt: now,
+          updatedAt: now,
+          pos: 0,
+          entryId: 1,
+        },
+        {
+          id: 2,
+          name: 'text',
+          data: defaultPageAboutText,
+          pinned: false,
+          createdAt: now,
+          updatedAt: now,
+          pos: 1,
+          entryId: 1,
+        },
+      ],
+    },
+    {
+      entry: {
+        key: 'pricing',
+        namespace: 'pages',
+        id: 2,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      sections: [
+        {
+          id: 3,
+          name: 'hero',
+          data: defaultPagePricingHero,
+          pinned: false,
+          createdAt: now,
+          updatedAt: now,
+          pos: 0,
+          entryId: 2,
+        },
+        {
+          id: 4,
+          name: 'feature',
+          data: defaultPagePricingFeature,
+          pinned: false,
+          createdAt: now,
+          updatedAt: now,
+          pos: 1,
+          entryId: 2,
+        },
+        {
+          id: 5,
+          name: 'text',
+          data: defaultPagePricingText,
+          pinned: false,
+          createdAt: now,
+          updatedAt: now,
+          pos: 2,
+          entryId: 2,
+        },
+      ],
+    },
+    {
+      entry: {
+        key: 'contact',
+        namespace: 'pages',
+        id: 3,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      sections: [
+        {
+          id: 6,
+          name: 'hero',
+          data: defaultPageContactHero,
+          pinned: false,
+          createdAt: now,
+          updatedAt: now,
+          pos: 0,
+          entryId: 3,
+        },
+        {
+          id: 7,
+          name: 'text',
+          data: defaultPageContactText,
+          pinned: false,
+          createdAt: now,
+          updatedAt: now,
+          pos: 1,
+          entryId: 3,
+        },
+      ],
+    },
+  ]
+}
+
+export const getDefaultPageSections = (slug: string) => {
+  const pageEntries = getDefaultPageEntries()
+  const page = pageEntries.find((p) => p.entry.key === slug)
+  return page ? page.sections : []
+}
+
+// Blog Meta Defaults
+export const defaultBlogMeta1 = {
+  title: 'How AI is Revolutionizing Customer Support',
+  description:
+    'Discover how artificial intelligence is transforming the way businesses handle customer inquiries, from chatbots to predictive analytics.',
+  heroImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2832&auto=format',
+    'AI and customer support visualization',
+    2832,
+    1888,
+  ),
+  author: 'Sarah Mitchell',
+  authorImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=256&auto=format',
+    'Sarah Mitchell',
+    256,
+    256,
+  ),
+  date: new Date('2025-12-15'),
+  category: 'best-practices',
+  featured: true,
+  readTime: '6 min read',
+}
+
+export const defaultBlogMeta2 = {
+  title: '10 Tips for Reducing Support Ticket Volume',
+  description:
+    'Learn proven strategies to decrease incoming support tickets while improving customer satisfaction through self-service and proactive communication.',
+  heroImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1553775282-20af80779df7?q=80&w=2670&auto=format',
+    'Support team collaboration',
+    2670,
+    1780,
+  ),
+  author: 'James Chen',
+  authorImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=256&auto=format',
+    'James Chen',
+    256,
+    256,
+  ),
+  date: new Date('2025-12-10'),
+  category: 'best-practices',
+  featured: false,
+  readTime: '8 min read',
+}
+
+export const defaultBlogMeta3 = {
+  title: 'Introducing Our New Analytics Dashboard',
+  description:
+    'We are excited to announce our completely redesigned analytics dashboard with real-time metrics, custom reports, and team performance insights.',
+  heroImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format',
+    'Analytics dashboard preview',
+    2426,
+    1617,
+  ),
+  author: 'Emily Rodriguez',
+  authorImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=256&auto=format',
+    'Emily Rodriguez',
+    256,
+    256,
+  ),
+  date: new Date('2025-12-05'),
+  category: 'product-updates',
+  featured: true,
+  readTime: '4 min read',
+}
+
+export const defaultBlogMeta4 = {
+  title: 'Building a Knowledge Base That Customers Actually Use',
+  description:
+    'A comprehensive guide to creating, organizing, and maintaining a knowledge base that reduces support load and empowers customers.',
+  heroImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format',
+    'Knowledge base documentation',
+    2574,
+    1716,
+  ),
+  author: 'Michael Park',
+  authorImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=256&auto=format',
+    'Michael Park',
+    256,
+    256,
+  ),
+  date: new Date('2025-11-28'),
+  category: 'best-practices',
+  featured: false,
+  readTime: '10 min read',
+}
+
+export const defaultBlogMeta5 = {
+  title: 'Customer Support Trends to Watch in 2026',
+  description:
+    'From omnichannel experiences to predictive support, explore the trends shaping the future of customer service.',
+  heroImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=3552&auto=format',
+    'Future of customer support',
+    3552,
+    2368,
+  ),
+  author: 'Sarah Mitchell',
+  authorImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=256&auto=format',
+    'Sarah Mitchell',
+    256,
+    256,
+  ),
+  date: new Date('2025-11-20'),
+  category: 'lifestyle',
+  featured: false,
+  readTime: '7 min read',
+}
+
+export const defaultBlogMeta6 = {
+  title: 'New Integration: Connect Helpstack with Slack',
+  description:
+    'Seamlessly manage support tickets directly from Slack with our new native integration.',
+  heroImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1611746872915-64382b5c76da?q=80&w=2940&auto=format',
+    'Slack integration',
+    2940,
+    1960,
+  ),
+  author: 'Michael Torres',
+  authorImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=256&auto=format',
+    'Michael Torres',
+    256,
+    256,
+  ),
+  date: new Date('2025-11-15'),
+  category: 'product-updates',
+  featured: false,
+  readTime: '3 min read',
+}
+
+export const defaultBlogMeta7 = {
+  title: 'Work-Life Balance Tips for Support Teams',
+  description:
+    'Practical strategies for maintaining well-being while delivering exceptional customer service.',
+  heroImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=2940&auto=format',
+    'Work-life balance',
+    2940,
+    1960,
+  ),
+  author: 'Emily Chen',
+  authorImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=256&auto=format',
+    'Emily Chen',
+    256,
+    256,
+  ),
+  date: new Date('2025-11-10'),
+  category: 'lifestyle',
+  featured: false,
+  readTime: '5 min read',
+}
+
+export const defaultBlogMeta8 = {
+  title: 'Remote Support: Setting Up Your Home Office',
+  description:
+    'Essential tips for creating a productive workspace for remote customer support professionals.',
+  heroImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?q=80&w=2940&auto=format',
+    'Home office setup',
+    2940,
+    1960,
+  ),
+  author: 'David Kim',
+  authorImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=256&auto=format',
+    'David Kim',
+    256,
+    256,
+  ),
+  date: new Date('2025-11-05'),
+  category: 'destinations',
+  featured: false,
+  readTime: '6 min read',
+}
+
+export const defaultBlogMeta9 = {
+  title: 'Global Support Centers: Our New Singapore Office',
+  description:
+    'Expanding our presence in Asia-Pacific to provide 24/7 support coverage worldwide.',
+  heroImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?q=80&w=2940&auto=format',
+    'Singapore office',
+    2940,
+    1960,
+  ),
+  author: 'Sarah Mitchell',
+  authorImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=256&auto=format',
+    'Sarah Mitchell',
+    256,
+    256,
+  ),
+  date: new Date('2025-10-28'),
+  category: 'destinations',
+  featured: false,
+  readTime: '4 min read',
+}
+
+export const defaultBlogMeta10 = {
+  title: 'Lessons Learned from 10,000 Support Tickets',
+  description:
+    'Key insights and patterns we discovered after analyzing thousands of customer interactions.',
+  heroImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2940&auto=format',
+    'Data analysis',
+    2940,
+    1960,
+  ),
+  author: 'Michael Torres',
+  authorImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=256&auto=format',
+    'Michael Torres',
+    256,
+    256,
+  ),
+  date: new Date('2025-10-20'),
+  category: 'reflections',
+  featured: false,
+  readTime: '8 min read',
+}
+
+export const defaultBlogMeta11 = {
+  title: 'Why We Rebuilt Our Ticket Routing System',
+  description:
+    'A behind-the-scenes look at our decision to redesign a core feature and what we learned.',
+  heroImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2940&auto=format',
+    'Engineering decisions',
+    2940,
+    1960,
+  ),
+  author: 'Emily Chen',
+  authorImage: getDefaultImage(
+    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=256&auto=format',
+    'Emily Chen',
+    256,
+    256,
+  ),
+  date: new Date('2025-10-15'),
+  category: 'reflections',
+  featured: true,
+  readTime: '9 min read',
+}
+
+// Default blog content sections
+export const defaultBlogText1: TextData = {
+  text: {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Artificial intelligence is no longer a futuristic concept—it is here, and it is fundamentally changing how businesses interact with their customers. From intelligent chatbots that handle routine inquiries to sophisticated analytics that predict customer needs before they arise, AI is becoming an indispensable tool in the customer support arsenal.',
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'The Rise of Conversational AI' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Modern AI-powered chatbots have evolved far beyond simple keyword matching. Using natural language processing (NLP) and machine learning, these systems can understand context, remember previous interactions, and provide genuinely helpful responses. The result? Faster resolution times and happier customers.',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Companies implementing conversational AI report up to 70% reduction in routine inquiry handling time, allowing human agents to focus on complex issues that require empathy and critical thinking.',
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [
+          {
+            type: 'text',
+            text: 'Predictive Support: Solving Problems Before They Happen',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Perhaps the most exciting application of AI in customer support is predictive analytics. By analyzing patterns in customer behavior, product usage, and historical support data, AI can identify potential issues before customers even notice them.',
+          },
+        ],
+      },
+      {
+        type: 'bulletList',
+        content: [
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Proactive outreach based on usage patterns',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Automated health checks and recommendations',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Churn prediction and prevention strategies',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        attrs: { level: 2 },
+        content: [{ type: 'text', text: 'The Human-AI Partnership' }],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'The goal of AI in customer support is not to replace human agents but to augment their capabilities. The most successful implementations create a seamless partnership where AI handles routine tasks and provides agents with real-time insights and suggestions.',
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'As we look to the future, the integration of AI into customer support will only deepen. Organizations that embrace these technologies thoughtfully—with a focus on both efficiency and customer experience—will find themselves with a significant competitive advantage.',
+          },
+        ],
+      },
+    ],
+  },
+}
+
 export const getDefaultBlogEntries = () => {
-  return []
+  const now = new Date()
+  return [
+    {
+      entry: {
+        key: 'ai-revolutionizing-support',
+        namespace: 'blog',
+        id: 1,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      section: {
+        name: 'blog-meta',
+        data: defaultBlogMeta1,
+        id: 1,
+        createdAt: now,
+        updatedAt: now,
+        pos: 0,
+        pinned: true,
+        entryId: 1,
+      },
+    },
+    {
+      entry: {
+        key: 'reduce-ticket-volume',
+        namespace: 'blog',
+        id: 2,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      section: {
+        name: 'blog-meta',
+        data: defaultBlogMeta2,
+        id: 2,
+        createdAt: now,
+        updatedAt: now,
+        pos: 0,
+        pinned: true,
+        entryId: 2,
+      },
+    },
+    {
+      entry: {
+        key: 'new-analytics-dashboard',
+        namespace: 'blog',
+        id: 3,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      section: {
+        name: 'blog-meta',
+        data: defaultBlogMeta3,
+        id: 3,
+        createdAt: now,
+        updatedAt: now,
+        pos: 0,
+        pinned: true,
+        entryId: 3,
+      },
+    },
+    {
+      entry: {
+        key: 'building-knowledge-base',
+        namespace: 'blog',
+        id: 4,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      section: {
+        name: 'blog-meta',
+        data: defaultBlogMeta4,
+        id: 4,
+        createdAt: now,
+        updatedAt: now,
+        pos: 0,
+        pinned: true,
+        entryId: 4,
+      },
+    },
+    {
+      entry: {
+        key: 'support-trends-2026',
+        namespace: 'blog',
+        id: 5,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      section: {
+        name: 'blog-meta',
+        data: defaultBlogMeta5,
+        id: 5,
+        createdAt: now,
+        updatedAt: now,
+        pos: 0,
+        pinned: true,
+        entryId: 5,
+      },
+    },
+    {
+      entry: {
+        key: 'slack-integration',
+        namespace: 'blog',
+        id: 6,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      section: {
+        name: 'blog-meta',
+        data: defaultBlogMeta6,
+        id: 6,
+        createdAt: now,
+        updatedAt: now,
+        pos: 0,
+        pinned: true,
+        entryId: 6,
+      },
+    },
+    {
+      entry: {
+        key: 'work-life-balance-tips',
+        namespace: 'blog',
+        id: 7,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      section: {
+        name: 'blog-meta',
+        data: defaultBlogMeta7,
+        id: 7,
+        createdAt: now,
+        updatedAt: now,
+        pos: 0,
+        pinned: true,
+        entryId: 7,
+      },
+    },
+    {
+      entry: {
+        key: 'home-office-setup',
+        namespace: 'blog',
+        id: 8,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      section: {
+        name: 'blog-meta',
+        data: defaultBlogMeta8,
+        id: 8,
+        createdAt: now,
+        updatedAt: now,
+        pos: 0,
+        pinned: true,
+        entryId: 8,
+      },
+    },
+    {
+      entry: {
+        key: 'singapore-office',
+        namespace: 'blog',
+        id: 9,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      section: {
+        name: 'blog-meta',
+        data: defaultBlogMeta9,
+        id: 9,
+        createdAt: now,
+        updatedAt: now,
+        pos: 0,
+        pinned: true,
+        entryId: 9,
+      },
+    },
+    {
+      entry: {
+        key: 'lessons-from-10000-tickets',
+        namespace: 'blog',
+        id: 10,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      section: {
+        name: 'blog-meta',
+        data: defaultBlogMeta10,
+        id: 10,
+        createdAt: now,
+        updatedAt: now,
+        pos: 0,
+        pinned: true,
+        entryId: 10,
+      },
+    },
+    {
+      entry: {
+        key: 'rebuilt-ticket-routing',
+        namespace: 'blog',
+        id: 11,
+        createdAt: now,
+        updatedAt: now,
+        version: 'v01',
+      },
+      section: {
+        name: 'blog-meta',
+        data: defaultBlogMeta11,
+        id: 11,
+        createdAt: now,
+        updatedAt: now,
+        pos: 0,
+        pinned: true,
+        entryId: 11,
+      },
+    },
+  ]
+}
+
+export const getDefaultBlogSections = (slug: string) => {
+  const now = new Date()
+  // Find the matching blog meta by slug
+  const blogMetas: Record<string, typeof defaultBlogMeta1> = {
+    'ai-revolutionizing-support': defaultBlogMeta1,
+    'reduce-ticket-volume': defaultBlogMeta2,
+    'new-analytics-dashboard': defaultBlogMeta3,
+    'building-knowledge-base': defaultBlogMeta4,
+    'support-trends-2026': defaultBlogMeta5,
+    'slack-integration': defaultBlogMeta6,
+    'work-life-balance-tips': defaultBlogMeta7,
+    'home-office-setup': defaultBlogMeta8,
+    'singapore-office': defaultBlogMeta9,
+    'lessons-from-10000-tickets': defaultBlogMeta10,
+    'rebuilt-ticket-routing': defaultBlogMeta11,
+  }
+
+  const meta = blogMetas[slug] || defaultBlogMeta1
+
+  // Return default sections for a blog post
+  return [
+    {
+      id: 1,
+      name: 'blog-meta',
+      data: meta,
+      pinned: true,
+      createdAt: now,
+      updatedAt: now,
+      pos: 0,
+      entryId: 1,
+    },
+    {
+      id: 2,
+      name: 'text',
+      data: defaultBlogText1,
+      pinned: false,
+      createdAt: now,
+      updatedAt: now,
+      pos: 1,
+      entryId: 1,
+    },
+  ]
 }

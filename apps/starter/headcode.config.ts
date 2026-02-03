@@ -1,4 +1,6 @@
 import {
+  defaultBlogMeta1,
+  defaultBlogText1,
   defaultFeature,
   defaultFeatureRight,
   defaultFeatures,
@@ -25,6 +27,7 @@ import { headerSection } from './components/headcode/themes/vienna/header'
 import { headerMegaSection } from './components/headcode/themes/vienna/header-mega'
 import { heroSection } from './components/headcode/themes/vienna/hero'
 import { imageSection } from './components/headcode/themes/vienna/image'
+import { blogMetaSection } from './components/headcode/themes/vienna/meta'
 import { textSection } from './components/headcode/themes/vienna/text'
 import type { HeadcodeConfig } from './lib/headcode/types'
 
@@ -94,6 +97,20 @@ export const headcodeConfig: HeadcodeConfig = {
       defaultSections: [
         { name: heroSection.name, data: defaultHero },
         { name: textSection.name, data: defaultText },
+      ],
+    },
+    {
+      namespace: 'blog',
+      sections: [
+        { section: blogMetaSection, pinned: true },
+        { section: textSection },
+        { section: imageSection },
+        { section: featureSection },
+        { section: featuresSection },
+      ],
+      defaultSections: [
+        { name: blogMetaSection.name, data: defaultBlogMeta1, pinned: true },
+        { name: textSection.name, data: defaultBlogText1 },
       ],
     },
   ],
