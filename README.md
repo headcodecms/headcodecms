@@ -1,173 +1,48 @@
 # Headcode CMS
 
-**Headcode CMS** is a minimal, open‑source content management system built for **Next.js**. It installs directly into your project through the **shadcn registry** and integrates neatly with modern React + TypeScript workflows.
-
-## Features
-- **Next.js 16 + Cache Components** for modern performance  
-- **shadcn/ui**‑based admin and UI components  
-- **TanStack Forms** for structured content editing  
-- **Drizzle ORM** for clean database access  
-- **Better Auth** for authentication and users  
-- **Open architecture** — install directly into your codebase  
-- **Themes, Fields & Sections** via shadcn‑style registry  
-- Built‑in **Admin Interface** for managing content  
+Headcode CMS is a Next.js CMS built for agent-assisted editing. It includes a
+public site, an admin UI, and an MCP server backed by Convex.
 
 ## Getting Started
 
-Headcode CMS and its components (themes, sections, fields …) are published as a **shadcn registry**. Install pieces with the CLI:
+See [docs/installation.md](docs/installation.md) for the Convex Auth, Resend,
+MCP, and local development environment setup.
 
-### Install the Starter
-```bash
-pnpm dlx shadcn@latest add https://headcodecms/r/starter.json
-```
+First, run the development server:
 
-The starter installs:
-- **Next.js 16**
-- **shadcn/ui**
-- **Headcode CMS Admin**
-- **Vienna theme** (demo site)
-
-Default stack:
-- **SQLite (file)** database  
-- **Better Auth** authentication  
-- **File storage**
-
-Good for local development. For production, use providers like [Turso Cloud](https://turso.tech) and [Vercel Blob Storage](https://vercel.com/docs/storage/vercel-blob).
-
-## Database Setup
-```bash
-pnpm drizzle-kit push
-# or using migrations
-pnpm drizzle-kit generate
-pnpm drizzle-kit migrate
-```
-
-## Project Structure
-
-| App | Path | Description |
-|:----|:------|:-------------|
-| Admin | `app/(headcode)` | Headcode Admin interface |
-| Demo Site | `app/(site)` | Example Vienna theme |
-
-Remove default files to avoid conflicts:
-```
-app/layout.tsx
-app/page.tsx
-```
-Keep `globals.css` for shadcn/ui styles.
-
-Start the server:
 ```bash
 pnpm dev
 ```
-- Website → http://localhost:3000  
-- Admin   → http://localhost:3000/headcode  
 
-On first run you’ll create an administrator account.
+Open [https://headcode.localhost](https://headcode.localhost) with your browser
+to see the result.
 
-## Configuration
+For draft testing, use
+[https://draft.headcode.localhost](https://draft.headcode.localhost).
 
-Project structure lives in `headcode.config.ts`:
+Generate a development test-login token with:
 
-```ts
-export const headcodeConfig: HeadcodeConfig = {
- version: 'v02',
- entries: [
-  { 
-    namespace: 'global', 
-    key: 'nav', 
-    sections:[
-      { section: navSection, pinned: true }
-    ] 
-  },
-  { 
-    namespace: 'blog', 
-    sections: [
-      {section: metaSection, pinned: true},
-      {section: heroSection},
-      {section: textSection}
-    ] 
-  }
- ]
-};
+```bash
+pnpm auth:token
 ```
 
-- **Entries**: pages / content items  
-- **Sections**: content blocks  
-- **Fields**: inputs ( Text, Textarea, Image …)  
-- **Pinned sections**: cannot be deleted (e.g., meta data)
+## Useful Commands
 
-## Themes
-
-Themes define reusable layouts and sections (Hero, Text, Features, Image, Footer …).
-
-Installed themes live in  
-```
-components/headcode/themes/[theme-name]
+```bash
+pnpm test:once
+pnpm lint
+pnpm dlx shadcn@latest registry validate
+pnpm build
 ```
 
-## Create a Custom Section
+## Documentation
 
-```ts
-export const heroSection = {
-  name: 'hero',
-  label: 'Hero Section',
-  fields: {
-    title: TextField({
-      label: 'Title',
-    }),
-    subtitle: TextareaField({
-      label: 'Subtitle',
-    }),
-    primaryButton: LinkField({
-      label: 'Primary Button',
-    }),
-  } satisfies Fields,
-}
-export type HeroData = InferSectionData<typeof heroSection.fields>
+- [Installation](docs/installation.md)
+- [Alpha readiness](docs/alpha-readiness.md)
+- [Architecture](ARCHITECTURE.md)
 
-export function Hero({ sectionData }: { sectionData: unknown }) {
-  const { data } = parseSectionData(heroSection.fields, sectionData)
+## Distribution
 
-  return (
-    <div>
-      <h1>{data.title}</h1>
-      <p>{data.subtitle}</p>
-      <Button href={data.primaryButton.url}>
-        {data.primaryButton.title}
-      </Button>
-    </div>
-  )
-}
-```
-
-## Users and Roles
-- **Admin** → manage content + users/roles  
-- **User** → edit content  
-
-Auth and sessions: **Better Auth**.
-
-## Versioning
-Clone content to new versions for campaigns or releases.
-
-## Admin Interface
-
-The Headcode CMS Admin Interface  is built with **shadcn/ui** + **TanStack Forms**. It builds forms from your `headcode.config.ts` schema automatically, single fields and arrays alike.
-
-## How It Works
-1. Define fields and sections in `headcode.config.ts`  
-2. Admin renders matching forms  
-3. Each Entry contains Sections, each Section contains Fields  
-4. All data stored via Drizzle ORM in SQLite / Turso  
-
-## How You Can Help
-You can help by simply using it, reporting issues, suggesting improvements, or sending pull requests. Stars on GitHub and kind words on social media really help too (use #headcodecms or mention me directly @headcodecms).
-
-Headcode CMS is a side project right now, but I’d love to spend more time on it. If you want to support that, I’ve set up a [GitHub Sponsors](https://github.com/sponsors/headcodecms) page. Any support, financial, feedback, or code, means a lot.
-
-Markus, markus@headcodecms.com, https://mext.at
-
-Created with ❤️ in Salzburg, Austria
-
-## License
-MIT License
+Headcode CMS is distributed as a shadcn GitHub registry item:
+`headcodecms/headcodecms/headcode`. Keep root `registry.json` in sync when
+registry files change.
