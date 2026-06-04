@@ -45,24 +45,26 @@ export const RichtextField = (params: StringFieldParams = {}) => ({
 })
 
 export const SelectField = (params: SelectFieldParams) => {
-  const values = params.options.map((option) => option.value)
+  const { label, options, defaultValue, validator, ...fieldParams } = params
+  const values = options.map((option) => option.value)
 
   if (values.length === 0) {
     throw new Error('SelectField requires at least one option.')
   }
 
-  if (!values.includes(params.defaultValue)) {
+  if (!values.includes(defaultValue)) {
     throw new Error('SelectField defaultValue must match one of the options.')
   }
 
   return {
-    label: params.label ?? 'Select Field',
-    options: params.options,
+    label: label ?? 'Select Field',
+    options,
     validator:
-      params.validator ??
+      validator ??
       (z
         .enum(values as [string, ...string[]])
-        .default(params.defaultValue) as z.ZodType<string>),
+        .default(defaultValue) as z.ZodType<string>),
+    ...fieldParams,
     type: 'select' as const,
   }
 }

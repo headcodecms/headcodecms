@@ -55,6 +55,10 @@ export const imageIdArg = {
   id: v.id('images'),
 }
 
+export const versionIdArg = {
+  versionId: v.id('versions'),
+}
+
 export const versionArg = {
   version: headcodeVersionValidator,
 }

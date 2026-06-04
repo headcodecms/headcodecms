@@ -96,6 +96,155 @@ describe('services', () => {
     })
   })
 
+  test('restores live by cloning history and deletes retired versions', async () => {
+    const t = createTest()
+
+    const liveEntry = await t.mutation(api.services.ensureGlobal, {
+      slug: 'home',
+      version: 'live',
+    })
+    await t.mutation(api.services.addSection, {
+      name: 'text',
+      pos: BigInt(1000),
+      entry: liveEntry,
+      data: stringify({ content: 'Original live content' }),
+    })
+
+    await t.mutation(api.services.newDraft, {})
+
+    const draft = await t.query(api.services.getGlobalWithSections, {
+      slug: 'home',
+      version: 'draft',
+    })
+    expect(draft).not.toBeNull()
+    await t.mutation(api.services.addSection, {
+      name: 'text',
+      pos: BigInt(1100),
+      entry: draft!.entry._id,
+      data: stringify({ content: 'Published draft content' }),
+    })
+
+    await t.mutation(api.services.publish, {})
+
+    let history = await t.query(api.services.getVersionHistory, {})
+    const retired = history.find((version) => !version.live && !version.draft)
+    expect(retired).toBeDefined()
+
+    const retiredCounts = await t.run(async (ctx) => {
+      const entries = await ctx.db
+        .query('entries')
+        .withIndex('by_version', (q) => q.eq('version', retired!._id))
+        .take(1000)
+      const sections = await Promise.all(
+        entries.map(
+          async (entry) =>
+            (
+              await ctx.db
+                .query('sections')
+                .withIndex('by_entry', (q) => q.eq('entry', entry._id))
+                .take(1000)
+            ).length,
+        ),
+      )
+
+      return {
+        entries: entries.length,
+        sections: sections.reduce((sum, count) => sum + count, 0),
+      }
+    })
+
+    const restored = await t.mutation(api.services.restoreLiveVersion, {
+      versionId: retired!._id,
+    })
+
+    const status = await t.query(api.services.getVersionStatus, {})
+    expect(status.live?._id).toBe(restored)
+    expect(status.live?._id).not.toBe(retired!._id)
+
+    const restoredLive = await t.query(api.services.getGlobalWithSections, {
+      slug: 'home',
+      version: 'live',
+    })
+    const restoredData = restoredLive?.sections.map((section) => section?.data)
+    expect(restoredData).toContainEqual({
+      content: 'Original live content',
+    })
+    expect(restoredData).not.toContainEqual({
+      content: 'Published draft content',
+    })
+
+    await expect(
+      t.mutation(api.services.deleteVersion, {
+        versionId: status.live!._id,
+      }),
+    ).rejects.toThrow('Live and draft versions cannot be deleted.')
+
+    await expect(
+      t.mutation(api.services.restoreLiveVersion, {
+        versionId: status.live!._id,
+      }),
+    ).rejects.toThrow('Version is already live.')
+
+    await expect(
+      t.mutation(api.services.deleteVersion, {
+        versionId: status.draft!._id,
+      }),
+    ).rejects.toThrow('Live and draft versions cannot be deleted.')
+
+    await expect(
+      createRawTest().mutation(api.services.deleteVersion, {
+        versionId: retired!._id,
+      }),
+    ).rejects.toThrow('Not authenticated.')
+
+    await expect(
+      createRawTest().mutation(api.services.restoreLiveVersion, {
+        versionId: retired!._id,
+      }),
+    ).rejects.toThrow('Not authenticated.')
+
+    await expect(
+      createRawTest().query(api.services.getVersionHistory, {}),
+    ).rejects.toThrow('Not authenticated.')
+
+    expect(
+      await t.mutation(api.services.deleteVersion, {
+        versionId: retired!._id,
+      }),
+    ).toEqual({
+      deleted: true,
+      ...retiredCounts,
+    })
+
+    history = await t.query(api.services.getVersionHistory, {})
+    expect(history.some((version) => version._id === retired!._id)).toBe(false)
+
+    const remainingCounts = await t.run(async (ctx) => {
+      const entries = await ctx.db
+        .query('entries')
+        .withIndex('by_version', (q) => q.eq('version', retired!._id))
+        .take(1)
+
+      return {
+        entries: entries.length,
+        sections: (
+          await Promise.all(
+            entries.map(
+              async (entry) =>
+                (
+                  await ctx.db
+                    .query('sections')
+                    .withIndex('by_entry', (q) => q.eq('entry', entry._id))
+                    .take(1)
+                ).length,
+            ),
+          )
+        ).reduce((sum, count) => sum + count, 0),
+      }
+    })
+    expect(remainingCounts).toEqual({ entries: 0, sections: 0 })
+  })
+
   test('requires authentication for write mutations', async () => {
     const t = createRawTest()
 

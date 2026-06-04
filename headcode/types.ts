@@ -14,6 +14,7 @@ export type HeadcodeFieldType =
 type FieldDefinition = {
   type?: HeadcodeFieldType
   label?: string
+  description?: string
   options?: { label: string; value: string }[]
   accept?: ImageFieldAccept
   maxSize?: number
@@ -29,6 +30,7 @@ export type FieldParams<TValidator extends z.ZodType = z.ZodType> = {
 
 export type SelectFieldParams = {
   label?: string
+  description?: string
   options: { label: string; value: string }[]
   defaultValue: string
   validator?: z.ZodType<string>

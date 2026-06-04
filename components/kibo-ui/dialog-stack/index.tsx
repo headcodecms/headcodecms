@@ -124,6 +124,7 @@ export const DialogStackTrigger = ({
   }
 
   const child = render ?? (asChild ? children : null)
+  const childContent = render ? children : undefined
 
   if (child) {
     const childElement = child as ReactElement<{
@@ -132,7 +133,7 @@ export const DialogStackTrigger = ({
       className?: string
     }>
     return cloneElement(childElement, {
-      children,
+      ...(childContent === undefined ? {} : { children: childContent }),
       onClick: (e: MouseEvent<HTMLElement>) => {
         handleClick(e as unknown as MouseEvent<HTMLButtonElement>)
         childElement.props.onClick?.(e)
@@ -420,6 +421,7 @@ export const DialogStackNext = ({
   }
 
   const child = render ?? (asChild ? children : null)
+  const childContent = render ? children : undefined
 
   if (child) {
     const childElement = child as ReactElement<{
@@ -430,7 +432,7 @@ export const DialogStackNext = ({
     }>
 
     return cloneElement(childElement, {
-      children,
+      ...(childContent === undefined ? {} : { children: childContent }),
       onClick: (e: MouseEvent<HTMLElement>) => {
         handleNext()
         childElement.props.onClick?.(e)
@@ -488,6 +490,7 @@ export const DialogStackPrevious = ({
   }
 
   const child = render ?? (asChild ? children : null)
+  const childContent = render ? children : undefined
 
   if (child) {
     const childElement = child as ReactElement<{
@@ -498,7 +501,7 @@ export const DialogStackPrevious = ({
     }>
 
     return cloneElement(childElement, {
-      children,
+      ...(childContent === undefined ? {} : { children: childContent }),
       onClick: (e: MouseEvent<HTMLElement>) => {
         handlePrevious()
         childElement.props.onClick?.(e)

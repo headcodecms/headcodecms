@@ -156,6 +156,13 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const getFieldLabel = (name: string, field: HeadcodeFieldConfig) =>
   Array.isArray(field) ? name : (field.label ?? name)
 
+const getFieldDescription = (field: HeadcodeFieldConfig) => {
+  if (Array.isArray(field)) return null
+  return typeof field.description === 'string' && field.description.trim()
+    ? field.description
+    : null
+}
+
 const getFieldType = (field: HeadcodeFieldConfig): HeadcodeFieldType | null =>
   Array.isArray(field) ? null : (field.type ?? null)
 
@@ -1533,6 +1540,7 @@ function FieldEditor({
 }) {
   const label = getFieldLabel(name, field)
   const type = getFieldType(field)
+  const description = getFieldDescription(field)
 
   if (Array.isArray(field)) {
     return (
@@ -1559,7 +1567,9 @@ function FieldEditor({
           value={getStringValue(value)}
           onChange={(event) => onChange(event.target.value)}
         />
-        <FieldDescription>{name}</FieldDescription>
+        {description ? (
+          <FieldDescription>{description}</FieldDescription>
+        ) : null}
       </Field>
     )
   }
@@ -1573,7 +1583,9 @@ function FieldEditor({
           value={getStringValue(value)}
           onChange={(event) => onChange(event.target.value)}
         />
-        <FieldDescription>{name}</FieldDescription>
+        {description ? (
+          <FieldDescription>{description}</FieldDescription>
+        ) : null}
       </Field>
     )
   }
@@ -1583,7 +1595,9 @@ function FieldEditor({
       <Field>
         <FieldLabel>{label}</FieldLabel>
         <RichtextField value={getStringValue(value)} onChange={onChange} />
-        <FieldDescription>{name}</FieldDescription>
+        {description ? (
+          <FieldDescription>{description}</FieldDescription>
+        ) : null}
       </Field>
     )
   }
@@ -1613,7 +1627,9 @@ function FieldEditor({
             </SelectGroup>
           </SelectContent>
         </Select>
-        <FieldDescription>{name}</FieldDescription>
+        {description ? (
+          <FieldDescription>{description}</FieldDescription>
+        ) : null}
       </Field>
     )
   }
@@ -1628,7 +1644,9 @@ function FieldEditor({
         />
         <FieldContent>
           <FieldLabel htmlFor={`field-${name}`}>{label}</FieldLabel>
-          <FieldDescription>{name}</FieldDescription>
+          {description ? (
+            <FieldDescription>{description}</FieldDescription>
+          ) : null}
         </FieldContent>
       </Field>
     )
@@ -1685,7 +1703,9 @@ function FieldEditor({
             </Field>
           </FieldGroup>
         </div>
-        <FieldDescription>{name}</FieldDescription>
+        {description ? (
+          <FieldDescription>{description}</FieldDescription>
+        ) : null}
       </Field>
     )
   }
@@ -1700,7 +1720,9 @@ function FieldEditor({
           maxSize={field.maxSize}
           onChange={onChange}
         />
-        <FieldDescription>{name}</FieldDescription>
+        {description ? (
+          <FieldDescription>{description}</FieldDescription>
+        ) : null}
       </Field>
     )
   }
@@ -1864,7 +1886,6 @@ function ArrayFieldEditor({
           </Button>
         </div>
       </div>
-      <FieldDescription>{name}</FieldDescription>
     </Field>
   )
 }

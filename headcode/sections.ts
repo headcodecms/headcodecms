@@ -35,9 +35,13 @@ export const meta = {
   fields: {
     title: TextField({
       label: 'Title',
+      description:
+        'Used for the HTML title and search title links. Keep it concise, unique, and usually around 50-60 characters.',
     }),
     description: TextareaField({
       label: 'Description',
+      description:
+        'Used as the meta description and sometimes as the search snippet. Summarize the page in about 140-160 characters.',
     }),
   },
 }
@@ -73,6 +77,7 @@ export const footer = {
     }),
     description: TextareaField({
       label: 'Description',
+      description: 'Short footer text shown below the brand.',
     }),
     navigation: [
       {
@@ -103,9 +108,13 @@ export const hero = {
     }),
     title: TextField({
       label: 'Title',
+      description:
+        'Main headline for this section. Keep it clear and scannable.',
     }),
     description: TextareaField({
       label: 'Description',
+      description:
+        'Supporting copy for the headline. One or two short sentences usually work best.',
     }),
     primaryButton: LinkField({
       label: 'Primary Button',
@@ -131,6 +140,8 @@ export const logos = {
         }),
         iconPath: TextareaField({
           label: 'Icon Path',
+          description:
+            'SVG path data used by the logo icon renderer. Leave unchanged unless you are replacing the icon.',
         }),
       },
     ],
@@ -150,9 +161,13 @@ export const imageText = {
     }),
     description: TextareaField({
       label: 'Description',
+      description:
+        'Short supporting copy for this feature row. Keep it close to the image and action.',
     }),
     image: ImageField({
       label: 'Image',
+      description:
+        'Recommended 16:9 image, for example 1200x675px. Use a sharp image that supports the surrounding copy.',
     }),
     reversed: CheckboxField({
       label: 'Reverse Layout',
@@ -170,12 +185,17 @@ export const image = {
   fields: {
     image: ImageField({
       label: 'Image',
+      description:
+        'Use a high-quality image relevant to the surrounding page content. Wide 16:9 images, for example 1200x675px, work well here.',
     }),
     alt: TextField({
       label: 'Alt Text',
+      description:
+        'Describe the image for accessibility and image search. Be specific and avoid keyword stuffing.',
     }),
     caption: TextField({
       label: 'Caption',
+      description: 'Optional visible caption shown below the image.',
     }),
   },
 }
@@ -214,12 +234,17 @@ export const plans = {
         }),
         price: TextField({
           label: 'Price',
+          description:
+            'Visible price text, for example "$29", "Free", or "Custom".',
         }),
         cadence: TextField({
           label: 'Cadence',
+          description:
+            'Short billing note shown next to the price, for example "/month" or "one time".',
         }),
         description: TextareaField({
           label: 'Description',
+          description: 'One concise sentence explaining who this plan is for.',
         }),
         features: [
           {
@@ -233,11 +258,14 @@ export const plans = {
         }),
         featured: CheckboxField({
           label: 'Featured',
+          description:
+            'Highlights this plan visually as the recommended option.',
         }),
       },
     ],
     note: TextField({
       label: 'Note',
+      description: 'Optional small print shown below the pricing cards.',
     }),
   },
 }
@@ -252,6 +280,8 @@ export const snippet = {
     }),
     description: TextareaField({
       label: 'Description',
+      description:
+        'Short intro shown above the command tabs. Explain when to use this snippet.',
     }),
     icon: SelectField({
       label: 'Icon',
@@ -262,12 +292,15 @@ export const snippet = {
       {
         value: TextField({
           label: 'Value',
+          description:
+            'Stable tab key used internally, for example "pnpm" or "npm".',
         }),
         label: TextField({
           label: 'Label',
         }),
         command: TextareaField({
           label: 'Command',
+          description: 'Shell command shown in the selected tab.',
         }),
       },
     ],
@@ -284,6 +317,8 @@ export const code = {
     }),
     description: TextareaField({
       label: 'Description',
+      description:
+        'Short intro shown above the code example. Explain what the example demonstrates.',
     }),
     files: [
       {
@@ -292,12 +327,18 @@ export const code = {
         }),
         filename: TextField({
           label: 'Filename',
+          description:
+            'Displayed filename for the code tab, for example "headcode/config.ts".',
         }),
         language: TextField({
           label: 'Language',
+          description:
+            'Code fence language used for highlighting, for example "ts", "tsx", "bash", or "json".',
         }),
         code: RichtextField({
           label: 'Code',
+          description:
+            'Code shown in this example. Keep it focused and copy-paste friendly.',
         }),
       },
     ],
@@ -313,6 +354,8 @@ export const blogMeta = {
     ...meta.fields,
     summary: TextareaField({
       label: 'Summary',
+      description:
+        'Used on blog listing cards and article previews. Write one or two sentences.',
     }),
     category: SelectField({
       label: 'Category',
@@ -329,9 +372,12 @@ export const blogMeta = {
     }),
     publishedAt: DateTimeField({
       label: 'Published At',
+      description:
+        'Publication date shown in article metadata and listing pages.',
     }),
     featured: CheckboxField({
       label: 'Featured',
+      description: 'Highlights this post in listing views.',
     }),
     icon: SelectField({
       label: 'Icon',

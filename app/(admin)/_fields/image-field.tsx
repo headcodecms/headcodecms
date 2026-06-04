@@ -194,52 +194,40 @@ function ImageEmptyState({
   onSelect: () => void
 }) {
   return (
-    <Dropzone
-      accept={accept}
-      disabled={disabled}
-      maxFiles={1}
-      maxSize={maxSize}
-      onDrop={onDrop}
-      className="bg-muted/30 h-auto rounded-2xl border-dashed py-8"
-    >
-      <div className="flex flex-col items-center justify-center gap-3">
-        <div className="bg-muted text-muted-foreground flex size-9 items-center justify-center rounded-md">
-          <Upload className="size-4" />
+    <div className="flex flex-col gap-3">
+      <Dropzone
+        accept={accept}
+        disabled={disabled}
+        maxFiles={1}
+        maxSize={maxSize}
+        onDrop={onDrop}
+        className="bg-muted/30 h-auto rounded-2xl border-dashed py-8"
+      >
+        <div className="flex flex-col items-center justify-center gap-3">
+          <div className="bg-muted text-muted-foreground flex size-9 items-center justify-center rounded-md">
+            <Upload className="size-4" />
+          </div>
+          <div className="flex flex-col items-center gap-0.5">
+            <p className="text-sm font-medium">
+              {disabled ? 'Uploading image' : 'Upload an image'}
+            </p>
+            <p className="text-muted-foreground text-xs">
+              Drag and drop or click to upload, up to {formatBytes(maxSize)}
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col items-center gap-0.5">
-          <p className="text-sm font-medium">
-            {disabled ? 'Uploading image' : 'Upload an image'}
-          </p>
-          <p className="text-muted-foreground text-xs">
-            Drag and drop or click to upload, up to {formatBytes(maxSize)}
-          </p>
-        </div>
-        <div className="text-muted-foreground flex items-center gap-2 text-xs">
-          <span>or</span>
-          <span
-            role="button"
-            tabIndex={0}
-            onClick={(event) => {
-              event.preventDefault()
-              event.stopPropagation()
-              if (!disabled) onSelect()
-            }}
-            onKeyDown={(event) => {
-              if (disabled) return
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault()
-                event.stopPropagation()
-                onSelect()
-              }
-            }}
-            className="text-foreground focus-visible:ring-ring hover:text-foreground inline-flex cursor-pointer items-center gap-1.5 rounded-md font-medium underline underline-offset-4 focus-visible:ring-2 focus-visible:outline-none"
-          >
-            <Images className="size-3.5" />
-            Select from image library
-          </span>
-        </div>
-      </div>
-    </Dropzone>
+      </Dropzone>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onSelect}
+        disabled={disabled}
+        className="self-start"
+      >
+        <Images />
+        Select from image library
+      </Button>
+    </div>
   )
 }
 

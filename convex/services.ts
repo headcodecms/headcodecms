@@ -2,9 +2,11 @@ import { paginationOptsValidator } from 'convex/server'
 import { v } from 'convex/values'
 import { mutation, query } from './_generated/server'
 import {
+  deleteDBVersion,
   ensureInitialVersion,
   getCurrentVersion,
   newDBDraft,
+  restoreDBLiveVersion,
 } from './db/versions'
 import {
   addDBCollection,
@@ -36,6 +38,7 @@ import {
   sectionIdArg,
   slugArg,
   versionArg,
+  versionIdArg,
 } from './schema_validators'
 import type { HeadcodeVersionInput } from './schema_validators'
 import { Doc, Id } from './_generated/dataModel'
@@ -190,6 +193,14 @@ export const getVersionStatus = query({
       canPublish: Boolean(live && draft && live._id !== draft._id),
       canNewDraft: Boolean(live && (!draft || live._id === draft._id)),
     }
+  },
+})
+
+export const getVersionHistory = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireHeadcodeUser(ctx)
+    return await ctx.db.query('versions').order('desc').take(1000)
   },
 })
 
@@ -758,6 +769,22 @@ export const publish = mutation({
     await ctx.db.patch(draftVersion, { live: true })
 
     return await newDBDraft(ctx)
+  },
+})
+
+export const restoreLiveVersion = mutation({
+  args: versionIdArg,
+  handler: async (ctx, args) => {
+    await requireHeadcodePublish(ctx)
+    return await restoreDBLiveVersion(ctx, args.versionId)
+  },
+})
+
+export const deleteVersion = mutation({
+  args: versionIdArg,
+  handler: async (ctx, args) => {
+    await requireHeadcodePublish(ctx)
+    return await deleteDBVersion(ctx, args.versionId)
   },
 })
 
