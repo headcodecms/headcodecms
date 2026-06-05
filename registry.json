@@ -226,6 +226,11 @@
           "target": "app/llms.txt/route.ts"
         },
         {
+          "path": "app/(mcp)/[transport]/route.ts",
+          "type": "registry:file",
+          "target": "app/(mcp)/[transport]/route.ts"
+        },
+        {
           "path": "app/sitemap.ts",
           "type": "registry:file",
           "target": "app/sitemap.ts"
