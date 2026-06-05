@@ -42,7 +42,7 @@ starting cold.
 - `AGENTS.md`: operational rules for future agents.
 - `ARCHITECTURE.md`: durable architecture notes.
 - `docs/installation.md`: human and agent installation guide.
-- `docs/alpha-readiness.md`: manual `headcode doctor` checklist and alpha gates.
+- `docs/release-checklist.md`: manual `headcode doctor` checklist and release gates.
 - `registry.json`: shadcn GitHub registry item definition.
 - `convex/services.ts`: public service boundary for site/admin/MCP.
 - `convex/schema_validators.ts`: shared Convex validators and inferred input

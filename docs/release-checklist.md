@@ -1,7 +1,7 @@
-# Headcode Alpha Readiness
+# Headcode Release Checklist
 
 This checklist is the manual version of a future `headcode doctor` command. Use
-it before tagging an alpha release or before asking an agent to install Headcode
+it before tagging a public release or before asking an agent to install Headcode
 into a new project.
 
 ## Doctor Checklist
@@ -78,12 +78,12 @@ pnpm dlx shadcn@latest registry validate headcodecms/headcodecms
 pnpm dlx shadcn@latest view headcodecms/headcodecms/headcode
 ```
 
-Do one empty-project install and one existing-design install before an alpha
-tag. In both tests, the installing agent should ask for Convex project,
+Do one empty-project install and one existing-design install before a public
+release. In both tests, the installing agent should ask for Convex project,
 `SITE_URL`, allowed admin emails, Resend sender/key, test-login preference, and
 MCP-token preference before running auth/env commands.
 
-## Alpha Hardening
+## Release Hardening
 
 Admin UI:
 

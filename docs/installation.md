@@ -166,7 +166,7 @@ Before installing into a fresh shadcn/ui starter, remove the starter root route
 files so they do not conflict with the Headcode routes:
 
 ```bash
-rm app/page.tsx app/layout.tsx
+rm -f app/page.tsx app/layout.tsx
 ```
 
 Install Headcode CMS through the shadcn registry:
@@ -423,6 +423,7 @@ Run the local checks:
 pnpm test:once
 pnpm lint
 pnpm build
+pnpm dlx shadcn@latest registry validate
 ```
 
 Verify the browser flows:

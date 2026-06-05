@@ -32,9 +32,10 @@ structured content without enterprise CMS weight.
 
 ## Status
 
-Headcode CMS is in active development and moving toward an alpha release. Use it
-if you are comfortable with early open-source software and want a CMS that is
-easy to inspect, fork, and customize.
+Headcode CMS is in active development. Version `0.2.0` is the first public
+release of the new Next.js and Convex implementation. Use it if you are
+comfortable with early open-source software and want a CMS that is easy to
+inspect, fork, and customize.
 
 ## Quick Start
 
@@ -184,9 +185,12 @@ agents. Useful agent-facing routes include:
 The MCP server lets authorized clients inspect and edit CMS content. Normal MCP
 edits do not publish; publishing is intentionally a separate release action.
 
-## Local Development
+## Local Development And Contribution
 
-In this repository, the dev script uses local HTTPS domains:
+Local development is also the contribution workflow for this repository. The dev
+script uses [portless](https://github.com/vercel-labs/portless) to provide local
+HTTPS domains, which makes it possible to test live and draft versions on
+different hosts:
 
 ```bash
 pnpm dev
@@ -196,6 +200,7 @@ Open:
 
 ```text
 https://headcode.localhost
+https://draft.headcode.localhost
 https://headcode.localhost/admin/login
 https://headcode.localhost/llms.txt
 https://headcode.localhost/headcode-markdown.txt/
@@ -268,7 +273,7 @@ pnpm dlx shadcn@latest registry validate
 
 - [Installation](docs/installation.md)
 - [Architecture](ARCHITECTURE.md)
-- [Alpha readiness](docs/alpha-readiness.md)
+- [Release checklist](docs/release-checklist.md)
 - [Homepage working draft](docs/homepage-agent-first-working-draft.md)
 - [AI markup language notes](docs/ai-markup-language-working-draft.md)
 
@@ -292,4 +297,4 @@ Use it, fork it, open issues, send pull requests, or share what you build.
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).
