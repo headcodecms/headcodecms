@@ -1,0 +1,65 @@
+@import "../globals.css";
+
+.headcode-richtext-editor {
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: color-mix(in oklab, var(--muted) 30%, transparent);
+  padding: 0.75rem;
+}
+
+.headcode-richtext-editor .ProseMirror {
+  min-height: 14rem;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.headcode-richtext-editor .ProseMirror > * {
+  margin-block: 0;
+}
+
+.headcode-richtext-editor .ProseMirror > * + * {
+  margin-top: 0.625rem;
+}
+
+.headcode-richtext-editor .ProseMirror h1,
+.headcode-richtext-editor .ProseMirror h2,
+.headcode-richtext-editor .ProseMirror h3 {
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.headcode-richtext-editor .ProseMirror h1 {
+  font-size: 1.375rem;
+}
+
+.headcode-richtext-editor .ProseMirror h2 {
+  font-size: 1.125rem;
+}
+
+.headcode-richtext-editor .ProseMirror h3 {
+  font-size: 1rem;
+}
+
+.headcode-richtext-editor .ProseMirror ul,
+.headcode-richtext-editor .ProseMirror ol {
+  padding-left: 1.25rem;
+}
+
+.headcode-richtext-editor .ProseMirror a {
+  color: var(--primary);
+  text-decoration-line: underline;
+  text-underline-offset: 0.25rem;
+}
+
+.headcode-richtext-editor .ProseMirror blockquote {
+  border-left: 2px solid var(--border);
+  color: var(--muted-foreground);
+  margin-left: 0;
+  padding-left: 1rem;
+}
+
+.headcode-richtext-editor .ProseMirror pre {
+  overflow-x: auto;
+}

@@ -1,0 +1,426 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "headcodecms",
+  "homepage": "https://github.com/headcodecms/headcodecms",
+  "items": [
+    {
+      "name": "headcode",
+      "type": "registry:component",
+      "title": "Headcode CMS",
+      "description": "An agent-ready CMS for Next.js with Convex, admin editing, Markdown output, and MCP tools",
+      "registryDependencies": [
+        "button",
+        "card",
+        "command",
+        "dialog",
+        "dropdown-menu",
+        "empty",
+        "field",
+        "input",
+        "input-group",
+        "item",
+        "label",
+        "popover",
+        "select",
+        "separator",
+        "sheet",
+        "switch",
+        "tabs",
+        "textarea",
+        "tooltip"
+      ],
+      "dependencies": [
+        "@auth/core@^0.37",
+        "@convex-dev/auth@^0.0.93",
+        "@radix-ui/react-use-controllable-state@^1.2",
+        "@tiptap/core@^3.25",
+        "@tiptap/extension-code-block-lowlight@^3.25",
+        "@tiptap/extension-list@^3.25",
+        "@tiptap/extension-subscript@^3.25",
+        "@tiptap/extension-superscript@^3.25",
+        "@tiptap/extension-table@^3.25",
+        "@tiptap/extension-text-style@^3.25",
+        "@tiptap/extension-typography@^3.25",
+        "@tiptap/extensions@^3.25",
+        "@tiptap/markdown@^3.25",
+        "@tiptap/pm@^3.25",
+        "@tiptap/react@^3.25",
+        "@tiptap/starter-kit@^3.25",
+        "@tiptap/suggestion@^3.25",
+        "convex@^1.40",
+        "fuse.js@^7.4",
+        "lowlight@^3.3",
+        "mcp-handler@^1.1",
+        "motion@^12.40",
+        "radix-ui@^1.4",
+        "react-dropzone@^15.0",
+        "sharp@^0.34",
+        "thumbhash@^0.1",
+        "tippy.js@^6.3",
+        "zod@^4.4"
+      ],
+      "files": [
+        {
+          "path": "app/(site)/layout.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/layout.tsx"
+        },
+        {
+          "path": "app/(site)/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/page.tsx"
+        },
+        {
+          "path": "app/(site)/blog/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/blog/page.tsx"
+        },
+        {
+          "path": "app/(site)/blog/[slug]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/blog/[slug]/page.tsx"
+        },
+        {
+          "path": "app/(site)/docs/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/docs/page.tsx"
+        },
+        {
+          "path": "app/(site)/pages/[slug]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/pages/[slug]/page.tsx"
+        },
+        {
+          "path": "app/(site)/pricing/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/pricing/page.tsx"
+        },
+        {
+          "path": "app/(site)/_components/chrome.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/chrome.tsx"
+        },
+        {
+          "path": "app/(site)/_components/code-block.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/code-block.tsx"
+        },
+        {
+          "path": "app/(site)/_components/container.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/container.tsx"
+        },
+        {
+          "path": "app/(site)/_components/entries-dialog.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/entries-dialog.tsx"
+        },
+        {
+          "path": "app/(site)/_components/icons.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/icons.tsx"
+        },
+        {
+          "path": "app/(site)/_components/install-snippet.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/install-snippet.tsx"
+        },
+        {
+          "path": "app/(site)/_components/markdown.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/markdown.tsx"
+        },
+        {
+          "path": "app/(site)/_sections/code.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/code.tsx"
+        },
+        {
+          "path": "app/(site)/_sections/hero.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/hero.tsx"
+        },
+        {
+          "path": "app/(site)/_sections/image-text.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/image-text.tsx"
+        },
+        {
+          "path": "app/(site)/_sections/image.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/image.tsx"
+        },
+        {
+          "path": "app/(site)/_sections/index.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/index.tsx"
+        },
+        {
+          "path": "app/(site)/_sections/logos.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/logos.tsx"
+        },
+        {
+          "path": "app/(site)/_sections/plans.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/plans.tsx"
+        },
+        {
+          "path": "app/(site)/_sections/snippet.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/snippet.tsx"
+        },
+        {
+          "path": "app/(site)/_sections/text.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/text.tsx"
+        },
+        {
+          "path": "app/(site)/_sections/render-utils.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/render-utils.tsx"
+        },
+        {
+          "path": "app/(site)/site.css",
+          "type": "registry:file",
+          "target": "app/(site)/site.css"
+        },
+        {
+          "path": "app/(site)/_sections/types.ts",
+          "type": "registry:file",
+          "target": "app/(site)/_sections/types.ts"
+        },
+        {
+          "path": "app/(site)/md.ts",
+          "type": "registry:file",
+          "target": "app/(site)/md.ts"
+        },
+        {
+          "path": "app/(site)/blog/md.ts",
+          "type": "registry:file",
+          "target": "app/(site)/blog/md.ts"
+        },
+        {
+          "path": "app/(site)/docs/md.ts",
+          "type": "registry:file",
+          "target": "app/(site)/docs/md.ts"
+        },
+        {
+          "path": "app/(site)/pages/md.ts",
+          "type": "registry:file",
+          "target": "app/(site)/pages/md.ts"
+        },
+        {
+          "path": "app/(site)/pricing/md.ts",
+          "type": "registry:file",
+          "target": "app/(site)/pricing/md.ts"
+        },
+        {
+          "path": "app/headcode-markdown.txt/[[...path]]/route.ts",
+          "type": "registry:file",
+          "target": "app/headcode-markdown.txt/[[...path]]/route.ts"
+        },
+        {
+          "path": "app/llms.txt/route.ts",
+          "type": "registry:file",
+          "target": "app/llms.txt/route.ts"
+        },
+        {
+          "path": "app/sitemap.ts",
+          "type": "registry:file",
+          "target": "app/sitemap.ts"
+        },
+        {
+          "path": "app/(site)/_lib/headcode.ts",
+          "type": "registry:lib",
+          "target": "app/(site)/_lib/headcode.ts"
+        },
+        {
+          "path": "app/(admin)/layout.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/layout.tsx"
+        },
+        {
+          "path": "app/(admin)/admin/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/page.tsx"
+        },
+        {
+          "path": "app/(admin)/admin/entries/[id]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/entries/[id]/page.tsx"
+        },
+        {
+          "path": "app/(admin)/admin/images/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/images/page.tsx"
+        },
+        {
+          "path": "app/(admin)/admin/login/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/login/page.tsx"
+        },
+        {
+          "path": "app/(admin)/admin/versions/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/versions/page.tsx"
+        },
+        {
+          "path": "app/(admin)/_components/chrome.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/chrome.tsx"
+        },
+        {
+          "path": "app/(admin)/_components/container.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/container.tsx"
+        },
+        {
+          "path": "app/(admin)/_components/convex-client-provider.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/convex-client-provider.tsx"
+        },
+        {
+          "path": "app/(admin)/_components/richtext-editor.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/richtext-editor.tsx"
+        },
+        {
+          "path": "app/(admin)/_fields/image-field.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_fields/image-field.tsx"
+        },
+        {
+          "path": "app/(admin)/_fields/richtext-field.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_fields/richtext-field.tsx"
+        },
+        {
+          "path": "app/(admin)/admin.css",
+          "type": "registry:file",
+          "target": "app/(admin)/admin.css"
+        },
+        {
+          "path": "app/(admin)/_lib/headcode.ts",
+          "type": "registry:file",
+          "target": "app/(admin)/_lib/headcode.ts"
+        },
+        {
+          "path": "components/kibo-ui/dialog-stack/index.tsx",
+          "type": "registry:component",
+          "target": "components/kibo-ui/dialog-stack/index.tsx"
+        },
+        {
+          "path": "components/kibo-ui/dropzone/index.tsx",
+          "type": "registry:component",
+          "target": "components/kibo-ui/dropzone/index.tsx"
+        },
+        {
+          "path": "components/kibo-ui/editor/index.tsx",
+          "type": "registry:component",
+          "target": "components/kibo-ui/editor/index.tsx"
+        },
+        {
+          "path": "convex/auth.config.ts",
+          "type": "registry:file",
+          "target": "convex/auth.config.ts"
+        },
+        {
+          "path": "convex/auth.ts",
+          "type": "registry:file",
+          "target": "convex/auth.ts"
+        },
+        {
+          "path": "convex/authorization.ts",
+          "type": "registry:file",
+          "target": "convex/authorization.ts"
+        },
+        {
+          "path": "convex/db/entries.ts",
+          "type": "registry:file",
+          "target": "convex/db/entries.ts"
+        },
+        {
+          "path": "convex/db/sections.ts",
+          "type": "registry:file",
+          "target": "convex/db/sections.ts"
+        },
+        {
+          "path": "convex/db/versions.ts",
+          "type": "registry:file",
+          "target": "convex/db/versions.ts"
+        },
+        {
+          "path": "convex/http.ts",
+          "type": "registry:file",
+          "target": "convex/http.ts"
+        },
+        {
+          "path": "convex/schema.ts",
+          "type": "registry:file",
+          "target": "convex/schema.ts"
+        },
+        {
+          "path": "convex/schema_validators.ts",
+          "type": "registry:file",
+          "target": "convex/schema_validators.ts"
+        },
+        {
+          "path": "convex/section_validations.ts",
+          "type": "registry:file",
+          "target": "convex/section_validations.ts"
+        },
+        {
+          "path": "convex/services.ts",
+          "type": "registry:file",
+          "target": "convex/services.ts"
+        },
+        {
+          "path": "headcode/config.ts",
+          "type": "registry:file",
+          "target": "headcode/config.ts"
+        },
+        {
+          "path": "headcode/defaults.ts",
+          "type": "registry:file",
+          "target": "headcode/defaults.ts"
+        },
+        {
+          "path": "headcode/fields.ts",
+          "type": "registry:file",
+          "target": "headcode/fields.ts"
+        },
+        {
+          "path": "headcode/sections.ts",
+          "type": "registry:file",
+          "target": "headcode/sections.ts"
+        },
+        {
+          "path": "headcode/types.ts",
+          "type": "registry:file",
+          "target": "headcode/types.ts"
+        },
+        {
+          "path": "headcode/utils.ts",
+          "type": "registry:file",
+          "target": "headcode/utils.ts"
+        },
+        {
+          "path": "headcode/versions.ts",
+          "type": "registry:file",
+          "target": "headcode/versions.ts"
+        },
+        {
+          "path": "proxy.ts",
+          "type": "registry:file",
+          "target": "proxy.ts"
+        },
+        {
+          "path": "next.config.ts",
+          "type": "registry:file",
+          "target": "next.config.ts"
+        }
+      ]
+    }
+  ]
+}

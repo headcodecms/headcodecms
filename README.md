@@ -1,173 +1,300 @@
 # Headcode CMS
 
-**Headcode CMS** is a minimal, open‑source content management system built for **Next.js**. It installs directly into your project through the **shadcn registry** and integrates neatly with modern React + TypeScript workflows.
+Headcode CMS is an open-source CMS for Next.js websites that should be editable
+by both people and agents.
+
+It installs into your codebase through the shadcn registry and gives you a
+public site, admin UI, structured content, draft/live publishing, Markdown
+output, `llms.txt`, Convex-backed storage, and an MCP server for authorized AI
+clients.
+
+> The next website is not only a page. It is a source of truth for people,
+> search engines, chat clients, and agents.
+
+Headcode is built for small and medium websites: client sites, studios,
+agencies, product pages, blogs, docs, local businesses, and projects that need
+structured content without enterprise CMS weight.
 
 ## Features
-- **Next.js 16 + Cache Components** for modern performance  
-- **shadcn/ui**‑based admin and UI components  
-- **TanStack Forms** for structured content editing  
-- **Drizzle ORM** for clean database access  
-- **Better Auth** for authentication and users  
-- **Open architecture** — install directly into your codebase  
-- **Themes, Fields & Sections** via shadcn‑style registry  
-- Built‑in **Admin Interface** for managing content  
 
-## Getting Started
+- **Next.js App Router** public site and admin UI.
+- **Convex** database, services, storage, and function caching.
+- **Convex Auth** with Resend magic-link admin login.
+- **shadcn/ui**, **kibo-ui**, Tailwind CSS, TipTap, Zod, and TypeScript.
+- **Fields, sections, globals, and collections** for typed content modeling.
+- **Draft/live publishing** with version history and restore support.
+- **Convex Storage image library** with metadata, dimensions, and blur data.
+- **Markdown output** for agent-readable versions of public pages.
+- **Editable `/llms.txt`** backed by CMS content.
+- **MCP server** for authorized AI clients and coding agents.
+- **shadcn registry distribution** so the CMS lives in your app, not behind a
+  hosted black box.
 
-Headcode CMS and its components (themes, sections, fields …) are published as a **shadcn registry**. Install pieces with the CLI:
+## Status
 
-### Install the Starter
+Headcode CMS is in active development. Version `0.2.0` is the first public
+release of the new Next.js and Convex implementation. Use it if you are
+comfortable with early open-source software and want a CMS that is easy to
+inspect, fork, and customize.
+
+## Quick Start
+
+Install Headcode from the shadcn GitHub registry:
+
 ```bash
-pnpm dlx shadcn@latest add https://headcodecms/r/starter.json
+pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
 ```
 
-The starter installs:
-- **Next.js 16**
-- **shadcn/ui**
-- **Headcode CMS Admin**
-- **Vienna theme** (demo site)
+For a new empty project, initialize a shadcn/ui Next.js app first:
 
-Default stack:
-- **SQLite (file)** database  
-- **Better Auth** authentication  
-- **File storage**
-
-Good for local development. For production, use providers like [Turso Cloud](https://turso.tech) and [Vercel Blob Storage](https://vercel.com/docs/storage/vercel-blob).
-
-## Database Setup
 ```bash
-pnpm drizzle-kit push
-# or using migrations
-pnpm drizzle-kit generate
-pnpm drizzle-kit migrate
+pnpm dlx shadcn@latest init --preset buFywKm --base base --template next --pointer
 ```
 
-## Project Structure
+If you are installing into a fresh starter, remove the starter root route files
+before adding Headcode:
 
-| App | Path | Description |
-|:----|:------|:-------------|
-| Admin | `app/(headcode)` | Headcode Admin interface |
-| Demo Site | `app/(site)` | Example Vienna theme |
-
-Remove default files to avoid conflicts:
+```bash
+rm -f app/page.tsx app/layout.tsx
+pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
+pnpm install
+pnpm convex dev
 ```
-app/layout.tsx
-app/page.tsx
-```
-Keep `globals.css` for shadcn/ui styles.
 
-Start the server:
+After `pnpm convex dev` creates `.env.local` and `CONVEX_DEPLOYMENT`, run
+Convex Auth setup:
+
+```bash
+pnpm dlx @convex-dev/auth
+```
+
+Set the minimum Convex environment variables:
+
+```bash
+pnpm convex env set ALLOWED_ADMIN_EMAILS "admin@example.com"
+pnpm convex env set AUTH_RESEND_KEY "re_..."
+pnpm convex env set AUTH_RESEND_FROM "Headcode <admin@example.com>"
+pnpm convex env set SITE_URL "http://localhost:3000"
+```
+
+Start the app:
+
 ```bash
 pnpm dev
 ```
-- Website → http://localhost:3000  
-- Admin   → http://localhost:3000/headcode  
 
-On first run you’ll create an administrator account.
+Open:
 
-## Configuration
+```text
+http://localhost:3000
+http://localhost:3000/admin/login
+```
 
-Project structure lives in `headcode.config.ts`:
+For the full setup, including Resend, draft hosts, development test login, MCP
+tokens, and production notes, read [docs/installation.md](docs/installation.md).
 
-```ts
-export const headcodeConfig: HeadcodeConfig = {
- version: 'v02',
- entries: [
-  { 
-    namespace: 'global', 
-    key: 'nav', 
-    sections:[
-      { section: navSection, pinned: true }
-    ] 
-  },
-  { 
-    namespace: 'blog', 
-    sections: [
-      {section: metaSection, pinned: true},
-      {section: heroSection},
-      {section: textSection}
-    ] 
+## Agent Install Prompt
+
+Headcode is designed to be installed and customized with a coding agent. A good
+prompt is:
+
+```text
+Create a new Headcode CMS project in this directory.
+
+- Use the standard Headcode public site design.
+- If this directory is empty, initialize shadcn/ui with:
+  pnpm dlx shadcn@latest init --preset buFywKm --base base --template next --pointer
+- If this directory already contains a Next.js/shadcn app, keep the existing app setup and skip shadcn init.
+- Install Headcode from:
+  pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
+- I already created a Convex project and a Resend account.
+- Before running Convex/Auth commands, ask me for the Convex project, SITE_URL, allowed admin emails, Resend sender, Resend key, test-login preference, and MCP-token preference.
+- Guide me through the required Convex environment variables before starting the app.
+```
+
+Do not put server secrets into `NEXT_PUBLIC_*` variables, and do not commit real
+`.env.local` values.
+
+## Architecture
+
+Headcode has three app surfaces:
+
+| Surface     | Path          | Purpose                                                            |
+| ----------- | ------------- | ------------------------------------------------------------------ |
+| Public site | `app/(site)`  | HTML pages, Markdown rendering, sitemap, `llms.txt`.               |
+| Admin UI    | `app/(admin)` | Authenticated editing for entries, sections, images, and versions. |
+| MCP server  | `app/(mcp)`   | Bearer-token-protected tools for AI clients.                       |
+
+Convex is the service layer and database. Site, admin, and MCP code should call
+the service boundary in `convex/services.ts`.
+
+Important files:
+
+| Path                             | Purpose                                          |
+| -------------------------------- | ------------------------------------------------ |
+| `headcode/config.ts`             | Globals, collections, section choices, defaults. |
+| `headcode/sections.ts`           | Section definitions and editable fields.         |
+| `headcode/defaults.ts`           | Default content for empty installs.              |
+| `headcode/versions.ts`           | Host-based live/draft resolver.                  |
+| `convex/services.ts`             | Shared service boundary.                         |
+| `convex/schema_validators.ts`    | Shared Convex validators.                        |
+| `convex/section_validations.ts`  | Section data validation.                         |
+| `app/(site)/_sections`           | Public HTML and Markdown section renderers.      |
+| `app/(admin)/_fields`            | Admin field components.                          |
+| `app/(mcp)/[transport]/route.ts` | MCP server and tools.                            |
+| `registry.json`                  | shadcn registry definition.                      |
+
+Read [ARCHITECTURE.md](ARCHITECTURE.md) for the durable architecture notes.
+
+## Content Model
+
+Headcode content is made from:
+
+- **Sections**: reusable blocks such as hero, text, image, plans, and footer.
+- **Fields**: editable values inside sections.
+- **Entries**: ordered section groups.
+- **Globals**: singleton entries like header, footer, home, docs, or `llms.txt`.
+- **Collections**: repeatable entry types like blog posts and pages.
+- **Images**: Convex Storage assets referenced from section JSON.
+- **Versions**: `draft` and `live`.
+
+Section data is stored as JSON strings in Convex and returned through services
+as parsed, validated data.
+
+## Draft, Live, And Agents
+
+Headcode supports `live` and `draft` content versions. Publishing promotes the
+current draft to live and creates a new draft from it. Draft/live routing can be
+host-based:
+
+```env
+NEXT_PUBLIC_HEADCODE_VERSION=auto
+NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=draft.example.com,preview.example.com
+```
+
+Public content is available as designed HTML for humans and Markdown for
+agents. Useful agent-facing routes include:
+
+```text
+/llms.txt
+/headcode-markdown.txt/
+/headcode-markdown.txt/blog
+/headcode-markdown.txt/pricing
+```
+
+The MCP server lets authorized clients inspect and edit CMS content. Normal MCP
+edits do not publish; publishing is intentionally a separate release action.
+
+## Local Development And Contribution
+
+Local development is also the contribution workflow for this repository. The dev
+script uses [portless](https://github.com/vercel-labs/portless) to provide local
+HTTPS domains, which makes it possible to test live and draft versions on
+different hosts:
+
+```bash
+pnpm dev
+```
+
+Open:
+
+```text
+https://headcode.localhost
+https://draft.headcode.localhost
+https://headcode.localhost/admin/login
+https://headcode.localhost/llms.txt
+https://headcode.localhost/headcode-markdown.txt/
+```
+
+Useful commands:
+
+```bash
+pnpm test:once
+pnpm lint
+pnpm build
+pnpm exec tsc --noEmit --pretty false
+pnpm dlx shadcn@latest registry validate
+```
+
+## MCP Setup
+
+MCP access uses bearer tokens. Configure the same token list in Convex and
+Next.js:
+
+```bash
+pnpm convex env set ALLOWED_MCP_TOKENS "token-one,token-two"
+```
+
+```env
+ALLOWED_MCP_TOKENS=token-one,token-two
+```
+
+Use separate client names for live and draft hosts:
+
+```json
+{
+  "mcp": {
+    "headcode-live": {
+      "type": "remote",
+      "url": "https://www.example.com/mcp",
+      "headers": { "Authorization": "Bearer token-one" }
+    },
+    "headcode-draft": {
+      "type": "remote",
+      "url": "https://draft.example.com/mcp",
+      "headers": { "Authorization": "Bearer token-one" }
+    }
   }
- ]
-};
-```
-
-- **Entries**: pages / content items  
-- **Sections**: content blocks  
-- **Fields**: inputs ( Text, Textarea, Image …)  
-- **Pinned sections**: cannot be deleted (e.g., meta data)
-
-## Themes
-
-Themes define reusable layouts and sections (Hero, Text, Features, Image, Footer …).
-
-Installed themes live in  
-```
-components/headcode/themes/[theme-name]
-```
-
-## Create a Custom Section
-
-```ts
-export const heroSection = {
-  name: 'hero',
-  label: 'Hero Section',
-  fields: {
-    title: TextField({
-      label: 'Title',
-    }),
-    subtitle: TextareaField({
-      label: 'Subtitle',
-    }),
-    primaryButton: LinkField({
-      label: 'Primary Button',
-    }),
-  } satisfies Fields,
-}
-export type HeroData = InferSectionData<typeof heroSection.fields>
-
-export function Hero({ sectionData }: { sectionData: unknown }) {
-  const { data } = parseSectionData(heroSection.fields, sectionData)
-
-  return (
-    <div>
-      <h1>{data.title}</h1>
-      <p>{data.subtitle}</p>
-      <Button href={data.primaryButton.url}>
-        {data.primaryButton.title}
-      </Button>
-    </div>
-  )
 }
 ```
 
-## Users and Roles
-- **Admin** → manage content + users/roles  
-- **User** → edit content  
+Verify with:
 
-Auth and sessions: **Better Auth**.
+```bash
+opencode mcp list
+opencode run 'Use the headcode-draft MCP server. Call the headcode_get_version tool and print only the JSON result.'
+```
 
-## Versioning
-Clone content to new versions for campaigns or releases.
+## Distribution
 
-## Admin Interface
+Headcode is distributed through the shadcn GitHub registry:
 
-The Headcode CMS Admin Interface  is built with **shadcn/ui** + **TanStack Forms**. It builds forms from your `headcode.config.ts` schema automatically, single fields and arrays alike.
+```bash
+pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
+```
 
-## How It Works
-1. Define fields and sections in `headcode.config.ts`  
-2. Admin renders matching forms  
-3. Each Entry contains Sections, each Section contains Fields  
-4. All data stored via Drizzle ORM in SQLite / Turso  
+The root `registry.json` is the source of truth. Validate it before publishing:
 
-## How You Can Help
-You can help by simply using it, reporting issues, suggesting improvements, or sending pull requests. Stars on GitHub and kind words on social media really help too (use #headcodecms or mention me directly @headcodecms).
+```bash
+pnpm dlx shadcn@latest registry validate
+```
 
-Headcode CMS is a side project right now, but I’d love to spend more time on it. If you want to support that, I’ve set up a [GitHub Sponsors](https://github.com/sponsors/headcodecms) page. Any support, financial, feedback, or code, means a lot.
+## Documentation
 
-Markus, markus@headcodecms.com, https://mext.at
+- [Installation](docs/installation.md)
+- [Architecture](ARCHITECTURE.md)
+- [Release checklist](docs/release-checklist.md)
+- [Homepage working draft](docs/homepage-agent-first-working-draft.md)
+- [AI markup language notes](docs/ai-markup-language-working-draft.md)
 
-Created with ❤️ in Salzburg, Austria
+## Contributing
+
+Headcode is early and practical help is welcome: install reports, docs fixes,
+focused tests, admin UI polish, MCP improvements, and small pull requests are
+all useful.
+
+Please keep changes easy to review. The project is intentionally simple:
+service boundary first, clear content model, validated section data,
+agent-readable output, and no unnecessary framework churn.
+
+## Support
+
+Headcode CMS is a side project by Markus Tripp, built from years of website
+project work and the belief that websites are becoming source material for
+agents as much as destinations for humans.
+
+Use it, fork it, open issues, send pull requests, or share what you build.
 
 ## License
-MIT License
+
+MIT. See [LICENSE](LICENSE).
