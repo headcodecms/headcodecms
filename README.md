@@ -37,9 +37,22 @@ release of the new Next.js and Convex implementation. Use it if you are
 comfortable with early open-source software and want a CMS that is easy to
 inspect, fork, and customize.
 
-## Quick Start
+## Automatic Installation
 
-Install Headcode from the shadcn GitHub registry:
+Headcode is designed to be installed with a coding agent. Copy this prompt into
+Codex, Claude Code, OpenCode, Cursor, or another local coding agent:
+
+```text
+Read https://headcodecms.com/start.md then install Headcode CMS in this directory.
+```
+
+The agent should inspect your project, ask for the missing Convex/Auth/Resend
+values, install the shadcn registry item, and guide you through verification.
+
+## Manual Installation
+
+Use the manual path when you prefer to run each command yourself. Install
+Headcode from the shadcn GitHub registry:
 
 ```bash
 pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
@@ -48,7 +61,7 @@ pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
 For a new empty project, initialize a shadcn/ui Next.js app first:
 
 ```bash
-pnpm dlx shadcn@latest init --preset buFywKm --base base --template next --pointer
+pnpm dlx shadcn@latest init --preset bbVJxYW --base base --template next --pointer
 ```
 
 If you are installing into a fresh starter, remove the starter root route files
@@ -92,25 +105,6 @@ http://localhost:3000/admin/login
 
 For the full setup, including Resend, draft hosts, development test login, MCP
 tokens, and production notes, read [docs/installation.md](docs/installation.md).
-
-## Agent Install Prompt
-
-Headcode is designed to be installed and customized with a coding agent. A good
-prompt is:
-
-```text
-Create a new Headcode CMS project in this directory.
-
-- Use the standard Headcode public site design.
-- If this directory is empty, initialize shadcn/ui with:
-  pnpm dlx shadcn@latest init --preset buFywKm --base base --template next --pointer
-- If this directory already contains a Next.js/shadcn app, keep the existing app setup and skip shadcn init.
-- Install Headcode from:
-  pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
-- I already created a Convex project and a Resend account.
-- Before running Convex/Auth commands, ask me for the Convex project, SITE_URL, allowed admin emails, Resend sender, Resend key, test-login preference, and MCP-token preference.
-- Guide me through the required Convex environment variables before starting the app.
-```
 
 Do not put server secrets into `NEXT_PUBLIC_*` variables, and do not commit real
 `.env.local` values.

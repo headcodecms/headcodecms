@@ -6,6 +6,19 @@ Headcode CMS with Convex Auth, Resend magic links, MCP, and local agent testing.
 It is written for humans and coding agents. A human should be able to understand
 each decision; an agent should be able to execute the checklist without guessing.
 
+## Automatic Installation
+
+The recommended installation path is agent-guided. Copy this prompt into a local
+coding agent:
+
+```text
+Read https://headcodecms.com/start.md then install Headcode CMS in this directory.
+```
+
+The `/start.md` file is the canonical agent contract. It tells the agent how to
+inspect the target project, which setup questions to ask, which secrets never to
+invent, how to run Convex/Auth setup, and how to verify the install.
+
 ## Agent Checklist
 
 1. Ask the setup questions below before running Convex/Auth commands.
@@ -53,7 +66,7 @@ If the directory is empty, initialize a shadcn/ui Next.js starter first. Use the
 preset you want for the public site design:
 
 ```bash
-pnpm dlx shadcn@latest init --preset buFywKm --base base --template next --pointer
+pnpm dlx shadcn@latest init --preset bbVJxYW --base base --template next --pointer
 ```
 
 If a Next.js/shadcn app already exists, skip the init command and add Headcode
@@ -139,20 +152,10 @@ Restart `pnpm dev` after changing `NEXT_PUBLIC_*` values.
 
 ## Agent Install Prompt
 
-For a coding agent, use a prompt like this:
+For a coding agent, use the short automatic prompt:
 
 ```text
-Create a new Headcode CMS project in this directory.
-
-- Use the standard Headcode public site design.
-- If this directory is empty, initialize shadcn/ui with:
-  pnpm dlx shadcn@latest init --preset buFywKm --base base --template next --pointer
-- If this directory already contains a Next.js/shadcn app, keep the existing app setup and skip shadcn init.
-- Install Headcode from:
-  pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
-- I already created a Convex project and a Resend account.
-- Before running Convex/Auth commands, ask me for the Convex project, SITE_URL, allowed admin emails, Resend sender, Resend key, test-login preference, and MCP-token preference.
-- Guide me through the required Convex environment variables before starting the app.
+Read https://headcodecms.com/start.md then install Headcode CMS in this directory.
 ```
 
 The installable registry item is `headcodecms/headcodecms/headcode`. The shadcn
