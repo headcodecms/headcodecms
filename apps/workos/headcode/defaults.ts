@@ -437,7 +437,7 @@ Use this path for a new local project on \`http://localhost:3000\`. Draft conten
 rm -f app/page.tsx app/layout.tsx
 pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
 pnpm install
-pnpm convex dev
+pnpm convex dev --run seed:init
 \`\`\`
 
 Create a WorkOS environment with email-code and social sign-in. Sign-up can stay open: new users can read, and you activate editors with the user metadata \`{ "headcode_role": "editor" }\` plus the JWT template \`{"headcode_role": {{ user.metadata.headcode_role || 'viewer' }}}\`. Then add the callback \`http://localhost:3000/callback\`, the sign-out URI \`http://localhost:3000/\`, and the initiate login URI \`http://localhost:3000/admin/login\`.
@@ -538,7 +538,7 @@ MCP clients sign in with OAuth through AuthKit. Enable Client ID Metadata Docume
         {
           value: 'convex',
           label: 'Convex',
-          command: 'pnpm convex dev',
+          command: 'pnpm convex dev --run seed:init',
         },
         {
           value: 'env',

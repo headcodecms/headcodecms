@@ -18,6 +18,7 @@ Setup steps are in `README.md`. This file contains the rules.
   - an MCP bearer token from `ALLOWED_MCP_TOKENS`, passed as `mcpToken`.
 - Sign-up is open. Every WorkOS user may read the admin; writes need the token claim `headcode_role: "editor"` (WorkOS user metadata, copied by the environment's JWT template), otherwise `requireHeadcodeUser` throws a `ConvexError` asking for activation. The admin UI shows it via `errorMessage` (`_lib/use-actions.ts`), MCP as the tool error.
 - Section data is stored as JSON strings. `convex/section_validations.ts` validates it against the field Zod validators: unknown keys are dropped, and invalid values fall back to defaults.
+- The database is the only source of content. `convex/seed.ts` (`pnpm seed`, repeatable) fills it from `headcode/config.ts`: an empty install gets one shared version and sample entries, every run adds missing globals. Reads never fall back to config defaults.
 - Content model, configured in `headcode/config.ts`:
   - **sections** (`headcode/sections.ts`) contain **fields** (`headcode/fields.ts`).
   - **entries** are either **globals** (a single entry per slug) or **collections** (repeatable entries).

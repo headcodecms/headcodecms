@@ -1,6 +1,7 @@
 import { convexTest } from 'convex-test'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { api } from './_generated/api'
+import { api, internal } from './_generated/api'
+import { headcodeConfig } from '../headcode/config'
 import { editorRequired } from './authorization'
 import schema from './schema'
 
@@ -21,6 +22,21 @@ const createTest = () =>
   })
 
 const stringify = (value: unknown) => JSON.stringify(value)
+
+// Seeds the database (idempotent) and returns the id of a global entry.
+const seedGlobal = async (
+  t: ReturnType<typeof createTest>,
+  slug: string,
+  version: 'live' | 'draft',
+) => {
+  await t.mutation(internal.seed.init, {})
+  const global = await t.query(api.services.getGlobalWithSections, {
+    slug,
+    version,
+  })
+  if (!global) throw new Error(`Global "${slug}" was not seeded.`)
+  return global.entry._id
+}
 const waitForModificationTime = () =>
   new Promise((resolve) => setTimeout(resolve, 5))
 
@@ -35,7 +51,7 @@ describe('services', () => {
     warn.mockRestore()
   })
 
-  test('creates the initial draft/live version from the first write', async () => {
+  test('seeds one shared draft/live version with globals and samples', async () => {
     const t = createTest()
 
     expect(await t.query(api.services.getVersionStatus, {})).toMatchObject({
@@ -50,21 +66,19 @@ describe('services', () => {
       (await t.query(api.services.getAll, { version: 'draft' })).globals,
     ).toEqual([])
 
-    await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'draft',
-    })
+    await t.mutation(internal.seed.init, {})
+    await t.mutation(internal.seed.init, {})
 
-    const { globals: draftGlobals } = await t.query(api.services.getAll, {
-      version: 'draft',
-    })
-    const { globals: liveGlobals } = await t.query(api.services.getAll, {
-      version: 'live',
-    })
+    const draft = await t.query(api.services.getAll, { version: 'draft' })
+    const live = await t.query(api.services.getAll, { version: 'live' })
 
-    expect(draftGlobals).toHaveLength(1)
-    expect(liveGlobals).toHaveLength(1)
-    expect(draftGlobals[0].slug).toBe('home')
+    expect(draft).toEqual(live)
+    expect(draft.globals.map((entry) => entry.slug).sort()).toEqual(
+      headcodeConfig.globals.map((entry) => entry.slug).sort(),
+    )
+    expect(draft.collections.map((entry) => entry.slug).sort()).toEqual(
+      headcodeConfig.collections.map((entry) => entry.slug).sort(),
+    )
 
     expect(await t.query(api.services.getVersionStatus, {})).toMatchObject({
       shared: true,
@@ -76,10 +90,7 @@ describe('services', () => {
   test('creates, publishes, and replaces draft versions', async () => {
     const t = createTest()
 
-    await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'live',
-    })
+    await seedGlobal(t, 'home', 'live')
 
     await t.mutation(api.services.newDraft, {})
 
@@ -101,10 +112,7 @@ describe('services', () => {
   test('restores live by cloning history and deletes retired versions', async () => {
     const t = createTest()
 
-    const liveEntry = await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'live',
-    })
+    const liveEntry = await seedGlobal(t, 'home', 'live')
     await t.mutation(api.services.addSection, {
       name: 'text',
       pos: BigInt(1000),
@@ -251,8 +259,9 @@ describe('services', () => {
     const t = createRawTest()
 
     await expect(
-      t.mutation(api.services.ensureGlobal, {
-        slug: 'home',
+      t.mutation(api.services.addCollection, {
+        slug: 'blog',
+        name: 'Post',
         version: 'draft',
       }),
     ).rejects.toThrow('Not authenticated.')
@@ -261,13 +270,13 @@ describe('services', () => {
   test('accepts allowed MCP bearer tokens instead of a session', async () => {
     vi.stubEnv('ALLOWED_MCP_TOKENS', 'first, second')
     const t = createRawTest()
-    const args = { slug: 'home', version: 'draft' as const }
+    const args = { slug: 'blog', name: 'Post', version: 'draft' as const }
 
     await expect(
-      t.mutation(api.services.ensureGlobal, { ...args, mcpToken: 'secon' }),
+      t.mutation(api.services.addCollection, { ...args, mcpToken: 'secon' }),
     ).rejects.toThrow('Not authenticated.')
     expect(
-      await t.mutation(api.services.ensureGlobal, {
+      await t.mutation(api.services.addCollection, {
         ...args,
         mcpToken: 'second',
       }),
@@ -280,17 +289,18 @@ describe('services', () => {
 
     expect(await t.query(api.services.getVersionHistory, {})).toEqual([])
     await expect(
-      t.mutation(api.services.ensureGlobal, { slug: 'home', version: 'draft' }),
+      t.mutation(api.services.addCollection, {
+        slug: 'blog',
+        name: 'Post',
+        version: 'draft',
+      }),
     ).rejects.toThrow(editorRequired)
   })
 
   test('creates configured global default sections with validated data', async () => {
     const t = createTest()
 
-    await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'draft',
-    })
+    await seedGlobal(t, 'home', 'draft')
 
     const sections = (
       await t.query(api.services.getGlobalWithSections, {
@@ -321,18 +331,7 @@ describe('services', () => {
   test('returns live site bundles with parsed sections', async () => {
     const t = createTest()
 
-    await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'live',
-    })
-    await t.mutation(api.services.ensureGlobal, {
-      slug: 'header',
-      version: 'live',
-    })
-    await t.mutation(api.services.ensureGlobal, {
-      slug: 'footer',
-      version: 'live',
-    })
+    await t.mutation(internal.seed.init, {})
     await t.mutation(api.services.addCollection, {
       slug: 'blog',
       name: 'Getting Started',
@@ -363,15 +362,12 @@ describe('services', () => {
     expect(chrome.header?.entry.slug).toBe('header')
     expect(chrome.footer?.entry.slug).toBe('footer')
     expect(post?.entry.name).toBe('Getting Started')
-    expect(posts).toHaveLength(1)
+    expect(posts).toHaveLength(2)
   })
 
   test('adds valid section data and returns parsed data', async () => {
     const t = createTest()
-    const entry = await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'draft',
-    })
+    const entry = await seedGlobal(t, 'home', 'draft')
 
     const sectionId = await t.mutation(api.services.addSection, {
       name: 'hero',
@@ -417,10 +413,7 @@ describe('services', () => {
 
   test('fills missing fields and strips unknown fields', async () => {
     const t = createTest()
-    const entry = await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'draft',
-    })
+    const entry = await seedGlobal(t, 'home', 'draft')
 
     const sectionId = await t.mutation(api.services.addSection, {
       name: 'hero',
@@ -454,10 +447,7 @@ describe('services', () => {
 
   test('logs invalid scalar and select values and falls back to defaults', async () => {
     const t = createTest()
-    const entry = await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'draft',
-    })
+    const entry = await seedGlobal(t, 'home', 'draft')
 
     const sectionId = await t.mutation(api.services.addSection, {
       name: 'hero',
@@ -480,10 +470,7 @@ describe('services', () => {
 
   test('rejects malformed JSON and unknown section names', async () => {
     const t = createTest()
-    const entry = await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'draft',
-    })
+    const entry = await seedGlobal(t, 'home', 'draft')
 
     await expect(
       t.mutation(api.services.addSection, {
@@ -506,10 +493,7 @@ describe('services', () => {
 
   test('rejects sections not configured for an entry', async () => {
     const t = createTest()
-    const entry = await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'draft',
-    })
+    const entry = await seedGlobal(t, 'home', 'draft')
 
     await expect(
       t.mutation(api.services.addSection, {
@@ -523,10 +507,7 @@ describe('services', () => {
 
   test('validates nested arrays and nested fallback values', async () => {
     const t = createTest()
-    const entry = await t.mutation(api.services.ensureGlobal, {
-      slug: 'header',
-      version: 'draft',
-    })
+    const entry = await seedGlobal(t, 'header', 'draft')
 
     const sectionId = await t.mutation(api.services.addSection, {
       name: 'header',
@@ -581,10 +562,7 @@ describe('services', () => {
 
   test('updates a section by revalidating stored data', async () => {
     const t = createTest()
-    const entry = await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'draft',
-    })
+    const entry = await seedGlobal(t, 'home', 'draft')
     const sectionId = await t.mutation(api.services.addSection, {
       name: 'text',
       pos: BigInt(100),
@@ -608,10 +586,7 @@ describe('services', () => {
 
   test('reorders sections without changing data', async () => {
     const t = createTest()
-    const entry = await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'draft',
-    })
+    const entry = await seedGlobal(t, 'home', 'draft')
     const first = await t.mutation(api.services.addSection, {
       name: 'text',
       pos: BigInt(1),
@@ -642,10 +617,7 @@ describe('services', () => {
 
   test('duplicates a section directly after the source', async () => {
     const t = createTest()
-    const entry = await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'draft',
-    })
+    const entry = await seedGlobal(t, 'home', 'draft')
     const first = await t.mutation(api.services.addSection, {
       name: 'text',
       pos: BigInt(100),
@@ -678,10 +650,7 @@ describe('services', () => {
 
   test('updates entry modification time when sections change', async () => {
     const t = createTest()
-    const entry = await t.mutation(api.services.ensureGlobal, {
-      slug: 'home',
-      version: 'draft',
-    })
+    const entry = await seedGlobal(t, 'home', 'draft')
     const initialEntry = await t.query(api.services.getEntry, { id: entry })
 
     await waitForModificationTime()

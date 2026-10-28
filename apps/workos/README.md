@@ -15,6 +15,7 @@ pnpm install
 
 # 2. Convex (cloud dev deployment, writes .env.local)
 pnpm convex dev --once --configure new --team <team> --project <project> --dev-deployment cloud
+pnpm seed   # fills the database from headcode/config.ts
 ```
 
 **3. WorkOS** (dashboard, WorkOS MCP server, or `workos` CLI), for one environment:
@@ -82,7 +83,7 @@ The host decides which version you see and edit: `draft.localhost` shows the dra
 
 | State | What happens |
 | --- | --- |
-| Start (empty database) | One version. Draft and live are **shared**, so every edit is live immediately. |
+| Start (after `pnpm seed`) | One version with sample content. Draft and live are **shared**, so every edit is live immediately. |
 | **New draft** (Admin → Versions) | Copies live into a separate draft. Edits on the draft host are now only visible there. |
 | **Publish draft** | The draft becomes live, and a new draft is copied from it automatically. |
 
@@ -108,6 +109,7 @@ The site uses Next.js Cache Components. Every page is prerendered once per versi
 
 ```bash
 pnpm test                 # Convex service tests
+pnpm seed                 # add missing globals after changing headcode/config.ts
 pnpm lint
 pnpm typecheck
 pnpm build

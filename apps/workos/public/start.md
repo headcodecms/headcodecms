@@ -26,7 +26,7 @@ rm -f app/page.tsx app/layout.tsx
 
 pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
 pnpm install
-pnpm convex dev   # creates .env.local with CONVEX_DEPLOYMENT
+pnpm convex dev --run seed:init   # creates .env.local and fills the database
 ```
 
 Merge conflicting files such as `next.config.ts` instead of overwriting them.

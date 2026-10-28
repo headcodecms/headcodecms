@@ -349,6 +349,11 @@
           "target": "convex/section_validations.ts"
         },
         {
+          "path": "apps/workos/convex/seed.ts",
+          "type": "registry:file",
+          "target": "convex/seed.ts"
+        },
+        {
           "path": "apps/workos/convex/services.ts",
           "type": "registry:file",
           "target": "convex/services.ts"

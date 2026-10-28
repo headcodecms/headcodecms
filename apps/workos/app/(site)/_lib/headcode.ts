@@ -9,8 +9,6 @@ import {
 import { cacheLife, cacheTag } from 'next/cache'
 
 import { api } from '@/convex/_generated/api'
-import type { Id } from '@/convex/_generated/dataModel'
-import { validateSection } from '@/convex/section_validations'
 import { headcodeConfig } from '@/headcode/config'
 import type { BlogMetaData } from '@/headcode/sections'
 import type {
@@ -44,111 +42,25 @@ const query = <Query extends FunctionReference<'query'>>(
 ) =>
   cachedQuery(getFunctionName(fn), args) as Promise<FunctionReturnType<Query>>
 
-// Default content for empty installs, built from the config defaults.
-const defaultBundle = (
-  config: (typeof entryConfigs)[number],
-  name: string | null,
-  index: number,
-): EntryBundle => {
-  const time = Date.UTC(2026, 0, 1) + index
-  const id = `default-entry-${config.slug}-${name ?? 'global'}`.replace(
-    /[^a-zA-Z0-9_-]/g,
-    '-',
-  ) as Id<'entries'>
-  return {
-    entry: {
-      _id: id,
-      _creationTime: time,
-      slug: config.slug,
-      name,
-      modificationTime: time,
-      version: 'default-version' as Id<'versions'>,
-    },
-    sections: config.defaults.map((section, pos) =>
-      validateSection({
-        _id: `${id}-section-${pos}` as Id<'sections'>,
-        _creationTime: time + pos,
-        entry: id,
-        name: section.name,
-        pos: BigInt(pos),
-        data: JSON.stringify(section.data),
-      }),
-    ),
-  }
-}
+export const getHeadcodeGlobal = (version: HeadcodeVersion, slug: string) =>
+  query(api.services.getGlobalWithSections, { slug, version })
 
-const defaultGlobal = (slug: string) => {
-  const config = headcodeConfig.globals.find((item) => item.slug === slug)
-  return config ? defaultBundle(config, null, 0) : null
-}
-
-const defaultCollection = (slug: string) => {
-  const config = headcodeConfig.collections.find((item) => item.slug === slug)
-  if (!config) return []
-  const meta = config.defaults.find(
-    (section) => section.name === 'meta' || section.name === 'blog-meta',
-  )?.data as { title?: string } | undefined
-  return [defaultBundle(config, meta?.title ?? config.slug, 100)]
-}
-
-export const getHeadcodeGlobal = async (
-  version: HeadcodeVersion,
-  slug: string,
-) =>
-  (await query(api.services.getGlobalWithSections, { slug, version })) ??
-  defaultGlobal(slug)
-
-export const getHeadcodeCollectionEntry = async (
+export const getHeadcodeCollectionEntry = (
   version: HeadcodeVersion,
   slug: string,
   name: string,
-) =>
-  (await query(api.services.getCollectionWithSections, {
-    slug,
-    name,
-    version,
-  })) ??
-  defaultCollection(slug).find(
-    (bundle) => getEntrySlug(bundle) === name || bundle.entry.name === name,
-  ) ??
-  null
+) => query(api.services.getCollectionWithSections, { slug, name, version })
 
-export const getHeadcodeCollectionEntries = async (
+export const getHeadcodeCollectionEntries = (
   version: HeadcodeVersion,
   slug: string,
-) => {
-  const entries = await query(api.services.getCollectionsWithSections, {
-    slug,
-    version,
-  })
-  return entries.length > 0 ? entries : defaultCollection(slug)
-}
+) => query(api.services.getCollectionsWithSections, { slug, version })
 
-export const getHeadcodeSiteChrome = async (version: HeadcodeVersion) => {
-  const chrome = await query(api.services.getSiteChrome, { version })
-  return {
-    header: chrome.header ?? defaultGlobal('header'),
-    footer: chrome.footer ?? defaultGlobal('footer'),
-  }
-}
+export const getHeadcodeSiteChrome = (version: HeadcodeVersion) =>
+  query(api.services.getSiteChrome, { version })
 
-export const getHeadcodeSitemapEntries = async (version: HeadcodeVersion) => {
-  const { globals, collections } = await query(api.services.getAll, {
-    version,
-  })
-  return {
-    globals: globals.length
-      ? globals
-      : ['home', 'docs', 'pricing'].flatMap(
-          (slug) => defaultGlobal(slug)?.entry ?? [],
-        ),
-    collections: collections.length
-      ? collections
-      : [...defaultCollection('blog'), ...defaultCollection('pages')].map(
-          (bundle) => bundle.entry,
-        ),
-  }
-}
+export const getHeadcodeSitemapEntries = (version: HeadcodeVersion) =>
+  query(api.services.getAll, { version })
 
 export const getSection = <TData = unknown>(
   sections: ServiceSection[],

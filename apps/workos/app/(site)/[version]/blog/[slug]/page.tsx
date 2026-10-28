@@ -18,10 +18,16 @@ import { Hero, ImageSection, RenderSections } from '@/app/(site)/_sections'
 type Props = { params: Promise<{ slug: string }> }
 
 // Known entries are prerendered; new ones render on first visit (ISR).
-export const generateStaticParams = async () =>
-  (await getHeadcodeCollectionEntries(await siteVersion(), 'blog')).map(
-    (entry) => ({ slug: getEntrySlug(entry) }),
+// Cache Components needs at least one param, so an empty collection gets '-' (404).
+export const generateStaticParams = async () => {
+  const entries = await getHeadcodeCollectionEntries(
+    await siteVersion(),
+    'blog',
   )
+  return entries.length
+    ? entries.map((entry) => ({ slug: getEntrySlug(entry) }))
+    : [{ slug: '-' }]
+}
 
 const getPost = async (params: Props['params']) =>
   getHeadcodeCollectionEntry(await siteVersion(), 'blog', (await params).slug)

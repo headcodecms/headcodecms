@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { api } from '@/convex/_generated/api'
-import type { Id } from '@/convex/_generated/dataModel'
+import type { Doc, Id } from '@/convex/_generated/dataModel'
 import { headcodeConfig } from '@/headcode/config'
 import { entryPath } from '@/headcode/utils'
 import { cn } from '@/lib/utils'
@@ -65,13 +65,7 @@ import { useActions } from '../_lib/use-actions'
 
 const PAGE_SIZE = 20
 
-// Globals without a stored entry are listed with `convexId: null`.
-type Entry = {
-  id: string
-  convexId: Id<'entries'> | null
-  slug: string
-  name: string | null
-}
+type Entry = { id: Id<'entries'>; slug: string; name: string | null }
 
 const collectionSlugs = headcodeConfig.collections.map(({ slug }) => slug)
 
@@ -103,13 +97,10 @@ export default function AdminPage() {
   const router = useRouter()
   const { version } = useAdminHeadcodeVersion()
   const entries = useQuery(api.services.getAll, { version })
-  const ensureGlobal = useMutation(api.services.ensureGlobal)
   const addCollection = useMutation(api.services.addCollection)
   const updateEntryName = useMutation(api.services.updateEntryName)
   const removeEntry = useMutation(api.services.deleteEntry)
-  const { pending, error, run } = useActions<
-    'open' | 'add' | 'rename' | 'delete'
-  >()
+  const { pending, error, run } = useActions<'add' | 'rename' | 'delete'>()
 
   const all = usePaged('')
   const globals = usePaged('')
@@ -122,23 +113,17 @@ export default function AdminPage() {
   const [newName, setNewName] = React.useState('')
   const [deleteTarget, setDeleteTarget] = React.useState<Entry | null>(null)
 
-  const globalEntries: Entry[] = headcodeConfig.globals.map(({ slug }) => {
-    const existing = entries?.globals.find((entry) => entry.slug === slug)
-    return {
-      id: existing?._id ?? `global-${slug}`,
-      convexId: existing?._id ?? null,
-      slug,
-      name: null,
-    }
+  const toEntry = ({ _id, slug, name }: Doc<'entries'>): Entry => ({
+    id: _id,
+    slug,
+    name,
   })
-  const collectionEntries: Entry[] = (entries?.collections ?? []).map(
-    (entry) => ({
-      id: entry._id,
-      convexId: entry._id,
-      slug: entry.slug,
-      name: entry.name,
-    }),
+  const globalEntries = headcodeConfig.globals.flatMap(({ slug }) =>
+    (entries?.globals ?? [])
+      .filter((entry) => entry.slug === slug)
+      .map(toEntry),
   )
+  const collectionEntries = (entries?.collections ?? []).map(toEntry)
   const allFiltered = [...globalEntries, ...collectionEntries].filter((entry) =>
     matches(entry, all.value),
   )
@@ -149,26 +134,15 @@ export default function AdminPage() {
     (entry) => entry.slug === selectedSlug,
   )
 
-  // Only virtual globals are opened here; stored entries are plain links.
-  const openEntry = (entry: Entry) =>
-    run(
-      'open',
-      async () => {
-        const id = await ensureGlobal({ slug: entry.slug, version })
-        router.push(entryHref({ id, slug: entry.slug, name: null }))
-      },
-      'Could not open entry.',
-    )
-
   const openEdit = (entry: Entry) => {
-    if (!entry.convexId || !entry.name) return
+    if (!entry.name) return
     setEditing(entry)
     setEditName(entry.name)
   }
 
   const saveEdit = () => {
-    if (!editing?.convexId || !editName.trim()) return
-    const id = editing.convexId
+    if (!editing || !editName.trim()) return
+    const id = editing.id
     void run(
       'rename',
       async () => {
@@ -180,7 +154,7 @@ export default function AdminPage() {
   }
 
   const deleteEntry = () => {
-    const id = deleteTarget?.convexId
+    const id = deleteTarget?.id
     if (!id) return
     void run(
       'delete',
@@ -215,7 +189,6 @@ export default function AdminPage() {
   const listProps = {
     loading: entries === undefined,
     disabled: busy,
-    onOpen: openEntry,
     onEdit: openEdit,
     onDelete: setDeleteTarget,
   }
@@ -421,7 +394,6 @@ const EntryList = ({
   onMore,
   loading,
   disabled,
-  onOpen,
   onEdit,
   onDelete,
   emptyState,
@@ -431,7 +403,6 @@ const EntryList = ({
   onMore: () => void
   loading: boolean
   disabled: boolean
-  onOpen: (entry: Entry) => void
   onEdit: (entry: Entry) => void
   onDelete: (entry: Entry) => void
   emptyState?: React.ReactNode
@@ -518,26 +489,14 @@ const EntryList = ({
               </ItemMedia>
               <ItemContent>
                 <ItemTitle>
-                  {entry.convexId ? (
-                    <Link
-                      href={entryHref(entry)}
-                      tabIndex={tabIndex}
-                      aria-disabled={disabled}
-                      className={openClassName}
-                    >
-                      {entryPath(entry)}
-                    </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={disabled}
-                      tabIndex={tabIndex}
-                      className={openClassName}
-                      onClick={() => onOpen(entry)}
-                    >
-                      {entryPath(entry)}
-                    </button>
-                  )}
+                  <Link
+                    href={entryHref(entry)}
+                    tabIndex={tabIndex}
+                    aria-disabled={disabled}
+                    className={openClassName}
+                  >
+                    {entryPath(entry)}
+                  </Link>
                 </ItemTitle>
               </ItemContent>
               {isGlobal ? (

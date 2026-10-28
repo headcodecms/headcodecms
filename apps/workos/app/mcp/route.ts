@@ -330,22 +330,6 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
   )
 
   server.registerTool(
-    'headcode_ensure_global',
-    {
-      title: 'Ensure global entry',
-      description:
-        'Creates a configured global entry on the selected live or draft version if it does not exist, then returns it with sections. This saves CMS content but does not publish. Do not call headcode_publish unless the user explicitly asks to publish or release the draft.',
-      annotations: { ...write, idempotentHint: true },
-      inputSchema: z.object({ slug: z.string() }),
-    },
-    async ({ slug }) =>
-      entryResult(
-        'global_ensured',
-        await mutate(api.services.ensureGlobal, { slug, version }),
-      ),
-  )
-
-  server.registerTool(
     'headcode_add_entry',
     {
       title: 'Add collection entry',

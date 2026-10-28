@@ -12,6 +12,7 @@ import type * as authorization from "../authorization.js";
 import type * as db from "../db.js";
 import type * as schema_validators from "../schema_validators.js";
 import type * as section_validations from "../section_validations.js";
+import type * as seed from "../seed.js";
 import type * as services from "../services.js";
 
 import type {
@@ -25,6 +26,7 @@ declare const fullApi: ApiFromModules<{
   db: typeof db;
   schema_validators: typeof schema_validators;
   section_validations: typeof section_validations;
+  seed: typeof seed;
   services: typeof services;
 }>;
 

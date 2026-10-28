@@ -10,6 +10,7 @@
     "format": "prettier --write .",
     "typecheck": "next typegen && tsc --noEmit",
     "mcp": "node --env-file=.env.local scripts/mcp-smoke.mts",
+    "seed": "convex run seed:init",
     "test": "vitest run"
   },
   "dependencies": {

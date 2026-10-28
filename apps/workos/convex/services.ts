@@ -220,18 +220,6 @@ export const getEntry = query({
   handler: (ctx, args) => ctx.db.get(args.id),
 })
 
-export const ensureGlobal = adminMutation(
-  { slug: v.string(), ...versionArg },
-  async (ctx, args) => {
-    const version = await db.ensureVersionId(ctx, args.version)
-    const existing = await db.getGlobal(ctx, args.slug, version)
-    return (
-      existing?._id ??
-      db.createEntry(ctx, { slug: args.slug, name: null }, version)
-    )
-  },
-)
-
 export const addCollection = adminMutation(
   { slug: v.string(), name: v.string(), ...versionArg },
   async (ctx, { slug, name, version }) => {
