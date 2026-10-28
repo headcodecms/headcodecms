@@ -5,13 +5,13 @@ import Link from 'next/link'
 
 import { buttonVariants } from '@/components/ui/button'
 import type { BlogMetaData } from '@/headcode/sections'
+import { entryPath } from '@/headcode/utils'
 import { cn } from '@/lib/utils'
 import { Container } from '@/app/(site)/_components/container'
 import {
   formatDate,
   getBlogMetaSection,
   getDataHeadcodeAttribute,
-  getEntrySlug,
   getHeadcodeCollectionEntries,
   titleCase,
 } from '@/app/(site)/_lib/headcode'
@@ -65,7 +65,7 @@ export default async function BlogIndexPage() {
     return {
       id: post.entry._id,
       meta: section?.data,
-      href: `/blog/${getEntrySlug(post)}`,
+      href: entryPath(post.entry),
       headcode: section && getDataHeadcodeAttribute(post.entry, section),
     }
   })

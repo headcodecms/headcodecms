@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -30,10 +31,12 @@ export const EmptyState = ({
   icon,
   title,
   children,
+  action,
 }: {
   icon: React.ReactNode
   title: React.ReactNode
   children: React.ReactNode
+  action?: React.ReactNode
 }) => (
   <Empty className="border">
     <EmptyHeader>
@@ -41,6 +44,7 @@ export const EmptyState = ({
       <EmptyTitle>{title}</EmptyTitle>
       <EmptyDescription>{children}</EmptyDescription>
     </EmptyHeader>
+    {action ? <EmptyContent>{action}</EmptyContent> : null}
   </Empty>
 )
 

@@ -1,11 +1,11 @@
 import {
   formatDate,
   getBlogMetaSection,
-  getEntrySlug,
   getHeadcodeCollectionEntries,
   getHeadcodeCollectionEntry,
 } from '@/app/(site)/_lib/headcode'
 import type { HeadcodeVersion } from '@/headcode/types'
+import { entryPath } from '@/headcode/utils'
 import { renderSectionsMarkdown } from '@/app/(site)/_sections'
 
 export const blogTitle = 'Field notes from Headcode'
@@ -17,7 +17,7 @@ export const renderBlogIndexMarkdown = async (version: HeadcodeVersion) => {
   const items = posts.flatMap((post) => {
     const meta = getBlogMetaSection(post)?.data
     return meta
-      ? [`- [${meta.title}](/blog/${getEntrySlug(post)}): ${meta.summary}`]
+      ? [`- [${meta.title}](${entryPath(post.entry)}): ${meta.summary}`]
       : []
   })
   return `${[`# ${blogTitle}`, '', blogDescription, '', '## Posts', '', ...items].join('\n')}\n`

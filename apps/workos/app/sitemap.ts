@@ -4,7 +4,7 @@ import { headers } from 'next/headers'
 
 import { getHeadcodeSitemapEntries } from '@/app/(site)/_lib/headcode'
 import { getHeadcodeVersionForHost } from '@/headcode/versions'
-import { slugify } from '@/headcode/utils'
+import { entryPath } from '@/headcode/utils'
 import type { ServiceEntry } from '@/headcode/types'
 
 const siteUrl = (
@@ -33,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const collection = (slug: string) =>
     collections
       .filter((entry) => entry.slug === slug)
-      .map((entry) => url(`${slug}/${slugify(entry.name ?? '')}`, entry))
+      .map((entry) => url(entryPath(entry), entry))
 
   return [
     ...global('home').map((entry) => url('/', entry, 'weekly', 1)),

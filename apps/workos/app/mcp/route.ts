@@ -81,7 +81,6 @@ const describeFields = (fields: Record<string, HeadcodeFieldConfig>): unknown =>
             Object.entries(field).filter(
               ([name, value]) =>
                 name !== 'validator' &&
-                name !== 'validation' &&
                 typeof value !== 'function',
             ),
           ),
@@ -174,10 +173,7 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
     const sections = await fetchQuery(api.services.getSections, {
       id: entry._id,
     })
-    return {
-      entry,
-      sections: sections.filter((section) => section !== null),
-    }
+    return { entry, sections }
   }
 
   const findBundle = async ({

@@ -19,7 +19,6 @@ type FieldDefinition = {
   accept?: ImageFieldAccept
   maxSize?: number
   validator?: z.ZodType
-  validation?: z.ZodType
 }
 
 export type FieldParams<TValidator extends z.ZodType = z.ZodType> = {
@@ -74,19 +73,11 @@ type InferField<TField> = TField extends (infer TItem)[]
     ? TValidator extends z.ZodType
       ? z.infer<TValidator>
       : unknown
-    : TField extends { validation: infer TValidator }
-      ? TValidator extends z.ZodType
-        ? z.infer<TValidator>
-        : unknown
-      : unknown
+    : unknown
 
 export type InferFields<TFields extends Record<string, HeadcodeFieldConfig>> = {
   [TKey in keyof TFields]: InferField<TFields[TKey]>
 }
-
-export type InferSectionData<
-  TFields extends Record<string, HeadcodeFieldConfig>,
-> = InferFields<TFields>
 
 export type DataHeadcode = {
   entry: {
@@ -117,6 +108,3 @@ export type ServiceEntryBundle = {
 
 export type HeadcodeVersion = 'live' | 'draft'
 export type HeadcodeVersionConfig = HeadcodeVersion | 'auto'
-
-export type EntryId = Id<'entries'>
-export type SectionId = Id<'sections'>

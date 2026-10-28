@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { siteVersion } from '@/app/(site)/_lib/version'
-import { Geist, Geist_Mono, Inter } from 'next/font/google'
-import { Suspense, ViewTransition } from 'react'
+import { Geist_Mono, Inter } from 'next/font/google'
+import { Suspense } from 'react'
 
 import '../../globals.css'
 import { SiteFooter, SiteHeader } from '@/app/(site)/_components/chrome'
@@ -18,7 +18,6 @@ import type { FooterData, HeaderData } from '@/headcode/sections'
 import { cn } from '@/lib/utils'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
@@ -58,7 +57,6 @@ export default async function RootLayout({
       lang="en"
       className={cn(
         'h-full antialiased',
-        geistSans.variable,
         geistMono.variable,
         'font-sans',
         inter.variable,
@@ -66,9 +64,7 @@ export default async function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         {headerProps ? <SiteHeader {...headerProps} /> : null}
-        <main className="flex-1">
-          <ViewTransition>{children}</ViewTransition>
-        </main>
+        <main className="flex-1">{children}</main>
         {footerProps ? <SiteFooter {...footerProps} /> : null}
         <Suspense>
           <EntriesDialog />

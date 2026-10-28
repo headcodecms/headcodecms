@@ -79,25 +79,18 @@ const hydrate = async (
 
 const hydrateSection = async (
   ctx: QueryCtx,
-  section: ServiceSection | null,
-): Promise<ServiceSection | null> =>
-  section && {
-    ...section,
-    data: await hydrate(
-      ctx,
-      getSectionConfig(section.name).fields,
-      section.data,
-    ),
-  }
+  section: ServiceSection,
+): Promise<ServiceSection> => ({
+  ...section,
+  data: await hydrate(ctx, getSectionConfig(section.name).fields, section.data),
+})
 
-const hydrateSections = (ctx: QueryCtx, sections: (ServiceSection | null)[]) =>
+const hydrateSections = (ctx: QueryCtx, sections: ServiceSection[]) =>
   Promise.all(sections.map((section) => hydrateSection(ctx, section)))
 
 const getEntryBundle = async (ctx: QueryCtx, entry: Doc<'entries'>) => ({
   entry,
-  sections: (
-    await hydrateSections(ctx, await db.getSections(ctx, entry._id))
-  ).filter((section) => section !== null),
+  sections: await hydrateSections(ctx, await db.getSections(ctx, entry._id)),
 })
 
 const touchEntry = (ctx: MutationCtx, entry: Id<'entries'>) =>
@@ -264,8 +257,10 @@ export const deleteEntry = adminMutation(
 
 export const getSection = query({
   args: { id: v.id('sections') },
-  handler: async (ctx, args) =>
-    hydrateSection(ctx, validateSection(await ctx.db.get(args.id))),
+  handler: async (ctx, args) => {
+    const section = validateSection(await ctx.db.get(args.id))
+    return section && hydrateSection(ctx, section)
+  },
 })
 
 export const getSections = query({
@@ -313,14 +308,11 @@ export const duplicateSection = adminMutation(
     await assertSectionAllowed(ctx, section.entry, section.name)
 
     const sections = await db.getSections(ctx, section.entry)
-    const index = sections.findIndex((item) => item?._id === id)
-    if (index < 0) throw new Error('Section not found.')
-
+    const index = sections.findIndex((item) => item._id === id)
     for (const [i, item] of sections.entries())
-      if (item)
-        await ctx.db.patch(item._id, {
-          pos: BigInt((i <= index ? i + 1 : i + 2) * 100),
-        })
+      await ctx.db.patch(item._id, {
+        pos: BigInt((i <= index ? i + 1 : i + 2) * 100),
+      })
 
     const copyId = await db.addSection(ctx, {
       name: section.name,

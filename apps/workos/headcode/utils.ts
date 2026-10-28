@@ -5,6 +5,12 @@ export const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
 
+// Site path of an entry: globals are /slug, collection entries /slug/name.
+export const entryPath = (entry: { slug: string; name: string | null }) =>
+  entry.name === null
+    ? `/${entry.slug}`
+    : `/${entry.slug}/${slugify(entry.name)}`
+
 // Public origin of a request. Next.js reports `localhost` for every local host,
 // so the Host header decides (live and draft hosts need their own URLs).
 export const requestOrigin = (req: Request) => {

@@ -21,7 +21,7 @@ import {
   ItemTitle,
 } from '@/components/ui/item'
 import type { DataHeadcode } from '@/headcode/types'
-import { slugify } from '@/headcode/utils'
+import { entryPath } from '@/headcode/utils'
 
 type EditableEntry = {
   path: string
@@ -60,12 +60,7 @@ const getEntriesFromPage = () => {
     if (!headcode) return
     const { entry: data, section } = headcode
     const entry = entries.get(data.id) ?? {
-      path:
-        data.name === null
-          ? data.slug === 'home'
-            ? '/homepage'
-            : `/${data.slug}`
-          : `/${data.slug}/${slugify(data.name)}`,
+      path: entryPath(data),
       href: adminHref(data),
       items: [],
     }

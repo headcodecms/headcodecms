@@ -21,7 +21,7 @@ const getInitialTheme = () => {
     : document.documentElement.classList.contains('dark')
 }
 
-export const AdminHeader = ({
+const AdminHeader = ({
   version,
   versionResolved = true,
 }: {

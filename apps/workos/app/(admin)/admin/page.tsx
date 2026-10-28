@@ -19,7 +19,7 @@ import * as React from 'react'
 import { api } from '@/convex/_generated/api'
 import type { Id } from '@/convex/_generated/dataModel'
 import { headcodeConfig } from '@/headcode/config'
-import { slugify } from '@/headcode/utils'
+import { entryPath } from '@/headcode/utils'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -74,9 +74,6 @@ type Entry = {
 }
 
 const collectionSlugs = headcodeConfig.collections.map(({ slug }) => slug)
-
-const entryPath = (entry: Entry) =>
-  entry.name ? `/${entry.slug}/${slugify(entry.name)}` : `/${entry.slug}`
 
 const entryHref = (entry: Pick<Entry, 'id' | 'slug' | 'name'>) => {
   const params = new URLSearchParams({ slug: entry.slug })

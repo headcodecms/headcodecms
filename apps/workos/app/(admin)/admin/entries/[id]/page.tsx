@@ -1,23 +1,15 @@
 'use client'
 
-import {
-  Authenticated,
-  AuthLoading,
-  Unauthenticated,
-  useMutation,
-  useQuery,
-} from 'convex/react'
+import { useMutation, useQuery } from 'convex/react'
 import {
   ArrowDown,
   ArrowUp,
   Blocks,
   Bookmark,
   ChevronRight,
-  ChevronsUpDown,
   Copy,
   GripVertical,
   Layers,
-  Loader2,
   MoreVertical,
   Pencil,
   Plus,
@@ -44,14 +36,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty'
 import {
   Field,
   FieldContent,
@@ -101,10 +85,14 @@ import type {
 import { cn } from '@/lib/utils'
 import { ImageField } from '../../../_fields/image-field'
 import { RichtextField } from '../../../_fields/richtext-field'
-import { AdminHeader } from '../../../_components/chrome'
-import { Container } from '../../../_components/container'
-import { useAdminHeadcodeVersion } from '../../../_lib/headcode'
-import { errorMessage } from '../../../_lib/use-actions'
+import {
+  ConfirmDialog,
+  EmptyState,
+  ErrorAlert,
+  LoadingState,
+} from '../../../_components/admin-ui'
+import { AdminShell } from '../../../_components/chrome'
+import { useActions } from '../../../_lib/use-actions'
 
 type SectionConfig = HeadcodeSectionConfig & {
   label?: string
@@ -308,13 +296,6 @@ const HomeLink = ({ isGlobal }: { isGlobal: boolean }) => (
   </Link>
 )
 
-const LoadingSections = () => (
-  <div className="text-muted-foreground flex items-center gap-2 text-sm">
-    <ChevronsUpDown className="size-4 animate-pulse" />
-    Loading sections
-  </div>
-)
-
 export default function EntryEditPage({
   params,
 }: {
@@ -324,7 +305,6 @@ export default function EntryEditPage({
   const entryId = id as Id<'entries'>
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { version, resolved: versionResolved } = useAdminHeadcodeVersion()
   const entry = useQuery(api.services.getEntry, { id: entryId })
   const queriedSections = useQuery(api.services.getSections, { id: entryId })
   const addSection = useMutation(api.services.addSection)
@@ -345,12 +325,13 @@ export default function EntryEditPage({
 
   const [editingId, setEditingId] = React.useState<Id<'sections'> | null>(null)
   const [deleteTarget, setDeleteTarget] = React.useState<Section | null>(null)
-  const [operation, setOperation] = React.useState<string | null>(null)
-  const [error, setError] = React.useState<string | null>(null)
+  const { pending, error, run } = useActions<
+    'add' | 'delete' | 'duplicate' | 'reorder'
+  >()
   const consumedSectionParamRef = React.useRef<string | null>(null)
   const editingSection = sections.find((section) => section._id === editingId)
-  const busy = operation !== null
-  const deleting = operation === 'delete'
+  const busy = pending.length > 0
+  const deleting = pending.includes('delete')
 
   const slug = entry?.slug ?? searchParams.get('slug') ?? id
   const name = entry?.name ?? searchParams.get('name')
@@ -368,22 +349,6 @@ export default function EntryEditPage({
     consumedSectionParamRef.current = sectionParam
     setEditingId(sectionParam as Id<'sections'>)
   }, [sectionParam, queriedSections])
-
-  const run = async (
-    op: string,
-    action: () => Promise<unknown>,
-    fallback: string,
-  ) => {
-    setOperation(op)
-    setError(null)
-    try {
-      await action()
-    } catch (actionError) {
-      setError(errorMessage(actionError, fallback))
-    } finally {
-      setOperation(null)
-    }
-  }
 
   const handleAdd = (config: SectionConfig) =>
     run(
@@ -468,171 +433,127 @@ export default function EntryEditPage({
   )
 
   return (
-    <div className="min-h-svh">
-      <AdminHeader version={version} versionResolved={versionResolved} />
-      <Container className="py-8">
-        <Authenticated>
-          {entry === undefined || queriedSections === undefined ? (
-            <Card>
-              <CardContent>
-                <LoadingSections />
-              </CardContent>
-            </Card>
-          ) : entry === null ? (
-            <Card>
-              <CardContent>
-                <Empty className="border">
-                  <EmptyHeader>
-                    <EmptyMedia variant="icon">
-                      <Blocks />
-                    </EmptyMedia>
-                    <EmptyTitle>Entry not found</EmptyTitle>
-                    <EmptyDescription>
-                      This entry is no longer available.
-                    </EmptyDescription>
-                  </EmptyHeader>
-                  <EmptyContent>
-                    <Button
-                      variant="outline"
-                      onClick={() => router.push('/admin')}
-                    >
-                      Back to entries
-                    </Button>
-                  </EmptyContent>
-                </Empty>
-              </CardContent>
-            </Card>
-          ) : (
-            <>
-              <nav
-                aria-label="Breadcrumb"
-                className="text-muted-foreground mb-4 flex items-center gap-2 text-sm"
-              >
-                <HomeLink isGlobal={isGlobal} />
-                <Separator />
-                <Link href="/admin" className="hover:text-foreground font-mono">
-                  {slug}
-                </Link>
-                {name ? (
-                  <>
-                    <Separator />
-                    <span className="text-foreground">{name}</span>
-                  </>
-                ) : null}
-              </nav>
-
-              <Card>
-                <CardContent>
-                  {sections.length === 0 ? (
-                    <Empty className="border">
-                      <EmptyHeader>
-                        <EmptyMedia variant="icon">
-                          <Blocks />
-                        </EmptyMedia>
-                        <EmptyTitle>No sections yet</EmptyTitle>
-                        <EmptyDescription>
-                          Add your first section to start composing this entry.
-                        </EmptyDescription>
-                      </EmptyHeader>
-                      {error ? (
-                        <p role="alert" className="text-destructive text-sm">
-                          {error}
-                        </p>
-                      ) : null}
-                      <EmptyContent>{addButton}</EmptyContent>
-                    </Empty>
-                  ) : (
-                    <>
-                      <SectionList
-                        key={entry._id}
-                        sections={sections}
-                        configFor={configFor}
-                        disabled={busy}
-                        onReorder={handleReorder}
-                        onEdit={(section) => setEditingId(section._id)}
-                        onDuplicate={handleDuplicate}
-                        onDelete={setDeleteTarget}
-                      />
-                      {error ? (
-                        <p
-                          role="alert"
-                          className="text-destructive mt-4 text-sm"
-                        >
-                          {error}
-                        </p>
-                      ) : null}
-                      <div className="mt-6 flex justify-start">{addButton}</div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </>
-          )}
-        </Authenticated>
-        <AuthLoading>
-          <LoadingSections />
-        </AuthLoading>
-        <Unauthenticated>
-          <p className="text-muted-foreground text-sm">Signing in...</p>
-        </Unauthenticated>
-      </Container>
-
-      <DialogStack
-        open={editingSection !== undefined}
-        onOpenChange={(open) => {
-          if (!open) setEditingId(null)
-        }}
-      >
-        {editingSection ? (
-          <SectionEditor
-            key={editingSection._id}
-            section={editingSection}
-            config={configFor(editingSection.name)}
-            slug={slug}
-            name={name}
-            isGlobal={isGlobal}
-            onClose={() => setEditingId(null)}
+    <AdminShell
+      loadingLabel="Loading sections"
+      dialogs={
+        <>
+          <DialogStack
+            open={editingSection !== undefined}
+            onOpenChange={(open) => {
+              if (!open) setEditingId(null)
+            }}
+          >
+            {editingSection ? (
+              <SectionEditor
+                key={editingSection._id}
+                section={editingSection}
+                config={configFor(editingSection.name)}
+                slug={slug}
+                name={name}
+                isGlobal={isGlobal}
+                onClose={() => setEditingId(null)}
+              />
+            ) : null}
+          </DialogStack>
+          <ConfirmDialog
+            open={deleteTarget !== null}
+            onClose={() => setDeleteTarget(null)}
+            pending={deleting}
+            title="Delete section"
+            description={
+              <>
+                Delete{' '}
+                {deleteTarget
+                  ? sectionTitle(deleteTarget, configFor(deleteTarget.name))
+                  : 'this section'}
+                ? This removes the section and its field content from the
+                current entry.
+              </>
+            }
+            confirmLabel="Delete"
+            confirmVariant="destructive"
+            onConfirm={() => deleteTarget && void handleDelete(deleteTarget)}
           />
-        ) : null}
-      </DialogStack>
-      <Dialog
-        open={deleteTarget !== null}
-        onOpenChange={(open) => {
-          if (!open && !deleting) setDeleteTarget(null)
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete section</DialogTitle>
-            <DialogDescription>
-              Delete{' '}
-              {deleteTarget
-                ? sectionTitle(deleteTarget, configFor(deleteTarget.name))
-                : 'this section'}
-              ? This removes the section and its field content from the current
-              entry.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteTarget(null)}
-              disabled={deleting}
+        </>
+      }
+    >
+      {entry === undefined || queriedSections === undefined ? (
+        <Card>
+          <CardContent>
+            <LoadingState>Loading sections</LoadingState>
+          </CardContent>
+        </Card>
+      ) : entry === null ? (
+        <Card>
+          <CardContent>
+            <EmptyState
+              icon={<Blocks />}
+              title="Entry not found"
+              action={
+                <Button variant="outline" onClick={() => router.push('/admin')}>
+                  Back to entries
+                </Button>
+              }
             >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => deleteTarget && void handleDelete(deleteTarget)}
-              disabled={deleting}
-            >
-              {deleting ? <Loader2 className="animate-spin" /> : null}
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+              This entry is no longer available.
+            </EmptyState>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          <nav
+            aria-label="Breadcrumb"
+            className="text-muted-foreground mb-4 flex items-center gap-2 text-sm"
+          >
+            <HomeLink isGlobal={isGlobal} />
+            <Separator />
+            <Link href="/admin" className="hover:text-foreground font-mono">
+              {slug}
+            </Link>
+            {name ? (
+              <>
+                <Separator />
+                <span className="text-foreground">{name}</span>
+              </>
+            ) : null}
+          </nav>
+
+          <Card>
+            <CardContent>
+              {sections.length === 0 ? (
+                <EmptyState
+                  icon={<Blocks />}
+                  title="No sections yet"
+                  action={
+                    <>
+                      <ErrorAlert error={error} />
+                      {addButton}
+                    </>
+                  }
+                >
+                  Add your first section to start composing this entry.
+                </EmptyState>
+              ) : (
+                <>
+                  <SectionList
+                    key={entry._id}
+                    sections={sections}
+                    configFor={configFor}
+                    disabled={busy}
+                    onReorder={handleReorder}
+                    onEdit={(section) => setEditingId(section._id)}
+                    onDuplicate={handleDuplicate}
+                    onDelete={setDeleteTarget}
+                  />
+                  <ErrorAlert error={error} className="mt-4" />
+                  <div className="mt-6 flex justify-start">{addButton}</div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
+    </AdminShell>
   )
 }
 
@@ -852,8 +773,8 @@ const SectionEditor = ({
   )
   const [initialJson] = React.useState(() => JSON.stringify(formData))
   const [activePath, setActivePath] = React.useState<Step[]>([])
-  const [error, setError] = React.useState<string | null>(null)
-  const [saving, setSaving] = React.useState(false)
+  const { pending, error, run } = useActions<'save'>()
+  const saving = pending.length > 0
   const [confirmDiscardOpen, setConfirmDiscardOpen] = React.useState(false)
   const previousLayerRef = React.useRef<HTMLButtonElement | null>(null)
   const json = JSON.stringify(formData)
@@ -927,24 +848,21 @@ const SectionEditor = ({
     drill: (path, step) => setActivePath([...path, step]),
   }
 
-  const handleSave = async () => {
-    setSaving(true)
-    setError(null)
-    try {
-      await updateSection({
-        id: section._id,
-        name: section.name,
-        pos: section.pos,
-        data: json,
-        entry: section.entry,
-      })
-      onClose()
-    } catch (updateError) {
-      setError(errorMessage(updateError, 'Could not save section.'))
-    } finally {
-      setSaving(false)
-    }
-  }
+  const handleSave = () =>
+    run(
+      'save',
+      async () => {
+        await updateSection({
+          id: section._id,
+          name: section.name,
+          pos: section.pos,
+          data: json,
+          entry: section.entry,
+        })
+        onClose()
+      },
+      'Could not save section.',
+    )
 
   const closeLayer = () => setActivePath((current) => current.slice(0, -1))
 
@@ -1061,11 +979,7 @@ const SectionEditor = ({
                   </p>
                 )}
               </div>
-              {error ? (
-                <p role="alert" className="text-destructive text-sm">
-                  {error}
-                </p>
-              ) : null}
+              <ErrorAlert error={error} />
               <DialogStackFooter>
                 <Button
                   variant="outline"
@@ -1333,14 +1247,7 @@ const ArrayFieldEditor = ({
                     listbox.active === index && 'ring-ring/30 ring-2',
                   )}
                 >
-                  <button
-                    type="button"
-                    aria-label="Move item"
-                    tabIndex={-1}
-                    className="text-muted-foreground flex shrink-0 cursor-grab touch-none items-center self-center rounded-md p-1"
-                  >
-                    <GripVertical className="size-4" />
-                  </button>
+                  <GripVertical className="text-muted-foreground m-1 size-4 shrink-0 self-center" />
 
                   <DialogStackNext asChild>
                     <button

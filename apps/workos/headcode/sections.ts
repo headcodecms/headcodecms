@@ -8,7 +8,7 @@ import {
   TextareaField,
   TextField,
 } from './fields'
-import type { InferSectionData } from './types'
+import type { InferFields } from './types'
 
 const iconOptions = [
   { label: 'None', value: 'none' },
@@ -387,32 +387,16 @@ export const blogMeta = {
   },
 }
 
-export const sections = {
-  meta,
-  header,
-  footer,
-  hero,
-  logos,
-  imageText,
-  image,
-  text,
-  llmsTxt,
-  plans,
-  snippet,
-  code,
-  blogMeta,
-}
-
-export type MetaData = InferSectionData<typeof meta.fields>
-export type HeaderData = InferSectionData<typeof header.fields>
-export type FooterData = InferSectionData<typeof footer.fields>
-export type HeroData = InferSectionData<typeof hero.fields>
-export type LogosData = InferSectionData<typeof logos.fields>
-export type ImageTextData = InferSectionData<typeof imageText.fields>
-export type ImageData = InferSectionData<typeof image.fields>
-export type TextData = InferSectionData<typeof text.fields>
-export type LlmsTxtData = InferSectionData<typeof llmsTxt.fields>
-export type PlansData = InferSectionData<typeof plans.fields>
-export type SnippetData = InferSectionData<typeof snippet.fields>
-export type CodeData = InferSectionData<typeof code.fields>
-export type BlogMetaData = InferSectionData<typeof blogMeta.fields>
+export type MetaData = InferFields<typeof meta.fields>
+export type HeaderData = InferFields<typeof header.fields>
+export type FooterData = InferFields<typeof footer.fields>
+export type HeroData = InferFields<typeof hero.fields>
+export type LogosData = InferFields<typeof logos.fields>
+export type ImageTextData = InferFields<typeof imageText.fields>
+export type ImageData = InferFields<typeof image.fields>
+export type TextData = InferFields<typeof text.fields>
+export type LlmsTxtData = InferFields<typeof llmsTxt.fields>
+export type PlansData = InferFields<typeof plans.fields>
+export type SnippetData = InferFields<typeof snippet.fields>
+export type CodeData = InferFields<typeof code.fields>
+export type BlogMetaData = InferFields<typeof blogMeta.fields>

@@ -73,8 +73,6 @@ export const ImageField = ({
   const upload = async (file: File) => {
     if (file.size > maxSize)
       throw new Error(`Image must be ${formatBytes(maxSize)} or smaller.`)
-    if (!isAcceptedFile(file, accept))
-      throw new Error('Image type is not allowed.')
 
     const { width, height, blurDataURL } = await readImageProps(file)
     const response = await fetch(await generateUploadUrl({}), {
@@ -121,8 +119,8 @@ export const ImageField = ({
             accept={accept}
             disabled={uploading}
             maxFiles={1}
-            maxSize={maxSize}
             onDrop={handleDrop}
+            onError={(rejection) => setError(rejection.message)}
             className="bg-muted/30 h-auto rounded-2xl border-dashed py-8"
           >
             <div className="flex flex-col items-center justify-center gap-3">
@@ -487,7 +485,7 @@ const calculateBlurDataURL = (image: HTMLImageElement) => {
   }
 }
 
-const formatBytes = (bytes: number) => {
+export const formatBytes = (bytes: number) => {
   const units = ['B', 'KB', 'MB', 'GB']
   let size = bytes
   let unit = 0
@@ -496,12 +494,4 @@ const formatBytes = (bytes: number) => {
     unit += 1
   }
   return `${size % 1 === 0 ? size.toFixed(0) : size.toFixed(1)} ${units[unit]}`
-}
-
-const isAcceptedFile = (file: File, accept: ImageFieldAccept) => {
-  if (accept[file.type]) return true
-  const extension = file.name.match(/\.[^.]*$/)?.[0].toLowerCase() ?? ''
-  return Object.values(accept).some((extensions) =>
-    extensions.some((value) => value.toLowerCase() === extension),
-  )
 }

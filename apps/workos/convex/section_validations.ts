@@ -64,7 +64,7 @@ export const validateSectionData = (
       if (Array.isArray(field))
         return [[key, validateArray(input[key], field[0] ?? {}, fieldPath)]]
 
-      const schema = field.validation ?? field.validator
+      const schema = field.validator
       if (!schema) return []
 
       const parsed = schema.safeParse(input[key])

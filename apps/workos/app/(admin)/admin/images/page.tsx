@@ -31,19 +31,10 @@ import {
   LoadingState,
 } from '../../_components/admin-ui'
 import { AdminShell } from '../../_components/chrome'
+import { formatBytes } from '../../_fields/image-field'
 import { useActions } from '../../_lib/use-actions'
 
 const PAGE_SIZE = 24
-
-const formatBytes = (bytes: number) => {
-  const units = ['B', 'KB', 'MB', 'GB']
-  let unit = 0
-  while (bytes >= 1024 && unit < units.length - 1) {
-    bytes /= 1024
-    unit += 1
-  }
-  return `${bytes.toFixed(bytes % 1 === 0 ? 0 : 1)} ${units[unit]}`
-}
 
 const dimensions = (image: Doc<'images'>) =>
   `${Number(image.width)}x${Number(image.height)}px`
