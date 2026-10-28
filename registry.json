@@ -9,6 +9,7 @@
       "title": "Headcode CMS",
       "description": "An agent-ready CMS for Next.js with Convex, admin editing, Markdown output, and MCP tools",
       "registryDependencies": [
+        "alert",
         "button",
         "card",
         "command",

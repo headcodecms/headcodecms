@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -20,6 +21,49 @@ const isTestLoginEnabled =
 
 const getNextPath = (value: string | null) =>
   value?.startsWith('/') && !value.startsWith('//') ? value : '/admin'
+
+const disallowedEmailMessage =
+  'This email is not allowed to access Headcode Admin yet. Ask a Headcode administrator to add it to the allowed email list.'
+
+const testLoginErrorMessage =
+  'Test login is not available. Check the development test-login settings and try again.'
+
+const defaultSignInErrorMessage =
+  'Could not sign in. Check the email address and try again.'
+
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof error.message === 'string'
+  ) {
+    return error.message
+  }
+
+  return ''
+}
+
+const formatAuthError = (error: unknown) => {
+  const message = getErrorMessage(error).toLowerCase()
+
+  if (
+    message.includes('access denied') ||
+    message.includes('allow this email')
+  ) {
+    return disallowedEmailMessage
+  }
+
+  if (message.includes('test login') || message.includes('test-token')) {
+    return testLoginErrorMessage
+  }
+
+  return defaultSignInErrorMessage
+}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -113,11 +157,7 @@ const LoginForm = ({
         onSuccess()
       }
     } catch (signInError) {
-      setError(
-        signInError instanceof Error
-          ? signInError.message
-          : 'Could not use test login.',
-      )
+      setError(formatAuthError(signInError))
     } finally {
       setTestPending(false)
     }
@@ -149,11 +189,7 @@ const LoginForm = ({
 
       setSentEmail(email)
     } catch (signInError) {
-      setError(
-        signInError instanceof Error
-          ? signInError.message
-          : 'Could not sign in.',
-      )
+      setError(formatAuthError(signInError))
     } finally {
       setPending(false)
     }
@@ -195,9 +231,9 @@ const LoginForm = ({
         />
       </div>
       {error ? (
-        <p role="alert" className="text-destructive text-sm">
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
       <Button className="w-full" type="submit" disabled={pending}>
         {pending ? <Loader2 className="animate-spin" /> : null}
