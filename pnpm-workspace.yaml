@@ -1,8 +1,11 @@
+packages:
+  - apps/*
+
+# Every app keeps its own pnpm-lock.yaml, so it can be copied out on its own.
+sharedWorkspaceLockfile: false
+
 allowBuilds:
   esbuild: true
-  msw: true
   sharp: true
   unrs-resolver: true
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
+  msw: false
