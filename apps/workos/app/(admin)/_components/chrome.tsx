@@ -2,11 +2,31 @@
 
 import { useAuth } from '@workos-inc/authkit-nextjs/components'
 import { Authenticated, AuthLoading, Unauthenticated } from 'convex/react'
-import { Home, ImageIcon, LogOut, Moon, Sun } from 'lucide-react'
+import {
+  ArrowUpRight,
+  CircleUser,
+  FileText,
+  History,
+  ImageIcon,
+  LogOut,
+  Menu,
+  Moon,
+  Sun,
+} from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { useAdminHeadcodeVersion } from '../_lib/headcode'
 import { LoadingState } from './admin-ui'
 import { Container } from './container'
@@ -21,6 +41,18 @@ const getInitialTheme = () => {
     : document.documentElement.classList.contains('dark')
 }
 
+const navItems = [
+  { href: '/admin', label: 'Content', icon: FileText },
+  { href: '/admin/images', label: 'Images', icon: ImageIcon },
+  { href: '/admin/versions', label: 'Versions', icon: History },
+]
+
+// Content also covers the entry pages below /admin/entries.
+const isActive = (pathname: string, href: string) =>
+  href === '/admin'
+    ? pathname === '/admin' || pathname.startsWith('/admin/entries')
+    : pathname.startsWith(href)
+
 const AdminHeader = ({
   version,
   versionResolved = true,
@@ -29,7 +61,8 @@ const AdminHeader = ({
   versionResolved?: boolean
 }) => {
   const [isDark, setIsDark] = React.useState(getInitialTheme)
-  const { signOut } = useAuth()
+  const { user, signOut } = useAuth()
+  const pathname = usePathname()
 
   React.useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark)
@@ -38,60 +71,96 @@ const AdminHeader = ({
 
   return (
     <header className="border-b">
-      <Container className="flex h-14 items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Link
-            href="/admin"
-            className="focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:outline-none"
-          >
-            <span className="font-heading text-base font-semibold tracking-tight">
-              HEADCODE
+      <Container className="flex h-14 items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2">
+            <Link
+              href="/admin"
+              className="focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:outline-none"
+            >
+              <span className="font-heading text-base font-semibold tracking-tight">
+                HEADCODE
+              </span>
+            </Link>
+            <span
+              className={`bg-muted text-muted-foreground rounded-md border px-1.5 py-0.5 font-mono text-xs font-medium uppercase ${versionResolved ? '' : 'invisible'}`}
+              aria-hidden={!versionResolved}
+            >
+              {version}
             </span>
-          </Link>
-          <Link
-            href="/admin/versions"
-            className={`focus-visible:ring-ring bg-muted text-muted-foreground hover:bg-muted/80 rounded-md border px-1.5 py-0.5 font-mono text-xs font-medium uppercase focus-visible:ring-2 focus-visible:outline-none ${versionResolved ? '' : 'invisible'}`}
-            aria-hidden={!versionResolved}
-            tabIndex={versionResolved ? undefined : -1}
-          >
-            {version}
-          </Link>
+          </div>
+          <nav className="hidden items-center gap-1 sm:flex">
+            {navItems.map(({ href, label }) => {
+              const active = isActive(pathname, href)
+              return (
+                <Button
+                  key={href}
+                  variant={active ? 'secondary' : 'ghost'}
+                  aria-current={active ? 'page' : undefined}
+                  nativeButton={false}
+                  render={<Link href={href} />}
+                >
+                  {label}
+                </Button>
+              )
+            })}
+          </nav>
         </div>
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
-            size="icon"
-            aria-label="Open images"
-            nativeButton={false}
-            render={<Link href="/admin/images" />}
-          >
-            <ImageIcon />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Open homepage"
+            className="hidden sm:inline-flex"
             nativeButton={false}
             render={<Link href="/" />}
           >
-            <Home />
+            View site
+            <ArrowUpRight />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Toggle theme"
-            onClick={() => setIsDark((current) => !current)}
-          >
-            {isDark ? <Sun /> : <Moon />}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Sign out"
-            onClick={() => void signOut({ returnTo: `${location.origin}/` })}
-          >
-            <LogOut />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="ghost" size="icon" aria-label="Menu">
+                  <Menu className="sm:hidden" />
+                  <CircleUser className="hidden sm:block" />
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end">
+              {/* On mobile the menu also holds the navigation. */}
+              <DropdownMenuGroup className="sm:hidden">
+                {navItems.map(({ href, label, icon: Icon }) => (
+                  <DropdownMenuItem key={href} render={<Link href={href} />}>
+                    <Icon />
+                    {label}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuItem render={<Link href="/" />}>
+                  <ArrowUpRight />
+                  View site
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </DropdownMenuGroup>
+              {user && (
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+                </DropdownMenuGroup>
+              )}
+              <DropdownMenuItem
+                onClick={() => setIsDark((current) => !current)}
+              >
+                {isDark ? <Sun /> : <Moon />}
+                {isDark ? 'Light mode' : 'Dark mode'}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  void signOut({ returnTo: `${location.origin}/` })
+                }
+              >
+                <LogOut />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </Container>
     </header>

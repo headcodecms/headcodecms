@@ -8,6 +8,7 @@ Core changes that variants based on `workos` should follow.
 - Removed `ensureGlobal` and the MCP tool `headcode_ensure_global`; globals exist after seeding.
 - `vercel.json` builds with `pnpm convex deploy && pnpm seed && pnpm build` (`convex deploy --cmd` runs the build before the functions are pushed).
 - Empty collections return `[{ slug: '-' }]` from `generateStaticParams` (Cache Components needs one param).
+- Admin header: text navigation Content / Images / Versions, "View site", account menu (email, theme, sign out); on mobile everything is in one menu. The version badge is no longer a link.
 
 ## 2.0.0-alpha.0
 
