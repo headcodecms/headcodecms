@@ -117,6 +117,14 @@ pnpm mcp                  # list MCP tools (pinned to spec 2026-07-28)
 pnpm mcp http://draft.localhost:3000/mcp headcode_get_version
 ```
 
+## Deploy (Vercel + Convex)
+
+1. Convex production deployment: set `WORKOS_CLIENT_ID`, `WORKOS_AUTHKIT_DOMAIN`, `ALLOWED_MCP_TOKENS` with `pnpm convex env set --prod ...`, then create a deploy key: `pnpm convex deployment token create vercel --deployment prod`.
+2. WorkOS production environment: the same settings as in step 3 of the setup, with your domains (`https://<host>/callback`, `https://<host>/`, `https://<host>/mcp`). Social logins need your own OAuth credentials in production.
+3. Vercel project with Root Directory `apps/workos` (or the app folder). `vercel.json` sets the build: `pnpm convex deploy && pnpm seed && pnpm build`, so functions are live and globals exist before Next.js prerenders.
+4. Vercel environment variables (production): `CONVEX_DEPLOY_KEY`, `NEXT_PUBLIC_CONVEX_URL`, `WORKOS_CLIENT_ID`, `WORKOS_AUTHKIT_DOMAIN`, `WORKOS_COOKIE_PASSWORD`, `ALLOWED_MCP_TOKENS`, `NEXT_PUBLIC_WORKOS_REDIRECT_URI`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_HEADCODE_VERSION=auto`, `NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=<draft host>`.
+5. Add the live and draft domains to the Vercel project.
+
 ## MCP clients
 
 The request host selects the content version. Register live and draft as two servers.
