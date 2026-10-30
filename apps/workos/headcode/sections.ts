@@ -31,7 +31,7 @@ export const meta = {
   name: 'meta',
   label: 'Page Meta',
   description:
-    'SEO title and description for pages, globals, and collection entries.',
+    'SEO title and description of the page. Not visible on the page itself; used in search results, link previews, and browser tabs. One per page, keep it first.',
   fields: {
     title: TextField({
       label: 'Title',
@@ -49,7 +49,8 @@ export const meta = {
 export const header = {
   name: 'header',
   label: 'Site Header',
-  description: 'Shared top navigation for the public site.',
+  description:
+    'Logo text and main navigation links. Change it to add or rename menu items on every page.',
   fields: {
     brand: TextField({
       label: 'Brand',
@@ -70,7 +71,8 @@ export const header = {
 export const footer = {
   name: 'footer',
   label: 'Site Footer',
-  description: 'Shared footer content and navigation.',
+  description:
+    'Brand, short text, and footer links on every page. Use it for legal links, contact, and secondary navigation.',
   fields: {
     brand: TextField({
       label: 'Brand',
@@ -96,7 +98,7 @@ export const hero = {
   name: 'hero',
   label: 'Hero',
   description:
-    'Primary page introduction with eyebrow, headline, copy, and actions.',
+    'First impression of a page: one core message with eyebrow, headline, short copy, and up to two call-to-action buttons. Use once per page, at the top.',
   fields: {
     eyebrow: TextField({
       label: 'Eyebrow',
@@ -128,7 +130,8 @@ export const hero = {
 export const logos = {
   name: 'logos',
   label: 'Logo List',
-  description: 'A compact list of technologies or partner logos.',
+  description:
+    'Row of technology or partner logos (name and SVG icon). Builds trust right after the hero ("works with", "trusted by").',
   fields: {
     eyebrow: TextField({
       label: 'Eyebrow',
@@ -151,7 +154,8 @@ export const logos = {
 export const imageText = {
   name: 'image-text',
   label: 'Image With Text',
-  description: 'Feature row with image, copy, and call to action.',
+  description:
+    'Image next to a heading, copy, and an optional link. Use several in a row to explain features or steps; the the reversed option puts the image on the other side.',
   fields: {
     eyebrow: TextField({
       label: 'Eyebrow',
@@ -181,7 +185,8 @@ export const imageText = {
 export const image = {
   name: 'image',
   label: 'Image',
-  description: 'Standalone visual section used in landing pages and articles.',
+  description:
+    'Large standalone image with alt text and optional caption. Use it to break up long pages or show a screenshot.',
   fields: {
     image: ImageField({
       label: 'Image',
@@ -203,7 +208,8 @@ export const image = {
 export const text = {
   name: 'text',
   label: 'Text',
-  description: 'Rich editorial content rendered as a prose section.',
+  description:
+    'Rich text with headings, lists, links, and code. The main building block for articles, legal pages, and FAQs.',
   fields: {
     content: RichtextField({
       label: 'Content',
@@ -214,7 +220,8 @@ export const text = {
 export const llmsTxt = {
   name: 'llms-txt',
   label: 'llms.txt',
-  description: 'Agent-readable Markdown content served from /llms.txt.',
+  description:
+    'Markdown for AI agents, served at /llms.txt. Describe the site and link its most important pages.',
   fields: {
     content: RichtextField({
       label: 'Content',
@@ -225,7 +232,8 @@ export const llmsTxt = {
 export const plans = {
   name: 'plans',
   label: 'Pricing Plans',
-  description: 'Pricing card content for the pricing page.',
+  description:
+    'Pricing cards with name, price, short description, features, and a button per plan, plus optional small print.',
   fields: {
     plans: [
       {
@@ -273,7 +281,8 @@ export const plans = {
 export const snippet = {
   name: 'snippet',
   label: 'Install Snippet',
-  description: 'Tabbed command snippets used on documentation pages.',
+  description:
+    'Shell commands in tabs (e.g. pnpm, npm, bun). Use it for install and setup steps in docs.',
   fields: {
     title: TextField({
       label: 'Title',
@@ -310,7 +319,8 @@ export const snippet = {
 export const code = {
   name: 'code',
   label: 'Code Block',
-  description: 'Tabbed source code examples for documentation pages.',
+  description:
+    'Source code files in tabs with file names. Use it to show code examples in docs.',
   fields: {
     title: TextField({
       label: 'Title',
@@ -349,7 +359,7 @@ export const blogMeta = {
   name: 'blog-meta',
   label: 'Blog Meta',
   description:
-    'Blog post metadata used for listing pages, SEO, and article heroes.',
+    'Title, SEO description, summary, category, date, and featured flag of a blog post. Feeds the blog list, search results, and the article header. One per post, keep it first.',
   fields: {
     ...meta.fields,
     summary: TextareaField({

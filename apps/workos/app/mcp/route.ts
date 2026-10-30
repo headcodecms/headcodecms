@@ -15,8 +15,10 @@ import { headcodeTag } from '@/app/(site)/_lib/headcode'
 import { api } from '@/convex/_generated/api'
 import type { Id } from '@/convex/_generated/dataModel'
 import { getEntryConfig } from '@/convex/db'
+import { headcodeConfig } from '@/headcode/config'
 import { DEFAULT_IMAGE_ACCEPT, DEFAULT_IMAGE_MAX_SIZE } from '@/headcode/fields'
 import type { HeadcodeFieldConfig, ServiceSection } from '@/headcode/types'
+import { entryPath } from '@/headcode/utils'
 import { getHeadcodeVersionForHost } from '@/headcode/versions'
 import { authenticate, mcpUrl } from './auth'
 
@@ -80,12 +82,43 @@ const describeFields = (fields: Record<string, HeadcodeFieldConfig>): unknown =>
         : Object.fromEntries(
             Object.entries(field).filter(
               ([name, value]) =>
-                name !== 'validator' &&
-                typeof value !== 'function',
+                name !== 'validator' && typeof value !== 'function',
             ),
           ),
     ]),
   )
+
+// Site overview for agents: what each entry is, where it shows, which sections fit.
+const contentTypes = [
+  ...headcodeConfig.globals.map((config) => ({ kind: 'global', ...config })),
+  ...headcodeConfig.collections.map((config) => ({
+    kind: 'collection',
+    path: `/${config.slug}/<slugified-entry-name>`,
+    ...config,
+  })),
+].map(({ kind, slug, description, sections, ...config }) => ({
+  kind,
+  slug,
+  path: 'path' in config ? config.path : null,
+  description,
+  sections: sections.map((section) => section.name),
+}))
+
+const describeEntry = <T extends { slug: string; name: string | null }>(
+  entry: T,
+) => {
+  const config = getEntryConfig(entry)
+  return {
+    ...entry,
+    path:
+      config && 'path' in config
+        ? config.path
+        : entry.name === null
+          ? null
+          : entryPath(entry),
+    description: config?.description,
+  }
+}
 
 const readImage = async (url: URL, maxContentLength?: boolean) => {
   if (url.protocol !== 'http:' && url.protocol !== 'https:')
@@ -275,14 +308,20 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
     {
       title: 'List Headcode entries',
       description:
-        'Lists globals and collection entries for the draft or live version selected by the MCP request host. This is read-only and never publishes content.',
+        'Lists globals and collection entries for the draft or live version selected by the MCP request host, each with its site path and purpose. contentTypes explains the site structure: globals without a path (header, footer) show on every page, collections can get new entries, and sections lists the section types each one allows. This is read-only and never publishes content.',
       annotations: readOnly,
     },
-    async () =>
-      json({
+    async () => {
+      const { globals, collections } = await fetchQuery(api.services.getAll, {
         version,
-        ...(await fetchQuery(api.services.getAll, { version })),
-      }),
+      })
+      return json({
+        version,
+        contentTypes,
+        globals: globals.map(describeEntry),
+        collections: collections.map(describeEntry),
+      })
+    },
   )
 
   server.registerTool(
@@ -311,15 +350,20 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
     {
       title: 'List section types',
       description:
-        'Lists section types and editable fields allowed by the Headcode configuration for an entry. This is read-only and never publishes content.',
+        'Lists section types, their purpose, and editable fields for an entry, or for a collection by slug alone before its first entry exists (e.g. { slug: "blog" }). This is read-only and never publishes content.',
       annotations: readOnly,
       inputSchema: lookup,
     },
     async (args) => {
-      const { entry } = await findBundle(args)
+      const collection =
+        !args.entryId &&
+        !args.name &&
+        headcodeConfig.collections.find(({ slug }) => slug === args.slug)
+      const entry = collection ? null : (await findBundle(args)).entry
+      const config = collection || (entry && getEntryConfig(entry))
       return json({
         entry,
-        sections: (getEntryConfig(entry)?.sections ?? []).map((section) => ({
+        sections: (config ? config.sections : []).map((section) => ({
           name: section.name,
           label: section.label ?? section.name,
           description: section.description,

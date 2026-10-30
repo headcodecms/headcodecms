@@ -49,15 +49,21 @@ const tools = {
   ],
 }
 
-type Entry = { _id: string; slug: string; name: string | null }
+type Entry = {
+  _id: string
+  slug: string
+  name: string | null
+  path: string | null
+  description?: string
+}
+type ContentType = {
+  kind: 'global' | 'collection'
+  slug: string
+  path: string | null
+  description?: string
+  sections: string[]
+}
 type Section = { _id: string; name: string; data: Record<string, unknown> }
-
-const slugify = (value: string) =>
-  value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
 
 const get = (path: string, init?: RequestInit) =>
   fetch(new URL(path, base), init)
@@ -171,6 +177,38 @@ describe('MCP tools', () => {
       assert.ok(Array.isArray(sections), slug)
     }
   })
+
+  test('entries explain the site structure', async () => {
+    const { contentTypes, globals } = await call<{
+      contentTypes: ContentType[]
+      globals: Entry[]
+    }>('headcode_list_entries')
+    assert.ok(contentTypes.some((type) => type.kind === 'collection'))
+    for (const type of contentTypes) {
+      assert.ok(type.description, type.slug)
+      assert.ok(type.sections.length, type.slug)
+    }
+    assert.ok(
+      globals.some((entry) => entry.path === '/'),
+      'No homepage.',
+    )
+    for (const entry of globals) assert.ok(entry.description, entry.slug)
+  })
+
+  test('section types load for a collection without an entry', async () => {
+    const { contentTypes } = await call<{ contentTypes: ContentType[] }>(
+      'headcode_list_entries',
+    )
+    for (const { kind, slug } of contentTypes) {
+      if (kind !== 'collection') continue
+      const { sections } = await call<{
+        sections: { name: string; description?: string }[]
+      }>('headcode_list_section_types', { slug })
+      assert.ok(sections.length, slug)
+      for (const section of sections)
+        assert.ok(section.description, section.name)
+    }
+  })
 })
 
 describe('Site', () => {
@@ -212,16 +250,21 @@ describe('Write cycle (--write)', { skip: !write }, () => {
   })
 
   test('add a collection entry', async () => {
-    const { collections } = await call<{ collections: Entry[] }>(
-      'headcode_list_entries',
-    )
-    const slug = collections[0]?.slug
-    assert.ok(slug, 'Needs at least one collection entry.')
+    const list = () =>
+      call<{ contentTypes: ContentType[]; collections: Entry[] }>(
+        'headcode_list_entries',
+      )
+    const slug = (await list()).contentTypes.find(
+      (type) => type.kind === 'collection',
+    )?.slug
     ;({ entry } = await call<{ entry: Entry }>('headcode_add_entry', {
       slug,
       name: marker,
     }))
-    path = `/${slug}/${slugify(marker)}`
+    path =
+      (await list()).collections.find((item) => item._id === entry._id)?.path ??
+      ''
+    assert.ok(path, 'The new entry has no site path.')
   })
 
   test('the site renders its default content', async () => {

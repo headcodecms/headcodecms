@@ -60,24 +60,27 @@ export const headcodeConfig = {
   globals: [
     {
       slug: 'header',
-      description: 'Shared public site header.',
+      description: 'Site header with logo and navigation, shown on every page.',
       sections: [header],
       defaults: [defaultHeader],
     },
     {
       slug: 'footer',
-      description: 'Shared public site footer.',
+      description:
+        'Site footer with short text and links, shown on every page.',
       sections: [footer],
       defaults: [defaultFooter],
     },
     {
       slug: 'llms',
+      path: '/llms.txt',
       description: 'Agent-readable Markdown served from /llms.txt.',
       sections: [llmsTxt],
       defaults: [defaultLlmsTxt],
     },
     {
       slug: 'home',
+      path: '/',
       description: 'Homepage for the agentic web CMS marketing site.',
       sections: [meta, hero, logos, imageText, image, text],
       defaults: [
@@ -91,6 +94,7 @@ export const headcodeConfig = {
     },
     {
       slug: 'pricing',
+      path: '/pricing',
       description: 'Pricing page with plan cards and pricing FAQ copy.',
       sections: [meta, hero, plans, text],
       defaults: [
@@ -102,6 +106,7 @@ export const headcodeConfig = {
     },
     {
       slug: 'docs',
+      path: '/docs',
       description:
         'Documentation page with install snippets, feature rows, code examples, and next steps.',
       sections: [meta, hero, snippet, imageText, code, text],
