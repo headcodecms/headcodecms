@@ -16,12 +16,14 @@ import {
   titleCase,
 } from '@/app/(site)/_lib/headcode'
 import { Hero, ImageWithText } from '@/app/(site)/_sections'
+import { pageMetadata } from '@/app/(site)/_lib/seo'
 import { blogDescription, blogTitle } from './md'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Blog - Headcode',
   description: blogDescription,
-}
+  path: '/blog',
+})
 
 type Post = {
   id: string

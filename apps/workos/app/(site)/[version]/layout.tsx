@@ -14,6 +14,7 @@ import {
   getMeta,
   getSection,
 } from '@/app/(site)/_lib/headcode'
+import { pageMetadata, siteUrl } from '@/app/(site)/_lib/seo'
 import type { FooterData, HeaderData } from '@/headcode/sections'
 import { cn } from '@/lib/utils'
 
@@ -24,9 +25,15 @@ const geistMono = Geist_Mono({
 })
 
 export const generateMetadata = async (): Promise<Metadata> => {
-  const home = await getHeadcodeGlobal(await siteVersion(), 'home')
+  const version = await siteVersion()
+  const home = await getHeadcodeGlobal(version, 'home')
   const meta = home && getMeta(home)
-  return { title: meta?.title, description: meta?.description }
+  return {
+    metadataBase: new URL(siteUrl),
+    ...pageMetadata({ ...meta, path: '/' }),
+    // Draft content must not end up in search results.
+    robots: version === 'draft' ? { index: false, follow: false } : undefined,
+  }
 }
 
 const chromeProps = <TData,>(bundle: EntryBundle | null, name: string) => {

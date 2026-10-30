@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { siteVersion } from '@/app/(site)/_lib/version'
 import { notFound } from 'next/navigation'
+import { entryPath } from '@/headcode/utils'
 
 import {
   getEntrySlug,
@@ -8,6 +9,7 @@ import {
   getHeadcodeCollectionEntry,
   getMeta,
 } from '@/app/(site)/_lib/headcode'
+import { firstImage, pageMetadata } from '@/app/(site)/_lib/seo'
 import { RenderSections } from '@/app/(site)/_sections'
 
 type Props = { params: Promise<{ slug: string }> }
@@ -34,10 +36,12 @@ export const generateMetadata = async ({
   )
   if (!page) return {}
   const meta = getMeta(page)
-  return {
+  return pageMetadata({
     title: meta ? `${meta.title} - Headcode` : 'Headcode',
     description: meta?.description,
-  }
+    path: entryPath(page.entry),
+    image: firstImage(page.sections),
+  })
 }
 
 export default async function Page({ params }: Props) {

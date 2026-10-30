@@ -13,6 +13,13 @@ import {
   getEntrySlug,
   getHeadcodeCollectionEntries,
 } from '@/app/(site)/_lib/headcode'
+import {
+  firstImage,
+  JsonLd,
+  pageMetadata,
+  siteUrl,
+} from '@/app/(site)/_lib/seo'
+import { entryPath } from '@/headcode/utils'
 import { Hero, ImageSection, RenderSections } from '@/app/(site)/_sections'
 
 type Props = { params: Promise<{ slug: string }> }
@@ -38,7 +45,13 @@ export const generateMetadata = async ({
   const post = await getPost(params)
   const meta = post && getBlogMetaSection(post)?.data
   return meta
-    ? { title: `${meta.title} - Headcode Blog`, description: meta.summary }
+    ? pageMetadata({
+        title: `${meta.title} - Headcode Blog`,
+        description: meta.summary,
+        path: entryPath(post.entry),
+        image: firstImage(post.sections),
+        type: 'article',
+      })
     : {}
 }
 
@@ -53,8 +66,20 @@ export default async function BlogPostPage({ params }: Props) {
     return section && getDataHeadcodeAttribute(post.entry, section)
   }
 
+  const image = firstImage(post.sections)
   return (
     <>
+      <JsonLd
+        data={{
+          '@type': 'BlogPosting',
+          headline: meta.title,
+          description: meta.summary,
+          datePublished: new Date(meta.publishedAt).toISOString(),
+          author: { '@type': 'Person', name: meta.author },
+          image: image?.src,
+          url: `${siteUrl}${entryPath(post.entry)}`,
+        }}
+      />
       <span hidden data-headcode={headcode('blog-meta')} />
       <Hero
         eyebrow={titleCase(meta.category)}

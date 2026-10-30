@@ -299,6 +299,16 @@
           "target": "app/mcp/route.ts"
         },
         {
+          "path": "apps/workos/app/robots.ts",
+          "type": "registry:file",
+          "target": "app/robots.ts"
+        },
+        {
+          "path": "apps/workos/app/(site)/_lib/seo.tsx",
+          "type": "registry:file",
+          "target": "app/(site)/_lib/seo.tsx"
+        },
+        {
           "path": "apps/workos/app/sitemap.ts",
           "type": "registry:file",
           "target": "app/sitemap.ts"

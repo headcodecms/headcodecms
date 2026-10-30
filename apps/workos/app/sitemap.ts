@@ -3,13 +3,10 @@ import type { MetadataRoute } from 'next'
 import { headers } from 'next/headers'
 
 import { getHeadcodeSitemapEntries } from '@/app/(site)/_lib/headcode'
+import { siteUrl } from '@/app/(site)/_lib/seo'
 import { getHeadcodeVersionForHost } from '@/headcode/versions'
 import { entryPath } from '@/headcode/utils'
 import type { ServiceEntry } from '@/headcode/types'
-
-const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
-).replace(/\/$/, '')
 
 const url = (
   path: string,

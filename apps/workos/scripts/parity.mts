@@ -217,6 +217,7 @@ describe('Site', () => {
     ['/?md', 'text/markdown'],
     ['/llms.txt', 'text/markdown'],
     ['/sitemap.xml', 'application/xml'],
+    ['/robots.txt', 'text/plain'],
   ])
     test(`${path} is ${type}`, async () => {
       const res = await get(path)
@@ -227,6 +228,26 @@ describe('Site', () => {
   test('Accept: text/markdown returns Markdown', async () => {
     const res = await get('/', { headers: { Accept: 'text/markdown' } })
     assert.match(res.headers.get('content-type') ?? '', /text\/markdown/)
+  })
+
+  test('the homepage has canonical, Open Graph and JSON-LD', async () => {
+    const html = await (await get('/')).text()
+    assert.match(html, /<link rel="canonical"/)
+    assert.match(html, /<meta property="og:title"/)
+    assert.match(html, /<script type="application\/ld\+json">/)
+  })
+
+  test('draft hosts are not indexed, live hosts are', async () => {
+    const { version } = await call<{ version: string }>('headcode_get_version')
+    const html = await (await get('/')).text()
+    const robots = await (await get('/robots.txt')).text()
+    if (version === 'draft') {
+      assert.match(html, /<meta name="robots" content="noindex/)
+      assert.match(robots, /Disallow: \/\s*$/m)
+    } else {
+      assert.doesNotMatch(html, /<meta name="robots" content="noindex/)
+      assert.match(robots, /Sitemap: /)
+    }
   })
 
   for (const path of ['/live', '/draft'])
