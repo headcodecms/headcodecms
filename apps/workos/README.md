@@ -115,6 +115,8 @@ pnpm typecheck
 pnpm build
 pnpm mcp                  # list MCP tools (pinned to spec 2026-07-28)
 pnpm mcp http://draft.localhost:3000/mcp headcode_get_version
+pnpm parity               # contract tests against http://draft.localhost:3000
+pnpm parity <url> --write # also add, edit and delete a test entry (never publishes)
 ```
 
 ## Deploy (Vercel + Convex)
@@ -124,6 +126,7 @@ pnpm mcp http://draft.localhost:3000/mcp headcode_get_version
 3. Vercel project with Root Directory `apps/workos` (or the app folder). `vercel.json` sets the build: `pnpm convex deploy && pnpm seed && pnpm build`, so functions are live and globals exist before Next.js prerenders.
 4. Vercel environment variables (production): `CONVEX_DEPLOY_KEY`, `NEXT_PUBLIC_CONVEX_URL`, `WORKOS_CLIENT_ID`, `WORKOS_AUTHKIT_DOMAIN`, `WORKOS_COOKIE_PASSWORD`, `ALLOWED_MCP_TOKENS`, `NEXT_PUBLIC_WORKOS_REDIRECT_URI`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_HEADCODE_VERSION=auto`, `NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=<draft host>`.
 5. Add the live and draft domains to the Vercel project.
+6. Check the deployment: `MCP_TOKEN=<token> pnpm parity https://<host>` for the live and the draft host.
 
 ## MCP clients
 

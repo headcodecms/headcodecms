@@ -39,10 +39,12 @@ Setup steps are in `README.md`. This file contains the rules.
 ```bash
 pnpm test && pnpm lint && pnpm typecheck && pnpm build
 pnpm mcp http://draft.localhost:3000/mcp headcode_get_version
+pnpm parity http://draft.localhost:3000 --write
 # in the monorepo root, after changing files listed in registry.json:
 pnpm dlx shadcn@latest registry validate
 ```
 
+- `scripts/parity.mts` is the contract every Headcode app keeps (MCP auth, tool list and annotations, site formats, edit-to-site cycle). Change it only together with the behavior, and note it in `CHANGELOG.md`.
 - Before changing Next.js code, read `node_modules/next/dist/docs/`.
 - Before changing Convex code, read `convex/_generated/ai/guidelines.md`.
 - Admin sign-in uses the hosted AuthKit page. A human has to sign in once in the browser; after that, agents can reuse the session.
