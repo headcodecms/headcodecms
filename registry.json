@@ -64,352 +64,352 @@
       ],
       "files": [
         {
-          "path": "apps/workos/app/(admin)/_components/admin-ui.tsx",
+          "path": "apps/vercel/app/(admin)/_components/admin-ui.tsx",
           "type": "registry:component",
           "target": "app/(admin)/_components/admin-ui.tsx"
         },
         {
-          "path": "apps/workos/app/(admin)/_components/chrome.tsx",
+          "path": "apps/vercel/app/(admin)/_components/chrome.tsx",
           "type": "registry:component",
           "target": "app/(admin)/_components/chrome.tsx"
         },
         {
-          "path": "apps/workos/app/(admin)/_components/container.tsx",
+          "path": "apps/vercel/app/(admin)/_components/container.tsx",
           "type": "registry:component",
           "target": "app/(admin)/_components/container.tsx"
         },
         {
-          "path": "apps/workos/app/(admin)/_components/convex-client-provider.tsx",
+          "path": "apps/vercel/app/(admin)/_components/convex-client-provider.tsx",
           "type": "registry:component",
           "target": "app/(admin)/_components/convex-client-provider.tsx"
         },
         {
-          "path": "apps/workos/app/(admin)/_components/richtext-editor.tsx",
+          "path": "apps/vercel/app/(admin)/_components/richtext-editor.tsx",
           "type": "registry:component",
           "target": "app/(admin)/_components/richtext-editor.tsx"
         },
         {
-          "path": "apps/workos/app/(admin)/_fields/image-field.tsx",
+          "path": "apps/vercel/app/(admin)/_fields/image-field.tsx",
           "type": "registry:component",
           "target": "app/(admin)/_fields/image-field.tsx"
         },
         {
-          "path": "apps/workos/app/(admin)/_fields/richtext-field.tsx",
+          "path": "apps/vercel/app/(admin)/_fields/richtext-field.tsx",
           "type": "registry:component",
           "target": "app/(admin)/_fields/richtext-field.tsx"
         },
         {
-          "path": "apps/workos/app/(admin)/_lib/headcode.ts",
+          "path": "apps/vercel/app/(admin)/_lib/headcode.ts",
           "type": "registry:file",
           "target": "app/(admin)/_lib/headcode.ts"
         },
         {
-          "path": "apps/workos/app/(admin)/_lib/revalidate.ts",
+          "path": "apps/vercel/app/(admin)/_lib/revalidate.ts",
           "type": "registry:file",
           "target": "app/(admin)/_lib/revalidate.ts"
         },
         {
-          "path": "apps/workos/app/(admin)/_lib/use-actions.ts",
+          "path": "apps/vercel/app/(admin)/_lib/use-actions.ts",
           "type": "registry:file",
           "target": "app/(admin)/_lib/use-actions.ts"
         },
         {
-          "path": "apps/workos/app/(admin)/admin.css",
+          "path": "apps/vercel/app/(admin)/admin.css",
           "type": "registry:file",
           "target": "app/(admin)/admin.css"
         },
         {
-          "path": "apps/workos/app/(admin)/admin/entries/[id]/page.tsx",
+          "path": "apps/vercel/app/(admin)/admin/entries/[id]/page.tsx",
           "type": "registry:page",
           "target": "app/(admin)/admin/entries/[id]/page.tsx"
         },
         {
-          "path": "apps/workos/app/(admin)/admin/images/page.tsx",
+          "path": "apps/vercel/app/(admin)/admin/images/page.tsx",
           "type": "registry:page",
           "target": "app/(admin)/admin/images/page.tsx"
         },
         {
-          "path": "apps/workos/app/(admin)/admin/login/route.ts",
+          "path": "apps/vercel/app/(admin)/admin/login/route.ts",
           "type": "registry:page",
           "target": "app/(admin)/admin/login/route.ts"
         },
         {
-          "path": "apps/workos/app/(admin)/admin/page.tsx",
+          "path": "apps/vercel/app/(admin)/admin/page.tsx",
           "type": "registry:page",
           "target": "app/(admin)/admin/page.tsx"
         },
         {
-          "path": "apps/workos/app/(admin)/admin/versions/page.tsx",
+          "path": "apps/vercel/app/(admin)/admin/versions/page.tsx",
           "type": "registry:page",
           "target": "app/(admin)/admin/versions/page.tsx"
         },
         {
-          "path": "apps/workos/app/(admin)/layout.tsx",
+          "path": "apps/vercel/app/(admin)/layout.tsx",
           "type": "registry:page",
           "target": "app/(admin)/layout.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/[version]/blog/[slug]/page.tsx",
+          "path": "apps/vercel/app/(site)/[version]/blog/[slug]/page.tsx",
           "type": "registry:page",
           "target": "app/(site)/[version]/blog/[slug]/page.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/[version]/blog/md.ts",
+          "path": "apps/vercel/app/(site)/[version]/blog/md.ts",
           "type": "registry:file",
           "target": "app/(site)/[version]/blog/md.ts"
         },
         {
-          "path": "apps/workos/app/(site)/[version]/blog/page.tsx",
+          "path": "apps/vercel/app/(site)/[version]/blog/page.tsx",
           "type": "registry:page",
           "target": "app/(site)/[version]/blog/page.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/[version]/docs/page.tsx",
+          "path": "apps/vercel/app/(site)/[version]/docs/page.tsx",
           "type": "registry:page",
           "target": "app/(site)/[version]/docs/page.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/[version]/headcode-markdown.txt/[[...path]]/route.ts",
+          "path": "apps/vercel/app/(site)/[version]/headcode-markdown.txt/[[...path]]/route.ts",
           "type": "registry:page",
           "target": "app/(site)/[version]/headcode-markdown.txt/[[...path]]/route.ts"
         },
         {
-          "path": "apps/workos/app/(site)/[version]/layout.tsx",
+          "path": "apps/vercel/app/(site)/[version]/layout.tsx",
           "type": "registry:page",
           "target": "app/(site)/[version]/layout.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/[version]/llms.txt/route.ts",
+          "path": "apps/vercel/app/(site)/[version]/llms.txt/route.ts",
           "type": "registry:page",
           "target": "app/(site)/[version]/llms.txt/route.ts"
         },
         {
-          "path": "apps/workos/app/(site)/[version]/loading.tsx",
+          "path": "apps/vercel/app/(site)/[version]/loading.tsx",
           "type": "registry:page",
           "target": "app/(site)/[version]/loading.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/[version]/page.tsx",
+          "path": "apps/vercel/app/(site)/[version]/page.tsx",
           "type": "registry:page",
           "target": "app/(site)/[version]/page.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/[version]/pages/[slug]/page.tsx",
+          "path": "apps/vercel/app/(site)/[version]/pages/[slug]/page.tsx",
           "type": "registry:page",
           "target": "app/(site)/[version]/pages/[slug]/page.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/[version]/pricing/page.tsx",
+          "path": "apps/vercel/app/(site)/[version]/pricing/page.tsx",
           "type": "registry:page",
           "target": "app/(site)/[version]/pricing/page.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_components/chrome.tsx",
+          "path": "apps/vercel/app/(site)/_components/chrome.tsx",
           "type": "registry:component",
           "target": "app/(site)/_components/chrome.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_components/code-tabs.tsx",
+          "path": "apps/vercel/app/(site)/_components/code-tabs.tsx",
           "type": "registry:component",
           "target": "app/(site)/_components/code-tabs.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_components/container.tsx",
+          "path": "apps/vercel/app/(site)/_components/container.tsx",
           "type": "registry:component",
           "target": "app/(site)/_components/container.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_components/entries-dialog.tsx",
+          "path": "apps/vercel/app/(site)/_components/entries-dialog.tsx",
           "type": "registry:component",
           "target": "app/(site)/_components/entries-dialog.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_components/icons.tsx",
+          "path": "apps/vercel/app/(site)/_components/icons.tsx",
           "type": "registry:component",
           "target": "app/(site)/_components/icons.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_components/markdown.tsx",
+          "path": "apps/vercel/app/(site)/_components/markdown.tsx",
           "type": "registry:component",
           "target": "app/(site)/_components/markdown.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_lib/headcode.ts",
+          "path": "apps/vercel/app/(site)/_lib/headcode.ts",
           "type": "registry:file",
           "target": "app/(site)/_lib/headcode.ts"
         },
         {
-          "path": "apps/workos/app/(site)/_lib/version.ts",
+          "path": "apps/vercel/app/(site)/_lib/version.ts",
           "type": "registry:file",
           "target": "app/(site)/_lib/version.ts"
         },
         {
-          "path": "apps/workos/app/(site)/_sections/docs.tsx",
+          "path": "apps/vercel/app/(site)/_sections/docs.tsx",
           "type": "registry:component",
           "target": "app/(site)/_sections/docs.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_sections/hero.tsx",
+          "path": "apps/vercel/app/(site)/_sections/hero.tsx",
           "type": "registry:component",
           "target": "app/(site)/_sections/hero.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_sections/image.tsx",
+          "path": "apps/vercel/app/(site)/_sections/image.tsx",
           "type": "registry:component",
           "target": "app/(site)/_sections/image.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_sections/index.tsx",
+          "path": "apps/vercel/app/(site)/_sections/index.tsx",
           "type": "registry:component",
           "target": "app/(site)/_sections/index.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_sections/logos.tsx",
+          "path": "apps/vercel/app/(site)/_sections/logos.tsx",
           "type": "registry:component",
           "target": "app/(site)/_sections/logos.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_sections/plans.tsx",
+          "path": "apps/vercel/app/(site)/_sections/plans.tsx",
           "type": "registry:component",
           "target": "app/(site)/_sections/plans.tsx"
         },
         {
-          "path": "apps/workos/app/(site)/_sections/utils.tsx",
+          "path": "apps/vercel/app/(site)/_sections/utils.tsx",
           "type": "registry:component",
           "target": "app/(site)/_sections/utils.tsx"
         },
         {
-          "path": "apps/workos/app/.well-known/[...path]/route.ts",
+          "path": "apps/vercel/app/.well-known/[...path]/route.ts",
           "type": "registry:page",
           "target": "app/.well-known/[...path]/route.ts"
         },
         {
-          "path": "apps/workos/app/callback/route.ts",
+          "path": "apps/vercel/app/callback/route.ts",
           "type": "registry:page",
           "target": "app/callback/route.ts"
         },
         {
-          "path": "apps/workos/app/mcp/auth.ts",
+          "path": "apps/vercel/app/mcp/auth.ts",
           "type": "registry:file",
           "target": "app/mcp/auth.ts"
         },
         {
-          "path": "apps/workos/app/mcp/route.ts",
+          "path": "apps/vercel/app/mcp/route.ts",
           "type": "registry:page",
           "target": "app/mcp/route.ts"
         },
         {
-          "path": "apps/workos/app/robots.ts",
+          "path": "apps/vercel/app/robots.ts",
           "type": "registry:file",
           "target": "app/robots.ts"
         },
         {
-          "path": "apps/workos/app/(site)/_lib/seo.tsx",
+          "path": "apps/vercel/app/(site)/_lib/seo.tsx",
           "type": "registry:file",
           "target": "app/(site)/_lib/seo.tsx"
         },
         {
-          "path": "apps/workos/app/sitemap.ts",
+          "path": "apps/vercel/app/sitemap.ts",
           "type": "registry:file",
           "target": "app/sitemap.ts"
         },
         {
-          "path": "apps/workos/components/kibo-ui/dialog-stack/index.tsx",
+          "path": "apps/vercel/components/kibo-ui/dialog-stack/index.tsx",
           "type": "registry:component",
           "target": "components/kibo-ui/dialog-stack/index.tsx"
         },
         {
-          "path": "apps/workos/components/kibo-ui/dropzone/index.tsx",
+          "path": "apps/vercel/components/kibo-ui/dropzone/index.tsx",
           "type": "registry:component",
           "target": "components/kibo-ui/dropzone/index.tsx"
         },
         {
-          "path": "apps/workos/components/kibo-ui/editor/index.tsx",
+          "path": "apps/vercel/components/kibo-ui/editor/index.tsx",
           "type": "registry:component",
           "target": "components/kibo-ui/editor/index.tsx"
         },
         {
-          "path": "apps/workos/convex/auth.config.ts",
+          "path": "apps/vercel/convex/auth.config.ts",
           "type": "registry:file",
           "target": "convex/auth.config.ts"
         },
         {
-          "path": "apps/workos/convex/authorization.ts",
+          "path": "apps/vercel/convex/authorization.ts",
           "type": "registry:file",
           "target": "convex/authorization.ts"
         },
         {
-          "path": "apps/workos/convex/db.ts",
+          "path": "apps/vercel/convex/db.ts",
           "type": "registry:file",
           "target": "convex/db.ts"
         },
         {
-          "path": "apps/workos/convex/schema.ts",
+          "path": "apps/vercel/convex/schema.ts",
           "type": "registry:file",
           "target": "convex/schema.ts"
         },
         {
-          "path": "apps/workos/convex/schema_validators.ts",
+          "path": "apps/vercel/convex/schema_validators.ts",
           "type": "registry:file",
           "target": "convex/schema_validators.ts"
         },
         {
-          "path": "apps/workos/convex/section_validations.ts",
+          "path": "apps/vercel/convex/section_validations.ts",
           "type": "registry:file",
           "target": "convex/section_validations.ts"
         },
         {
-          "path": "apps/workos/convex/seed.ts",
+          "path": "apps/vercel/convex/seed.ts",
           "type": "registry:file",
           "target": "convex/seed.ts"
         },
         {
-          "path": "apps/workos/convex/services.ts",
+          "path": "apps/vercel/convex/services.ts",
           "type": "registry:file",
           "target": "convex/services.ts"
         },
         {
-          "path": "apps/workos/headcode/config.ts",
+          "path": "apps/vercel/headcode/config.ts",
           "type": "registry:file",
           "target": "headcode/config.ts"
         },
         {
-          "path": "apps/workos/headcode/defaults.ts",
+          "path": "apps/vercel/headcode/defaults.ts",
           "type": "registry:file",
           "target": "headcode/defaults.ts"
         },
         {
-          "path": "apps/workos/headcode/fields.ts",
+          "path": "apps/vercel/headcode/fields.ts",
           "type": "registry:file",
           "target": "headcode/fields.ts"
         },
         {
-          "path": "apps/workos/headcode/sections.ts",
+          "path": "apps/vercel/headcode/sections.ts",
           "type": "registry:file",
           "target": "headcode/sections.ts"
         },
         {
-          "path": "apps/workos/headcode/types.ts",
+          "path": "apps/vercel/headcode/types.ts",
           "type": "registry:file",
           "target": "headcode/types.ts"
         },
         {
-          "path": "apps/workos/headcode/utils.ts",
+          "path": "apps/vercel/headcode/utils.ts",
           "type": "registry:file",
           "target": "headcode/utils.ts"
         },
         {
-          "path": "apps/workos/headcode/versions.ts",
+          "path": "apps/vercel/headcode/versions.ts",
           "type": "registry:file",
           "target": "headcode/versions.ts"
         },
         {
-          "path": "apps/workos/next.config.ts",
+          "path": "apps/vercel/next.config.ts",
           "type": "registry:file",
           "target": "next.config.ts"
         },
         {
-          "path": "apps/workos/proxy.ts",
+          "path": "apps/vercel/proxy.ts",
           "type": "registry:file",
           "target": "proxy.ts"
         }

@@ -1,4 +1,4 @@
-// Parity contract: the behavior every Headcode app (workos, www, blog, ...)
+// Parity contract: the behavior every Headcode app (vercel, www, blog, ...)
 // must keep. Runs against a running app, local or deployed.
 // Usage: pnpm parity [base-url] [--write]
 //   --write adds a test entry, edits it, checks the site, and deletes it again.

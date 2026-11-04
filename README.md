@@ -8,15 +8,16 @@ Every app is a complete, standalone project. Nothing is shared between apps, so 
 
 | App | Stack | Status |
 | --- | --- | --- |
-| [`apps/workos`](apps/workos) | Next.js, Convex, WorkOS AuthKit, Vercel | ready |
-| `apps/www` | headcodecms.com, based on `workos` | planned |
-| `apps/betterauth` | Next.js, BetterAuth, Drizzle (SQLite/Postgres), no cloud services | planned |
-| `apps/blog`, `apps/docs`, `apps/shopify` | templates based on `workos` | planned |
+| [`apps/vercel`](apps/vercel) | Next.js, Convex, WorkOS AuthKit, Vercel | ready |
+| `apps/www` | headcodecms.com, based on `vercel` | planned |
+| `apps/cloudflare` | Astro, React, Cloudflare Workers, D1, R2, WorkOS AuthKit | planned |
+| `apps/local` | Astro, React, SQLite, file storage, BetterAuth, no cloud services | planned |
+| `apps/blog`, `apps/docs`, `apps/shopify` | templates based on `vercel` | planned |
 
 ## Start your own
 
 ```bash
-npx degit headcodecms/headcodecms/apps/workos my-site
+npx degit headcodecms/headcodecms/apps/vercel my-site
 cd my-site && pnpm install
 ```
 
@@ -32,7 +33,7 @@ pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
 
 ```bash
 pnpm install                         # installs every app (one lockfile per app)
-pnpm dev --filter headcode-workos    # run one app
+pnpm dev --filter headcode-vercel    # run one app
 pnpm lint && pnpm typecheck && pnpm test && pnpm build   # all apps through Turborepo
 ```
 

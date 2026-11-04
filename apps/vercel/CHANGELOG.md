@@ -1,6 +1,6 @@
-# Changelog (apps/workos)
+# Changelog (apps/vercel)
 
-Core changes that variants based on `workos` should follow.
+Core changes that variants based on `vercel` should follow.
 
 ## Unreleased
 
