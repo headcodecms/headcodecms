@@ -378,7 +378,7 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
     {
       title: 'Add collection entry',
       description:
-        'Adds a collection entry on the selected live or draft version and returns the new entry with its default sections. Use this for repeatable collections such as pages or blog posts. This saves CMS content but does not publish. Do not call headcode_publish unless the user explicitly asks to publish or release the draft.',
+        'Adds a collection entry on the selected live or draft version and returns the new entry with its default sections. Use this for repeatable collections such as pages or blog posts. The name becomes the URL /<slug>/<slugified name>; "/" in the name makes a nested path, for example "install/vercel". This saves CMS content but does not publish. Do not call headcode_publish unless the user explicitly asks to publish or release the draft.',
       annotations: write,
       inputSchema: z.object({ slug: z.string(), name: z.string() }),
     },

@@ -18,7 +18,7 @@ import type {
   ServiceEntryBundle,
   ServiceSection,
 } from '@/headcode/types'
-import { slugify } from '@/headcode/utils'
+import { slugifyPath } from '@/headcode/utils'
 
 export type EntryBundle = ServiceEntryBundle
 
@@ -82,7 +82,7 @@ export const getMeta = (bundle: EntryBundle) => {
 }
 
 export const getEntrySlug = (bundle: EntryBundle) =>
-  slugify(bundle.entry.name ?? bundle.entry.slug)
+  slugifyPath(bundle.entry.name ?? bundle.entry.slug)
 
 export const getDataHeadcodeAttribute = (
   entry: ServiceEntry,

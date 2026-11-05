@@ -1,7 +1,7 @@
 import type { Doc, Id } from './_generated/dataModel'
 import type { MutationCtx, QueryCtx } from './_generated/server'
 import { headcodeConfig } from '../headcode/config'
-import { slugify } from '../headcode/utils'
+import { slugifyPath } from '../headcode/utils'
 import type { HeadcodeVersionInput, SectionInput } from './schema_validators'
 import {
   validateSection,
@@ -163,7 +163,7 @@ export const getCollection = async (
   if (exact) return exact
   return (
     (await getCollections(ctx, slug, version)).find(
-      (entry) => entry.name !== null && slugify(entry.name) === nameOrSlug,
+      (entry) => entry.name !== null && slugifyPath(entry.name) === nameOrSlug,
     ) ?? null
   )
 }
@@ -175,11 +175,12 @@ export const getEntryConfig = (entry: Pick<Doc<'entries'>, 'slug' | 'name'>) =>
       : headcodeConfig.collections) as EntryConfig[]
   ).find((config) => config.slug === entry.slug) ?? null
 
-// Creates an entry with the configured default sections.
+// Creates an entry with the given sections, or the configured defaults.
 export const createEntry = async (
   ctx: MutationCtx,
   entry: { slug: string; name: string | null },
   version: Id<'versions'>,
+  sections?: readonly { name: string; data: unknown }[],
 ) => {
   const config = getEntryConfig(entry)
   const kind = entry.name === null ? 'global' : 'collection'
@@ -190,7 +191,7 @@ export const createEntry = async (
     modificationTime: Date.now(),
     version,
   })
-  for (const [index, section] of config.defaults.entries())
+  for (const [index, section] of (sections ?? config.defaults).entries())
     await addSection(ctx, {
       name: section.name,
       pos: BigInt(index),

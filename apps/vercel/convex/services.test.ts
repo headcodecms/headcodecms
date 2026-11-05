@@ -328,6 +328,25 @@ describe('services', () => {
     })
   })
 
+  test('finds collection entries by nested path', async () => {
+    const t = createTest()
+
+    await t.mutation(internal.seed.init, {})
+    await t.mutation(api.services.addCollection, {
+      slug: 'blog',
+      name: 'Guides/Getting Started',
+      version: 'live',
+    })
+
+    const post = await t.query(api.services.getCollectionWithSections, {
+      slug: 'blog',
+      name: 'guides/getting-started',
+      version: 'live',
+    })
+
+    expect(post?.entry.name).toBe('Guides/Getting Started')
+  })
+
   test('returns live site bundles with parsed sections', async () => {
     const t = createTest()
 

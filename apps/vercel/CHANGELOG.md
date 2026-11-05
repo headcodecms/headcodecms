@@ -4,6 +4,8 @@ Core changes that variants based on `vercel` should follow.
 
 ## Unreleased
 
+- Nested collection paths: an entry name with "/" (`install/vercel`) becomes `/<collection>/install/vercel`. `slugifyPath` in `headcode/utils.ts` slugifies each segment; `entryPath`, `getEntrySlug` and `db.getCollection` use it. Catch-all routes (`[...slug]`) render them.
+- Collections can list `seed: [{ name, sections }]` in `headcode/config.ts`. An empty install gets these entries instead of one sample; `db.createEntry` takes optional sections.
 - Content comes only from the database. `convex/seed.ts` (`pnpm seed`) creates the initial version, all globals and sample entries; the site no longer renders runtime defaults.
 - Removed `ensureGlobal` and the MCP tool `headcode_ensure_global`; globals exist after seeding.
 - `vercel.json` builds with `pnpm convex deploy && pnpm seed && pnpm build` (`convex deploy --cmd` runs the build before the functions are pushed).
