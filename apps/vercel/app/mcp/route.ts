@@ -73,18 +73,28 @@ const nextActions = (ids: {
   ].filter(Boolean)
 
 // Field configs without validators, so agents can see the editable shape.
+// Field settings plus the JSON Schema of each value, so agents can check
+// data before they write. Writes with invalid values are rejected.
 const describeFields = (fields: Record<string, HeadcodeFieldConfig>): unknown =>
   Object.fromEntries(
     Object.entries(fields).map(([key, field]) => [
       key,
       Array.isArray(field)
         ? field.map(describeFields)
-        : Object.fromEntries(
-            Object.entries(field).filter(
-              ([name, value]) =>
-                name !== 'validator' && typeof value !== 'function',
+        : {
+            ...Object.fromEntries(
+              Object.entries(field).filter(
+                ([name, value]) =>
+                  name !== 'validator' && typeof value !== 'function',
+              ),
             ),
-          ),
+            schema:
+              field.validator &&
+              z.toJSONSchema(field.validator, {
+                io: 'input',
+                unrepresentable: 'any',
+              }),
+          },
     ]),
   )
 
@@ -635,7 +645,7 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
     {
       title: 'Update section data',
       description:
-        'Updates fields on an existing section only. This saves CMS content in the selected live or draft version but does not publish. Do not call headcode_publish after editing unless the user explicitly asks to publish or release the draft. Unknown fields are ignored by Headcode validation; invalid values fall back to configured defaults.',
+        'Updates fields on an existing section only. This saves CMS content in the selected live or draft version but does not publish. Do not call headcode_publish after editing unless the user explicitly asks to publish or release the draft. Unknown fields are ignored. Invalid values are rejected with the field path and reason; check them first against the field schemas from headcode_list_section_types.',
       annotations: write,
       inputSchema: z.object({
         sectionId: z.string(),

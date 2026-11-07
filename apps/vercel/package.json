@@ -65,6 +65,7 @@
     "convex-test": "^0.0.65",
     "eslint": "^10.13.0",
     "eslint-config-next": "16.4.3",
+    "playwright-core": "^1.64.1",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4.3.3",

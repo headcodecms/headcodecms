@@ -1,6 +1,6 @@
 import type { LogosData } from '@/headcode/sections'
 import { Container } from '../_components/container'
-import type { SectionProps } from './utils'
+import type { SectionProps } from './shared'
 
 const technologyPaths: Record<string, string> = {
   'Next.js':

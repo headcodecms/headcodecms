@@ -3,8 +3,6 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { requestOrigin } from '@/headcode/utils'
 import { getHeadcodeVersionForHost } from '@/headcode/versions'
 
-const markdownPath = /^\/(docs|pricing|blog(\/.*)?|pages\/.*)?$/
-
 const wantsMarkdown = (req: NextRequest) =>
   req.nextUrl.searchParams.has('md') ||
   (req.headers.get('accept') ?? '')
@@ -35,23 +33,19 @@ export default async function proxy(req: NextRequest) {
   const path = pathname === '/' ? '' : pathname
 
   // `?md` and `Accept: text/markdown` serve the agent-readable page version.
-  if (markdownPath.test(pathname) && wantsMarkdown(req)) {
+  if (pathname !== '/llms.txt' && wantsMarkdown(req)) {
     url.pathname = `/${version}/headcode-markdown.txt${path}`
     url.search = ''
   } else url.pathname = `/${version}${path}`
   return NextResponse.rewrite(url)
 }
 
+// Every site page, plus /admin and the direct version URLs. Not: Next.js
+// internals, MCP, the auth callback, OAuth discovery, and files with an
+// extension (public assets, robots.txt, sitemap.xml) except /llms.txt.
 export const config = {
   matcher: [
-    '/',
-    '/docs',
-    '/pricing',
-    '/blog/:path*',
-    '/pages/:path*',
+    '/((?!_next/|mcp|callback|\\.well-known/|.*\\.[a-z0-9]+$).*)',
     '/llms.txt',
-    '/live/:path*',
-    '/draft/:path*',
-    '/admin/:path*',
   ],
 }

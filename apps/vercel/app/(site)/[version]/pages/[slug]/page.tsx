@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { siteVersion } from '@/app/(site)/_lib/version'
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 import { entryPath } from '@/headcode/utils'
 
 import {
@@ -44,7 +45,16 @@ export const generateMetadata = async ({
   })
 }
 
-export default async function Page({ params }: Props) {
+// params are read inside Suspense, so the shared shell of this route stays URL-independent.
+export default function Page({ params }: Props) {
+  return (
+    <Suspense>
+      <CollectionPage params={params} />
+    </Suspense>
+  )
+}
+
+async function CollectionPage({ params }: Props) {
   const page = await getHeadcodeCollectionEntry(
     await siteVersion(),
     'pages',

@@ -30,8 +30,10 @@ const renderPath = async (
       return (
         slug && render(await getHeadcodeCollectionEntry(version, 'pages', slug))
       )
-    default:
+    case undefined:
       return render(await getHeadcodeGlobal(version, 'home'), true)
+    default:
+      return null
   }
 }
 

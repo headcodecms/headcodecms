@@ -6,7 +6,7 @@ Setup steps are in `README.md`. This file contains the rules.
 
 - Next.js 16 App Router, React 19, TypeScript, Convex, WorkOS AuthKit, shadcn/ui (base-ui), kibo-ui, TipTap, Zod, Vitest, pnpm.
 - Ask before you add dependencies. Make the smallest change, with arrow functions, single quotes, and no semicolons.
-- `components/` and `lib/` hold generated shadcn/kibo code. Do not put app code there. The one local patch is the TipTap `signal` pass-through in `components/kibo-ui/editor`.
+- `components/` and `lib/` hold generated shadcn/kibo code. Do not put app code there. Local patches: the TipTap `signal` pass-through in `components/kibo-ui/editor`, and `render` on `DialogStackNext`/`DialogStackPrevious` in `components/kibo-ui/dialog-stack` (shadcn turns `asChild` into `render`). Keep `headcode/utils.ts` the only registry file named `utils` (with two, shadcn rewrites `utils` imports to the first one).
 - Do not start `pnpm dev` or `pnpm convex dev` if they are already running (http://localhost:3000).
 
 ## Architecture
@@ -17,7 +17,7 @@ Setup steps are in `README.md`. This file contains the rules.
   - an MCP OAuth token issued by AuthKit (second `customJwt` provider, issuer `https://$WORKOS_AUTHKIT_DOMAIN`), or
   - an MCP bearer token from `ALLOWED_MCP_TOKENS`, passed as `mcpToken`.
 - Sign-up is open. Every WorkOS user may read the admin; writes need the token claim `headcode_role: "editor"` (WorkOS user metadata, copied by the environment's JWT template), otherwise `requireHeadcodeUser` throws a `ConvexError` asking for activation. The admin UI shows it via `errorMessage` (`_lib/use-actions.ts`), MCP as the tool error.
-- Section data is stored as JSON strings. `convex/section_validations.ts` validates it against the field Zod validators: unknown keys are dropped, and invalid values fall back to defaults.
+- Section data is stored as JSON strings. `convex/section_validations.ts` validates it against the field Zod validators: unknown keys are dropped. Writes (admin, MCP, seed) with invalid values are rejected with a `ConvexError` naming each field; reads fall back to defaults, so old data still renders. Formats such as numbers are a custom `validator` on a text field (`TextField({ validator: z.string().regex(...) })`), not a new field type. `headcode_list_section_types` returns each field's JSON Schema.
 - The database is the only source of content. `convex/seed.ts` (`pnpm seed`, repeatable) fills it from `headcode/config.ts`: an empty install gets one shared version and sample entries, every run adds missing globals. Reads never fall back to config defaults.
 - Content model, configured in `headcode/config.ts`:
   - **sections** (`headcode/sections.ts`) contain **fields** (`headcode/fields.ts`).
@@ -41,6 +41,9 @@ Setup steps are in `README.md`. This file contains the rules.
 pnpm test && pnpm lint && pnpm typecheck && pnpm build
 pnpm mcp http://draft.localhost:3000/mcp headcode_get_version
 pnpm parity http://draft.localhost:3000 --write
+pnpm parity http://localhost:3000 --login            # once per host: a human signs in
+pnpm parity http://localhost:3000 --admin --write    # admin theme, entries, edit in the admin
+pnpm parity http://localhost:3000 --compare=<url>    # same text, SEO and look as another site (a convert's original)
 # in the monorepo root, after changing files listed in registry.json:
 pnpm dlx shadcn@latest registry validate
 ```
@@ -48,7 +51,8 @@ pnpm dlx shadcn@latest registry validate
 - `scripts/parity.mts` is the contract every Headcode app keeps (MCP auth, tool list and annotations, site formats, edit-to-site cycle). Change it only together with the behavior, and note it in `CHANGELOG.md`.
 - Before changing Next.js code, read `node_modules/next/dist/docs/`.
 - Before changing Convex code, read `convex/_generated/ai/guidelines.md`.
-- Admin sign-in uses the hosted AuthKit page. A human has to sign in once in the browser; after that, agents can reuse the session.
+- Admin sign-in uses the hosted AuthKit page. A human has to sign in once (`--login`); the session is saved in `.parity/<host>.json` (gitignored, a secret) and `--admin` reuses it.
+- An install or change is not done until `--admin --write` passes: the admin must look like stock Headcode and work.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

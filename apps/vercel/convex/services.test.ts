@@ -464,19 +464,35 @@ describe('services', () => {
     })
   })
 
-  test('logs invalid scalar and select values and falls back to defaults', async () => {
+  test('rejects invalid values on write and names each field', async () => {
     const t = createTest()
     const entry = await seedGlobal(t, 'home', 'draft')
 
-    const sectionId = await t.mutation(api.services.addSection, {
-      name: 'hero',
-      pos: BigInt(100),
-      entry,
-      data: stringify({
-        title: 123,
-        eyebrowIcon: 'missing-icon',
+    await expect(
+      t.mutation(api.services.addSection, {
+        name: 'hero',
+        pos: BigInt(100),
+        entry,
+        data: stringify({ title: 123, eyebrowIcon: 'missing-icon' }),
       }),
-    })
+    ).rejects.toThrow(
+      /Invalid hero section\. data\.eyebrowIcon: .*data\.title: /,
+    )
+  })
+
+  test('reads invalid stored values with defaults and logs them', async () => {
+    const t = createTest()
+    const entry = await seedGlobal(t, 'home', 'draft')
+
+    // Stored before a field changed, so it no longer passes the validator.
+    const sectionId = await t.run((ctx) =>
+      ctx.db.insert('sections', {
+        name: 'hero',
+        pos: BigInt(100),
+        entry,
+        data: stringify({ title: 123, eyebrowIcon: 'missing-icon' }),
+      }),
+    )
 
     const section = await t.query(api.services.getSection, { id: sectionId })
 
@@ -528,27 +544,42 @@ describe('services', () => {
     const t = createTest()
     const entry = await seedGlobal(t, 'header', 'draft')
 
-    const sectionId = await t.mutation(api.services.addSection, {
-      name: 'header',
-      pos: BigInt(100),
-      entry,
-      data: stringify({
-        brand: 'Headcode',
-        navigation: [
-          {
-            navItem: {
-              title: 'Docs',
-              url: '/docs',
-              openInNewWindow: false,
-              ignored: true,
-            },
-          },
-          { navItem: { title: 123 } },
-          'skip me',
-        ],
-        primaryLink: { title: 'Admin', url: '/admin' },
+    await expect(
+      t.mutation(api.services.addSection, {
+        name: 'header',
+        pos: BigInt(100),
+        entry,
+        data: stringify({
+          navigation: [{ navItem: { title: 123 } }, 'skip me'],
+        }),
       }),
-    })
+    ).rejects.toThrow(
+      /data\.navigation\.0\.navItem: .*data\.navigation\.1: Expected object/,
+    )
+
+    const sectionId = await t.run((ctx) =>
+      ctx.db.insert('sections', {
+        name: 'header',
+        pos: BigInt(100),
+        entry,
+        data: stringify({
+          brand: 'Headcode',
+          navigation: [
+            {
+              navItem: {
+                title: 'Docs',
+                url: '/docs',
+                openInNewWindow: false,
+                ignored: true,
+              },
+            },
+            { navItem: { title: 123 } },
+            'skip me',
+          ],
+          primaryLink: { title: 'Admin', url: '/admin' },
+        }),
+      }),
+    )
 
     const section = await t.query(api.services.getSection, { id: sectionId })
 
@@ -589,18 +620,21 @@ describe('services', () => {
       data: stringify({ content: 'Before' }),
     })
 
-    await t.mutation(api.services.updateSection, {
-      id: sectionId,
-      name: 'text',
-      pos: BigInt(100),
-      entry,
-      data: stringify({ content: 123, extra: true }),
-    })
+    const update = (data: unknown) =>
+      t.mutation(api.services.updateSection, {
+        id: sectionId,
+        name: 'text',
+        pos: BigInt(100),
+        entry,
+        data: stringify(data),
+      })
+
+    await expect(update({ content: 123 })).rejects.toThrow('data.content')
+    await update({ content: 'After', extra: true })
 
     const section = await t.query(api.services.getSection, { id: sectionId })
 
-    expect(section?.data).toEqual({ content: '' })
-    expect(warn).toHaveBeenCalled()
+    expect(section?.data).toEqual({ content: 'After' })
   })
 
   test('reorders sections without changing data', async () => {

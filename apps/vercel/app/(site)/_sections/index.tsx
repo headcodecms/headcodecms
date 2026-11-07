@@ -18,7 +18,7 @@ import {
 } from './image'
 import { LogoList, renderLogosMarkdown } from './logos'
 import { PlansSection, renderPlansMarkdown } from './plans'
-import type { SectionProps } from './utils'
+import type { SectionProps } from './shared'
 
 export { Hero } from './hero'
 export { ImageSection, ImageWithText } from './image'

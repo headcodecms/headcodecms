@@ -13,7 +13,7 @@ import {
 import type { PlansData } from '@/headcode/sections'
 import { cn } from '@/lib/utils'
 import { Container } from '../_components/container'
-import { compactMarkdown, markdownLink, type SectionProps } from './utils'
+import { compactMarkdown, markdownLink, type SectionProps } from './shared'
 
 export const PlansSection = ({ data, headcode }: SectionProps<PlansData>) => (
   <section className="pb-20 md:pb-28" data-headcode={headcode}>

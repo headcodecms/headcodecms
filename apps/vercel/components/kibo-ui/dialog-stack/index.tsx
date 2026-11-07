@@ -376,12 +376,14 @@ export const DialogStackFooter = ({
 
 export type DialogStackNextProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   asChild?: boolean;
+  render?: ReactElement;
 };
 
 export const DialogStackNext = ({
   children,
   className,
   asChild,
+  render,
   ...props
 }: DialogStackNextProps) => {
   const context = useContext(DialogStackContext);
@@ -396,13 +398,15 @@ export const DialogStackNext = ({
     }
   };
 
-  if (asChild && children) {
-    const child = children as ReactElement<{
+  // Headcode patch: `render` (base-ui style) works like `asChild`; shadcn turns asChild into render on base-ui projects.
+  if (render || (asChild && children)) {
+    const child = (render ?? children) as ReactElement<{
       onClick: MouseEventHandler<HTMLButtonElement>;
       className?: string;
     }>;
 
     return cloneElement(child, {
+      ...(render && { children }),
       onClick: (e: MouseEvent<HTMLButtonElement>) => {
         handleNext();
         child.props.onClick?.(e);
@@ -431,12 +435,14 @@ export const DialogStackNext = ({
 export type DialogStackPreviousProps =
   ButtonHTMLAttributes<HTMLButtonElement> & {
     asChild?: boolean;
+    render?: ReactElement;
   };
 
 export const DialogStackPrevious = ({
   children,
   className,
   asChild,
+  render,
   ...props
 }: DialogStackPreviousProps) => {
   const context = useContext(DialogStackContext);
@@ -451,13 +457,15 @@ export const DialogStackPrevious = ({
     }
   };
 
-  if (asChild && children) {
-    const child = children as ReactElement<{
+  // Headcode patch: `render` (base-ui style) works like `asChild`; shadcn turns asChild into render on base-ui projects.
+  if (render || (asChild && children)) {
+    const child = (render ?? children) as ReactElement<{
       onClick: MouseEventHandler<HTMLButtonElement>;
       className?: string;
     }>;
 
     return cloneElement(child, {
+      ...(render && { children }),
       onClick: (e: MouseEvent<HTMLButtonElement>) => {
         handlePrevious();
         child.props.onClick?.(e);

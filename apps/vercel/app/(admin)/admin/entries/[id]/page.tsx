@@ -921,10 +921,10 @@ const SectionEditor = ({
               <FieldGroup>{fields(step.itemFields, item, path)}</FieldGroup>
             </div>
             <DialogStackFooter>
-              <DialogStackPrevious asChild>
-                <Button variant="outline" onClick={closeLayer}>
-                  Close
-                </Button>
+              <DialogStackPrevious
+                render={<Button variant="outline" onClick={closeLayer} />}
+              >
+                Close
               </DialogStackPrevious>
             </DialogStackFooter>
           </div>
@@ -940,17 +940,19 @@ const SectionEditor = ({
         {[
           <DialogStackContent key="section" className="h-[80vh]">
             <div className="flex h-full min-h-0 flex-col">
-              <DialogStackPrevious asChild>
-                <button
-                  ref={previousLayerRef}
-                  type="button"
-                  tabIndex={-1}
-                  aria-hidden="true"
-                  className="sr-only"
-                  onClick={closeLayer}
-                >
-                  Close layer
-                </button>
+              <DialogStackPrevious
+                render={
+                  <button
+                    ref={previousLayerRef}
+                    type="button"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    className="sr-only"
+                    onClick={closeLayer}
+                  />
+                }
+              >
+                Close layer
               </DialogStackPrevious>
               <DialogStackHeader className="shrink-0 pb-6">
                 <DialogStackTitle className="flex items-center gap-3 text-2xl">
@@ -1249,25 +1251,27 @@ const ArrayFieldEditor = ({
                 >
                   <GripVertical className="text-muted-foreground m-1 size-4 shrink-0 self-center" />
 
-                  <DialogStackNext asChild>
-                    <button
-                      ref={listbox.openRef(index)}
-                      type="button"
-                      tabIndex={-1}
-                      onClick={edit}
-                      className="focus-visible:ring-ring flex flex-1 cursor-pointer items-center gap-3 rounded-md text-left focus-visible:ring-2 focus-visible:outline-none"
-                    >
-                      <ItemContent>
-                        <ItemTitle>
-                          {getItemTitle(item, itemFields, index)}
-                        </ItemTitle>
-                        {description ? (
-                          <ItemDescription className="text-xs">
-                            {description}
-                          </ItemDescription>
-                        ) : null}
-                      </ItemContent>
-                    </button>
+                  <DialogStackNext
+                    render={
+                      <button
+                        ref={listbox.openRef(index)}
+                        type="button"
+                        tabIndex={-1}
+                        onClick={edit}
+                        className="focus-visible:ring-ring flex flex-1 cursor-pointer items-center gap-3 rounded-md text-left focus-visible:ring-2 focus-visible:outline-none"
+                      />
+                    }
+                  >
+                    <ItemContent>
+                      <ItemTitle>
+                        {getItemTitle(item, itemFields, index)}
+                      </ItemTitle>
+                      {description ? (
+                        <ItemDescription className="text-xs">
+                          {description}
+                        </ItemDescription>
+                      ) : null}
+                    </ItemContent>
                   </DialogStackNext>
 
                   <ItemActions className="relative z-10">
@@ -1284,11 +1288,11 @@ const ArrayFieldEditor = ({
                         }
                       />
                       <DropdownMenuContent align="end">
-                        <DialogStackNext asChild>
-                          <DropdownMenuItem onClick={edit}>
-                            <Pencil />
-                            Edit
-                          </DropdownMenuItem>
+                        <DialogStackNext
+                          render={<DropdownMenuItem onClick={edit} />}
+                        >
+                          <Pencil />
+                          Edit
                         </DialogStackNext>
                         <DropdownMenuItem
                           disabled={index === 0}

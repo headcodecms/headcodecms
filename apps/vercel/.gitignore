@@ -37,3 +37,6 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# parity admin sessions (secret)
+/.parity/

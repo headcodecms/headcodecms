@@ -10,10 +10,11 @@ export const slugifyPath = (value: string) =>
   value.split('/').map(slugify).filter(Boolean).join('/')
 
 // Site path of an entry: globals are /slug, collection entries /slug/name.
-export const entryPath = (entry: { slug: string; name: string | null }) =>
-  entry.name === null
-    ? `/${entry.slug}`
-    : `/${entry.slug}/${slugifyPath(entry.name)}`
+// The collection entry "index" is the collection root (/docs).
+export const entryPath = (entry: { slug: string; name: string | null }) => {
+  const name = entry.name === null ? 'index' : slugifyPath(entry.name)
+  return name === 'index' ? `/${entry.slug}` : `/${entry.slug}/${name}`
+}
 
 // Public origin of a request. Next.js reports `localhost` for every local host,
 // so the Host header decides (live and draft hosts need their own URLs).

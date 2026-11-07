@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { siteVersion } from '@/app/(site)/_lib/version'
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 
 import type { ImageData } from '@/headcode/sections'
 import {
@@ -55,7 +56,16 @@ export const generateMetadata = async ({
     : {}
 }
 
-export default async function BlogPostPage({ params }: Props) {
+// params are read inside Suspense, so the shared shell of this route stays URL-independent.
+export default function BlogPostPage({ params }: Props) {
+  return (
+    <Suspense>
+      <BlogPost params={params} />
+    </Suspense>
+  )
+}
+
+async function BlogPost({ params }: Props) {
   const post = await getPost(params)
   const metaSection = post && getBlogMetaSection(post)
   if (!post || !metaSection) notFound()

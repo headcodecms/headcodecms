@@ -7,7 +7,7 @@ import {
   type RenderableImage,
   type SectionProps,
   Visual,
-} from './utils'
+} from './shared'
 
 export const ImageSection = ({
   data,

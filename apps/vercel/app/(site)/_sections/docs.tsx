@@ -2,7 +2,7 @@ import type { CodeData, SnippetData, TextData } from '@/headcode/sections'
 import { CodeTabs } from '../_components/code-tabs'
 import { Container } from '../_components/container'
 import { Markdown } from '../_components/markdown'
-import { compactMarkdown, DocsBlock, type SectionProps } from './utils'
+import { compactMarkdown, DocsBlock, type SectionProps } from './shared'
 
 export const CodeSection = ({ data, headcode }: SectionProps<CodeData>) => (
   <DocsBlock data={data} headcode={headcode}>

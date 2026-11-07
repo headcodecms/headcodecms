@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import type { HeroData } from '@/headcode/sections'
 import { Container } from '../_components/container'
 import { siteIcons } from '../_components/icons'
-import { compactMarkdown, markdownLink } from './utils'
+import { compactMarkdown, markdownLink } from './shared'
 
 export const Hero = ({
   eyebrow,

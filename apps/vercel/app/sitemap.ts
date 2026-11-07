@@ -4,20 +4,26 @@ import { headers } from 'next/headers'
 
 import { getHeadcodeSitemapEntries } from '@/app/(site)/_lib/headcode'
 import { siteUrl } from '@/app/(site)/_lib/seo'
-import { getHeadcodeVersionForHost } from '@/headcode/versions'
-import { entryPath } from '@/headcode/utils'
+import { headcodeConfig } from '@/headcode/config'
 import type { ServiceEntry } from '@/headcode/types'
+import { entryPath } from '@/headcode/utils'
+import { getHeadcodeVersionForHost } from '@/headcode/versions'
 
-const url = (
-  path: string,
-  { modificationTime }: ServiceEntry,
-  changeFrequency: 'weekly' | 'monthly' = 'monthly',
-  priority = 0.8,
-) => ({
-  url: `${siteUrl}/${path.replace(/^\/+|\/+$/g, '')}`,
+// Every page: globals with a path in headcode/config.ts (not files like /llms.txt),
+// and all collection entries.
+const pagePaths: Record<string, string> = Object.fromEntries(
+  headcodeConfig.globals.flatMap((global) =>
+    'path' in global && global.path && !global.path.includes('.')
+      ? [[global.slug, global.path]]
+      : [],
+  ),
+)
+
+const url = (path: string, { modificationTime }: ServiceEntry) => ({
+  url: `${siteUrl}${path === '/' ? '' : path}`,
   lastModified: new Date(modificationTime),
-  changeFrequency,
-  priority,
+  changeFrequency: path === '/' ? ('weekly' as const) : ('monthly' as const),
+  priority: path === '/' ? 1 : 0.8,
 })
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -25,18 +31,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { globals, collections } = await getHeadcodeSitemapEntries(
     getHeadcodeVersionForHost(host),
   )
-  const global = (slug: string) =>
-    globals.filter((entry) => entry.slug === slug).slice(0, 1)
-  const collection = (slug: string) =>
-    collections
-      .filter((entry) => entry.slug === slug)
-      .map((entry) => url(entryPath(entry), entry))
-
   return [
-    ...global('home').map((entry) => url('/', entry, 'weekly', 1)),
-    ...global('docs').map((entry) => url('docs', entry)),
-    ...global('pricing').map((entry) => url('pricing', entry)),
-    ...collection('blog'),
-    ...collection('pages'),
+    ...globals.flatMap((entry) =>
+      pagePaths[entry.slug] ? [url(pagePaths[entry.slug], entry)] : [],
+    ),
+    ...collections.map((entry) => url(entryPath(entry), entry)),
   ]
 }

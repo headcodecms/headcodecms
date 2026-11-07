@@ -23,10 +23,11 @@ convex.mutation = async (...args) => {
 // Passes the WorkOS access token to Convex.
 const useWorkOSAuth = () => {
   const { user, loading } = useAuth()
+  const userId = user?.id
   const { getAccessToken, refresh } = useAccessToken()
   const fetchAccessToken = useCallback(
     async ({ forceRefreshToken }: { forceRefreshToken: boolean }) => {
-      if (!user) return null
+      if (!userId) return null
       try {
         return (
           (await (forceRefreshToken ? refresh() : getAccessToken())) ?? null
@@ -35,7 +36,7 @@ const useWorkOSAuth = () => {
         return null
       }
     },
-    [user, refresh, getAccessToken],
+    [userId, refresh, getAccessToken],
   )
   return { isLoading: loading, isAuthenticated: !!user, fetchAccessToken }
 }
