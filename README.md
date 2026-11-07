@@ -23,6 +23,14 @@ cd my-site && pnpm install
 
 Then follow the app's README (Convex, WorkOS, environment, run).
 
+Convert an existing (vibe-coded) website: tell your coding agent
+
+```text
+Convert this website into a Headcode CMS site. Follow https://headcodecms.com/convert.md
+```
+
+The steps are in [`convert.md`](convert.md).
+
 Or add Headcode to an existing Next.js + shadcn/ui app:
 
 ```bash
