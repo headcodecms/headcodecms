@@ -273,6 +273,10 @@ The browser checks use the installed Google Chrome (`playwright-core`, channel `
 
 Run the original site on another port for the compare: `git worktree add ../original vibe-original`, install, and start it, for example on port 3456.
 
+The checks need a shared MCP token, because scripts cannot sign in in a browser. Create it yourself, do not ask the user: `openssl rand -hex 32`, set it as `ALLOWED_MCP_TOKENS` in `.env.local` and in Convex (`pnpm convex env set ALLOWED_MCP_TOKENS <token>`). On a deployed host, also set it in the host's environment (sensitive) and save it in `.parity/<host>.env` as `MCP_TOKEN=<token>`. Never print it.
+
+Tell the user in one sentence, so a token does not confuse them: "For the automatic checks I created a token for scripts; you and your AI tools (Claude, Cursor) sign in through the browser as usual. You don't need to do anything with it."
+
 ## 6. Checks
 
 All must pass. Run them on the live host (`localhost:3000`) and the draft host (`draft.localhost:3000`).

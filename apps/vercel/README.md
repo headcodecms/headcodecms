@@ -126,7 +126,15 @@ pnpm parity <url> --write # also add, edit and delete a test entry (never publis
 3. Vercel project with Root Directory `apps/vercel` (or the app folder). `vercel.json` sets the build: `pnpm convex deploy && pnpm seed && pnpm build`, so functions are live and globals exist before Next.js prerenders.
 4. Vercel environment variables (production): `CONVEX_DEPLOY_KEY`, `NEXT_PUBLIC_CONVEX_URL`, `WORKOS_CLIENT_ID`, `WORKOS_AUTHKIT_DOMAIN`, `WORKOS_COOKIE_PASSWORD`, `ALLOWED_MCP_TOKENS`, `NEXT_PUBLIC_WORKOS_REDIRECT_URI`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_HEADCODE_VERSION=auto`, `NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=<draft host>`.
 5. Add the live and draft domains to the Vercel project.
-6. Check the deployment: `MCP_TOKEN=<token> pnpm parity https://<host>` for the live and the draft host.
+6. Check the deployment for the live and the draft host. Save the token once per host in `.parity/<host>.env` (gitignored; Vercel hides sensitive values later):
+
+   ```bash
+   printf 'MCP_TOKEN=%s\n' <token> > .parity/<host>.env
+   pnpm parity https://<host> --login            # a human signs in once
+   pnpm parity https://<host> --admin --write
+   ```
+
+**About the shared token:** `ALLOWED_MCP_TOKENS` is for scripts only (parity, CI). People and MCP clients (Claude, Cursor, ChatGPT) sign in with WorkOS OAuth and never need it. If it is lost, create a new one and set it in Convex and Vercel; nothing else breaks.
 
 ## MCP clients
 

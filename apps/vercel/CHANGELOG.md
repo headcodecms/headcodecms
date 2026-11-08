@@ -4,6 +4,7 @@ Core changes that variants based on `vercel` should follow.
 
 ## Unreleased
 
+- `pnpm parity` loads `.parity/<host>.env` (gitignored), so each deployed host keeps its own `MCP_TOKEN`. README and convert.md explain the shared token: scripts only, created by the agent, people and MCP clients use OAuth.
 - `ListField({ label, description, fields })` in `headcode/fields.ts`: lists get a label and description in the admin (list title, breadcrumb) and in MCP. It is still an array (`[fields]`), so `[{ ... }]` keeps working. MCP `headcode_list_section_types` describes a list as `{ type: 'list', label, description, item }` instead of `[item]`.
 - Registry install fixes (found by installing into a fresh `shadcn init` app):
   - `app/(site)/_sections/utils.tsx` is now `shared.tsx`. `shadcn add` rewrote every `@/lib/utils` and `@/headcode/utils` import to the first registry file named `utils`.

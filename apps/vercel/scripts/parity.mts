@@ -2,7 +2,8 @@
 // must keep. Runs against a running app, local or deployed.
 // Usage: pnpm parity [base-url] [--write] [--admin] [--login] [--compare=<url>]
 //   --write adds a test entry, edits it, checks the site, and deletes it again.
-//   It never publishes. Token: MCP_TOKEN or the first ALLOWED_MCP_TOKENS value.
+//   It never publishes. Token: MCP_TOKEN (also from .parity/<host>.env) or the
+//   first ALLOWED_MCP_TOKENS value (.env.local).
 //   --login opens Chrome once; a human signs in, the session is saved in
 //   .parity/<host>.json (gitignored, a secret). Then exits.
 //   --admin tests the admin with that session in headless Chrome: stock
@@ -28,6 +29,9 @@ const original = args
   .find((arg) => arg.startsWith('--compare='))
   ?.slice('--compare='.length)
 const admin = args.includes('--admin')
+// A deployed host keeps its shared MCP token in .parity/<host>.env (gitignored).
+if (existsSync(`.parity/${base.host}.env`))
+  process.loadEnvFile(`.parity/${base.host}.env`)
 const token =
   process.env.MCP_TOKEN ?? process.env.ALLOWED_MCP_TOKENS?.split(',')[0]?.trim()
 const mcp = new URL('/mcp', base)
