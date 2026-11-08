@@ -3,6 +3,7 @@ import {
   DateTimeField,
   ImageField,
   LinkField,
+  ListField,
   RichtextField,
   SelectField,
   TextareaField,
@@ -55,13 +56,11 @@ export const header = {
     brand: TextField({
       label: 'Brand',
     }),
-    navigation: [
-      {
-        navItem: LinkField({
-          label: 'Navigation Item',
-        }),
-      },
-    ],
+    navigation: ListField({
+      label: 'Navigation',
+      description: 'Menu links, in order.',
+      fields: { navItem: LinkField({ label: 'Navigation Item' }) },
+    }),
     primaryLink: LinkField({
       label: 'Primary Link',
     }),
@@ -81,13 +80,11 @@ export const footer = {
       label: 'Description',
       description: 'Short footer text shown below the brand.',
     }),
-    navigation: [
-      {
-        navItem: LinkField({
-          label: 'Navigation Item',
-        }),
-      },
-    ],
+    navigation: ListField({
+      label: 'Links',
+      description: 'Footer links, in order.',
+      fields: { navItem: LinkField({ label: 'Navigation Item' }) },
+    }),
     copyright: TextField({
       label: 'Copyright',
     }),
@@ -136,8 +133,9 @@ export const logos = {
     eyebrow: TextField({
       label: 'Eyebrow',
     }),
-    items: [
-      {
+    items: ListField({
+      label: 'Logos',
+      fields: {
         name: TextField({
           label: 'Name',
         }),
@@ -147,7 +145,7 @@ export const logos = {
             'SVG path data used by the logo icon renderer. Leave unchanged unless you are replacing the icon.',
         }),
       },
-    ],
+    }),
   },
 }
 
@@ -235,8 +233,10 @@ export const plans = {
   description:
     'Pricing cards with name, price, short description, features, and a button per plan, plus optional small print.',
   fields: {
-    plans: [
-      {
+    plans: ListField({
+      label: 'Plans',
+      description: 'One card per plan, in order.',
+      fields: {
         name: TextField({
           label: 'Name',
         }),
@@ -254,13 +254,10 @@ export const plans = {
           label: 'Description',
           description: 'One concise sentence explaining who this plan is for.',
         }),
-        features: [
-          {
-            feature: TextField({
-              label: 'Feature',
-            }),
-          },
-        ],
+        features: ListField({
+          label: 'Features',
+          fields: { feature: TextField({ label: 'Feature' }) },
+        }),
         cta: LinkField({
           label: 'Call to Action',
         }),
@@ -270,7 +267,7 @@ export const plans = {
             'Highlights this plan visually as the recommended option.',
         }),
       },
-    ],
+    }),
     note: TextField({
       label: 'Note',
       description: 'Optional small print shown below the pricing cards.',
@@ -297,8 +294,10 @@ export const snippet = {
       options: iconOptions,
       defaultValue: 'none',
     }),
-    tabs: [
-      {
+    tabs: ListField({
+      label: 'Tabs',
+      description: 'One tab per package manager or shell, in order.',
+      fields: {
         value: TextField({
           label: 'Value',
           description:
@@ -312,7 +311,7 @@ export const snippet = {
           description: 'Shell command shown in the selected tab.',
         }),
       },
-    ],
+    }),
   },
 }
 
@@ -330,8 +329,10 @@ export const code = {
       description:
         'Short intro shown above the code example. Explain what the example demonstrates.',
     }),
-    files: [
-      {
+    files: ListField({
+      label: 'Files',
+      description: 'One tab per file, in order.',
+      fields: {
         value: TextField({
           label: 'Value',
         }),
@@ -351,7 +352,7 @@ export const code = {
             'Code shown in this example. Keep it focused and copy-paste friendly.',
         }),
       },
-    ],
+    }),
   },
 }
 

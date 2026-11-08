@@ -52,8 +52,13 @@ export type ImageFieldValue = {
   imageId: Id<'images'>
 } | null
 
-export type HeadcodeFieldConfig =
-  FieldDefinition | Record<string, HeadcodeFieldConfig>[]
+// A list is an array with one item definition; ListField adds a label and description.
+export type HeadcodeListConfig = Record<string, HeadcodeFieldConfig>[] & {
+  label?: string
+  description?: string
+}
+
+export type HeadcodeFieldConfig = FieldDefinition | HeadcodeListConfig
 
 export type HeadcodeSectionConfig = {
   name: string

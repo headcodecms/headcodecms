@@ -38,9 +38,9 @@ Headcode content is built from **sections** (`headcode/sections.ts`) with **fiel
 | Long formatted text (article body, docs) | `RichtextField` | |
 | Text and a URL (button, nav item, text link) | `LinkField` | two text fields |
 | An image | `ImageField` with the size in the description | a URL text field |
-| Something that repeats (cards, logos, steps, footer columns) | a list `[{ ... }]` | `card1Title`, `card2Title` |
+| Something that repeats (cards, logos, steps, footer columns) | `ListField({ label, description, fields })` | `card1Title`, `card2Title` |
 | Groups of the same shape (cloud and self-hosted, monthly and yearly) | a list of that shape | prefixed fields `cloudTitle`, `selfTitle` |
-| Grouped items (footer columns with links) | a nested list `[{ title, links: [{ link }] }]` | a `group` text field and grouping by equal strings |
+| Grouped items (footer columns with links) | a nested `ListField` | a `group` text field and grouping by equal strings |
 | A state (coming soon, recommended, numbered) | `CheckboxField` | comparing text: `status === 'Soon'` |
 | A fixed choice (illustration, icon, logo, color theme, image side) | `SelectField` | free text |
 | A format (number, percent, URL, phone) | `TextField` with a `validator`, the format in the description | a new field type |
@@ -117,12 +117,16 @@ hosting: { cloudLabel, cloudTitle, cloudText, cloudButton1, ..., selfLabel, self
 // ✅ reorderable; the different look is a checkbox
 hosting: {
   title, lead,
-  options: [{
-    recommended: CheckboxField({ label: 'Recommended', description: 'Wide card with icons.' }),
-    label, title, text,
-    items: [{ icon: SelectField(...), title, text }],
-    buttons: [{ logo: SelectField(...), link: LinkField(), soon: CheckboxField() }],
-  }],
+  options: ListField({
+    label: 'Options',
+    description: 'One card per hosting option. Reorder to change the order on the page.',
+    fields: {
+      recommended: CheckboxField({ label: 'Recommended', description: 'Wide card with icons.' }),
+      label, title, text,
+      items: ListField({ label: 'Benefits', fields: { icon: SelectField(...), title, text } }),
+      buttons: ListField({ label: 'Buttons', fields: { logo: SelectField(...), link: LinkField(), soon: CheckboxField() } }),
+    },
+  }),
 }
 ```
 
@@ -133,7 +137,13 @@ hosting: {
 navigation: [{ group: TextField(), navItem: LinkField() }]
 
 // ✅
-columns: [{ title: TextField({ label: 'Column' }), links: [{ link: LinkField({ label: 'Link' }) }] }]
+columns: ListField({
+  label: 'Columns',
+  fields: {
+    title: TextField({ label: 'Column' }),
+    links: ListField({ label: 'Links', fields: { link: LinkField({ label: 'Link' }) } }),
+  },
+})
 ```
 
 **Magic string → checkbox** (rule: a state)
@@ -160,7 +170,11 @@ link: LinkField({ label: 'Text link', description: 'Optional link next to the bu
 // ❌
 legendPercent1, legendLabel1, legendPercent2, legendLabel2
 // ✅
-legend: [{ percent: TextField({ validator: ... }), label: TextField(), text: TextField() }]
+legend: ListField({
+  label: 'Legend',
+  description: 'Usually two entries, for example 90% and 10%.',
+  fields: { percent: TextField({ validator: ... }), label: TextField(), text: TextField() },
+})
 ```
 
 **Name hidden in a link → text fields** (rule: a name is a text field)
@@ -206,6 +220,7 @@ Before you write content or the seed, check the model against this list and fix 
 - [ ] No checkbox renders text or links that are not in a field.
 - [ ] No visible text is hardcoded in a renderer (prefixes, "Read more", button text).
 - [ ] Every section has a description that says what it looks like and when to use it.
+- [ ] Every list is a `ListField` with a label; say in the description what one item is when the label alone is not clear.
 - [ ] Every field with a format or size says it in the description.
 - [ ] Sections with the same structure are one section.
 - [ ] Every page can have `meta`; no other section has SEO fields.

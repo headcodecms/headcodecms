@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type {
+  HeadcodeFieldConfig,
   FieldParams,
   ImageFieldParams,
   ImageFieldValue,
@@ -129,3 +130,15 @@ export const DateTimeField = (params: NumberFieldParams = {}) => ({
   ...params,
   type: 'datetime' as const,
 })
+
+// Reorderable list of items with the given fields. It stays an array
+// ([fields]), so validation and types treat it like `[{ ... }]`; the label and
+// description show in the admin and in MCP.
+export const ListField = <TFields extends Record<string, HeadcodeFieldConfig>>({
+  fields,
+  ...params
+}: {
+  label: string
+  description?: string
+  fields: TFields
+}) => Object.assign([fields], params)

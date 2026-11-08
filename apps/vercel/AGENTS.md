@@ -20,7 +20,7 @@ Setup steps are in `README.md`. This file contains the rules.
 - Section data is stored as JSON strings. `convex/section_validations.ts` validates it against the field Zod validators: unknown keys are dropped. Writes (admin, MCP, seed) with invalid values are rejected with a `ConvexError` naming each field; reads fall back to defaults, so old data still renders. Formats such as numbers are a custom `validator` on a text field (`TextField({ validator: z.string().regex(...) })`), not a new field type. `headcode_list_section_types` returns each field's JSON Schema.
 - The database is the only source of content. `convex/seed.ts` (`pnpm seed`, repeatable) fills it from `headcode/config.ts`: an empty install gets one shared version and sample entries, every run adds missing globals. Reads never fall back to config defaults.
 - Content model, configured in `headcode/config.ts`:
-  - **sections** (`headcode/sections.ts`) contain **fields** (`headcode/fields.ts`).
+  - **sections** (`headcode/sections.ts`) contain **fields** (`headcode/fields.ts`). Lists are `ListField({ label, description, fields })`.
   - **entries** are either **globals** (a single entry per slug) or **collections** (repeatable entries).
   - image fields store `{ imageId }`.
 - Versions are `live` and `draft`. Publishing promotes the draft to live and clones a new draft. `headcode/versions.ts` picks the version from the request host (`NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS`), the same way for site, admin, and MCP.

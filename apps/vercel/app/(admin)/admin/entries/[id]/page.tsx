@@ -77,6 +77,7 @@ import type { Id } from '@/convex/_generated/dataModel'
 import { headcodeConfig } from '@/headcode/config'
 import type {
   HeadcodeFieldConfig,
+  HeadcodeListConfig,
   HeadcodeSectionConfig,
   ImageFieldValue,
   LinkFieldValue,
@@ -100,7 +101,12 @@ type SectionConfig = HeadcodeSectionConfig & {
 }
 type Fields = Record<string, HeadcodeFieldConfig>
 type Item = Record<string, unknown>
-type Step = { fieldName: string; index: number; itemFields: Fields }
+type Step = {
+  fieldName: string
+  label: string
+  index: number
+  itemFields: Fields
+}
 
 // Form data operations, addressed by the path of drilled-into array items.
 type Ops = {
@@ -882,7 +888,7 @@ const SectionEditor = ({
       {path.map((step) => (
         <React.Fragment key={`${step.fieldName}-${step.index}`}>
           <Separator />
-          <span>{step.fieldName}</span>
+          <span>{step.label}</span>
           <Separator />
           <span className="text-foreground font-mono">{step.index + 1}</span>
         </React.Fragment>
@@ -1200,15 +1206,16 @@ const ArrayFieldEditor = ({
   value,
   path,
   ops,
-}: FieldEditorProps & { field: Fields[] }) => {
+}: FieldEditorProps & { field: HeadcodeListConfig }) => {
   const itemFields = field[0]
+  const label = field.label ?? name
   const items = getItems(value)
   const listbox = useListbox(items.length)
 
   if (!itemFields) {
     return (
       <UnsupportedField
-        label={name}
+        label={label}
         name={name}
         description="Array has no item fields"
       />
@@ -1219,12 +1226,15 @@ const ArrayFieldEditor = ({
 
   return (
     <Field>
-      <FieldLabel>{name}</FieldLabel>
+      <FieldLabel>{label}</FieldLabel>
+      {field.description ? (
+        <FieldDescription>{field.description}</FieldDescription>
+      ) : null}
       <div className="flex flex-col gap-2">
         {items.length > 0 ? (
           <ul
             role="listbox"
-            aria-label={name}
+            aria-label={label}
             aria-activedescendant={`${idPrefix}${listbox.active}`}
             onKeyDown={listbox.onKeyDown}
             className="flex w-full list-none flex-col gap-2 p-0"
@@ -1232,7 +1242,7 @@ const ArrayFieldEditor = ({
             {items.map((item, index) => {
               const description = getItemDescription(item, itemFields)
               const edit = () =>
-                ops.drill(path, { fieldName: name, index, itemFields })
+                ops.drill(path, { fieldName: name, label, index, itemFields })
               const move = (direction: -1 | 1) =>
                 ops.setItems(path, name, (current) =>
                   moveItem(current, index, direction),

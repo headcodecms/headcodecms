@@ -80,7 +80,12 @@ const describeFields = (fields: Record<string, HeadcodeFieldConfig>): unknown =>
     Object.entries(fields).map(([key, field]) => [
       key,
       Array.isArray(field)
-        ? field.map(describeFields)
+        ? {
+            type: 'list',
+            label: field.label,
+            description: field.description,
+            item: describeFields(field[0]),
+          }
         : {
             ...Object.fromEntries(
               Object.entries(field).filter(
@@ -360,7 +365,7 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
     {
       title: 'List section types',
       description:
-        'Lists section types, their purpose, and editable fields for an entry, or for a collection by slug alone before its first entry exists (e.g. { slug: "blog" }). This is read-only and never publishes content.',
+        'Lists section types, their purpose, and editable fields for an entry, or for a collection by slug alone before its first entry exists (e.g. { slug: "blog" }). A field of type "list" holds an array of items with the fields in "item"; items can be reordered. This is read-only and never publishes content.',
       annotations: readOnly,
       inputSchema: lookup,
     },
