@@ -26,4 +26,4 @@ Based on `apps/vercel` (see its CHANGELOG for core changes). This file lists wha
 - Service tests run on in-memory libSQL with a convex-test-like harness.
 - `scripts/parity.mts`, `scripts/mcp-smoke.mts`, `scripts/seed.mts` default to port 3073. `parity.mts` types the OAuth metadata body (Workers types make `json()` return `unknown`).
 - Cache: Workers Response Store (self-contained) instead of the KV data cache, whose tag markers can be a minute stale per edge location (parity failed about every second run). Pages are not cached (`connection()` in the site layout): vinext's page ISR kept stale HTML after repeated writes. Writes call `expireSite()`. Missing pages are soft 404s (200 + `noindex`).
-- Known: the admin does not load under `pnpm dev` (AuthKit pre-bundling); use `pnpm build && pnpm preview`.
+- The admin works under `pnpm dev`: the client auth seam no longer uses AuthKit's client components (Vite pre-bundled them with AuthKit's server actions). It reads `/admin/session` and signs out via `/admin/logout`.

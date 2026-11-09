@@ -72,11 +72,7 @@ pnpm seed http://localhost:3073   # once: creates the tables and sample content
 | http://localhost:3073/docs?md  | any page as Markdown                 |
 | http://localhost:3073/mcp      | MCP endpoint (OAuth or bearer token) |
 
-The admin does not load under `pnpm dev` yet (Vite pre-bundles AuthKit with server-only code). Use the production build locally for admin work:
-
-```bash
-pnpm build && pnpm preview        # same URLs, same local data
-```
+To test the production build locally: `pnpm build && pnpm preview` (same URLs, same local data).
 
 ## Users and editors
 

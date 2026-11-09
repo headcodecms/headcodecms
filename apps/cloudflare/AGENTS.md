@@ -16,13 +16,13 @@ Platform code lives only in these files, with the same exports in `apps/cloudfla
 
 Auth seam exports: `getAdminIdentity`, `protectAdmin` (proxy.ts), `verifyMcpAccessToken`, `getMcpIdentity`, `authServerMetadata` (`headcode/auth.ts`); `AuthProvider`, `useAdminUser`, `Authenticated`, `AuthLoading`, `Unauthenticated` (`headcode/auth-client.tsx`). Images seam: `imageSrc`, `storeImage`, `readImage`, `deleteStoredImage`, `imageMetadata`, `transformImage`. Database seam: `getDb`.
 
-| File                                                          | Here                                                                           |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `headcode/db.ts`                                              | `drizzle(env.DB)` on D1                                                        |
-| `headcode/images.ts`                                          | R2 (`env.MEDIA`) storage, `env.IMAGES` for dimensions, ThumbHash, and resizing |
-| `headcode/auth.ts`, `app/callback`, `app/(admin)/admin/login` | AuthKit session, admin redirect, MCP OAuth token check                         |
-| `headcode/auth-client.tsx`                                    | `AuthKitProvider`, admin user, and the auth gates                              |
-| `cloudflare.config.ts`, `vite.config.ts`                      | Worker, bindings, domains, vinext plugins                                      |
+| File                                                                                | Here                                                                                          |
+| ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `headcode/db.ts`                                                                    | `drizzle(env.DB)` on D1                                                                       |
+| `headcode/images.ts`                                                                | R2 (`env.MEDIA`) storage, `env.IMAGES` for dimensions, ThumbHash, and resizing                |
+| `headcode/auth.ts`, `app/callback`, `app/(admin)/admin/login`                       | AuthKit session, admin redirect, MCP OAuth token check                                        |
+| `headcode/auth-client.tsx`, `app/(admin)/admin/session`, `app/(admin)/admin/logout` | admin session and sign-out through server routes (no AuthKit code in the browser), auth gates |
+| `cloudflare.config.ts`, `vite.config.ts`                                            | Worker, bindings, domains, vinext plugins                                                     |
 
 ## Architecture
 
@@ -76,7 +76,7 @@ pnpm parity https://<host> --admin --write           # after each deploy, live a
 
 - `scripts/parity.mts` is the contract every Headcode app keeps (MCP auth, tool list and annotations, site formats, edit-to-site cycle). Change it only together with the behavior, and note it in `CHANGELOG.md`.
 - Before changing Next.js code, read `node_modules/next/dist/docs/`. For vinext limits run `pnpm dlx vinext check`.
-- The admin does not load under `pnpm dev` (Vite pre-bundles AuthKit's client components with a `server-only` chunk). Test the admin with `pnpm build && pnpm preview` (same port, local D1 and R2).
+- Do not import `@workos-inc/authkit-nextjs/components` in client code: Vite pre-bundles them together with AuthKit's server actions (`server-only`), and the admin breaks under `pnpm dev`. The client seam reads `/admin/session` and signs out via `/admin/logout`; `proxy.ts` refreshes the session on every `/admin` request.
 - Locally the Images binding cannot output raw RGBA, so uploads get a grey blur placeholder; deployed Workers compute the real one.
 - Admin sign-in uses the hosted AuthKit page. A human has to sign in once (`--login`); the session is saved in `.parity/<host>.json` (gitignored, a secret) and `--admin` reuses it.
 - An install or change is not done until `--admin --write` passes: the admin must look like stock Headcode and work.
