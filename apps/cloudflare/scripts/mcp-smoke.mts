@@ -5,7 +5,7 @@ import {
   StreamableHTTPClientTransport,
 } from '@modelcontextprotocol/client'
 
-const [url = 'http://localhost:3000/mcp', tool, args = '{}'] =
+const [url = 'http://localhost:3001/mcp', tool, args = '{}'] =
   process.argv.slice(2)
 const token = process.env.ALLOWED_MCP_TOKENS?.split(',')[0]?.trim()
 

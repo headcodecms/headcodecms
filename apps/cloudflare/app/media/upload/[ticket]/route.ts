@@ -4,7 +4,7 @@ import { consumeUpload } from '@/headcode/services'
 import { DEFAULT_IMAGE_MAX_SIZE } from '@/headcode/fields'
 
 // One-time upload URL from generateImageUploadUrl. Body: the image file,
-// Content-Type: its type. Returns { storageId } like a Convex upload URL.
+// Content-Type: its type. Returns { storageId }.
 export const POST = async (
   req: Request,
   { params }: { params: Promise<{ ticket: string }> },

@@ -1,79 +1,86 @@
-# Headcode CMS
+# Headcode CMS (Cloudflare)
 
 A CMS for Next.js websites that people and agents both edit. It has a public site with Markdown output for agents, an admin UI, an MCP server, and draft/live publishing.
 
-**Stack:** Next.js 16, React 19, Convex, WorkOS AuthKit, shadcn/ui, TipTap, MCP SDK v2 (spec `2026-07-28`, stateless).
+This app runs on Cloudflare Workers. It behaves like `apps/vercel` (same `pnpm parity` contract), but uses Cloudflare services instead of Vercel and Convex.
+
+**Stack:** Next.js 16 on [vinext](https://github.com/cloudflare/vinext) (Vite), React 19, Cloudflare D1 + Drizzle, R2, Cloudflare Images binding, Workers KV (cache), WorkOS AuthKit, shadcn/ui, TipTap, MCP SDK v2 (spec `2026-07-28`, stateless).
+
+|         | apps/vercel                  | apps/cloudflare                               |
+| ------- | ---------------------------- | --------------------------------------------- |
+| Runtime | Next.js on Vercel            | vinext on Cloudflare Workers                  |
+| Content | Convex                       | D1 (SQLite) + Drizzle                         |
+| Images  | Convex storage, `next/image` | R2, `/media/<key>?w=` with the Images binding |
+| Auth    | WorkOS AuthKit               | WorkOS AuthKit                                |
+
+vinext is in beta, and its Cache Components support is experimental.
 
 ## Setup
 
-These are the exact steps used to set up this repo. Agents can follow them as written.
+**1. App**
 
 ```bash
-# 1. App (empty directory)
-pnpm dlx shadcn@latest init --preset b0 --template next --pointer
+npx degit headcodecms/headcodecms/apps/cloudflare my-site
+cd my-site
 pnpm install
-
-# 2. Convex (cloud dev deployment, writes .env.local)
-pnpm convex dev --once --configure new --team <team> --project <project> --dev-deployment cloud
-pnpm seed   # fills the database from headcode/config.ts
+npx cf auth login          # Cloudflare account (opens the browser)
 ```
 
-**3. WorkOS** (dashboard, WorkOS MCP server, or `workos` CLI), for one environment:
+**2. WorkOS** (dashboard, WorkOS MCP server, or `workos` CLI), for one environment:
 
-| Setting | Value |
-| --- | --- |
-| Redirect URIs | `http://localhost:3000/callback` (default), `http://draft.localhost:3000/callback` |
-| Sign-out URIs | `http://localhost:3000/` (default), `http://draft.localhost:3000/` |
-| Initiate login URI | `http://localhost:3000/admin/login` |
-| Authentication | email code + social logins, password off |
-| Sign-up | enabled (new users can read, not edit) |
-| JWT template | `{"headcode_role": {{ user.metadata.headcode_role || 'viewer' }}}` |
-| Editors | user metadata `{ "headcode_role": "editor" }` |
-| MCP OAuth | enable Client ID Metadata Document and Dynamic Client Registration |
-| Resource indicators | `http://localhost:3000/mcp` (default), `http://draft.localhost:3000/mcp` |
-| Branding (optional) | sign-in heading `Sign in to Headcode CMS` |
+| Setting             | Value                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| Redirect URIs       | `http://localhost:3001/callback` (default), `http://draft.localhost:3001/callback` |
+| Sign-out URIs       | `http://localhost:3001/` (default), `http://draft.localhost:3001/`                 |
+| Initiate login URI  | `http://localhost:3001/admin/login`                                                |
+| Authentication      | email code + social logins, password off                                           |
+| Sign-up             | enabled (new users can read, not edit)                                             |
+| JWT template        | `{"headcode_role": {{ user.metadata.headcode_role                                  |     | 'viewer' }}}` |
+| Editors             | user metadata `{ "headcode_role": "editor" }`                                      |
+| MCP OAuth           | enable Client ID Metadata Document and Dynamic Client Registration                 |
+| Resource indicators | `http://localhost:3001/mcp` (default), `http://draft.localhost:3001/mcp`           |
+| Branding (optional) | sign-in heading `Sign in to Headcode CMS`                                          |
 
-**4. Environment**
-
-```bash
-pnpm convex env set WORKOS_CLIENT_ID client_...
-pnpm convex env set WORKOS_AUTHKIT_DOMAIN <name>.authkit.app
-pnpm convex env set ALLOWED_MCP_TOKENS <token>   # openssl rand -hex 32
-```
-
-Add to `.env.local`:
+**3. Environment** (`.env.local`; the Cloudflare plugin passes it to the local Worker)
 
 ```env
 WORKOS_CLIENT_ID=client_...
 WORKOS_AUTHKIT_DOMAIN=<name>.authkit.app
 WORKOS_COOKIE_PASSWORD=<openssl rand -base64 32>
-NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3000/callback
+NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3001/callback
 NEXT_PUBLIC_HEADCODE_VERSION=auto
 NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=draft.localhost
-ALLOWED_MCP_TOKENS=<same token>
+ALLOWED_MCP_TOKENS=<openssl rand -hex 32>
 ```
 
-You do not need `WORKOS_API_KEY`, because AuthKit runs as a public PKCE client.
+You do not need `WORKOS_API_KEY`, because AuthKit runs as a public PKCE client. A new server-side variable must also be declared in `cloudflare.config.ts` (`bindings.secret()`).
 
-**5. Run**
+**4. Run**
 
 ```bash
-pnpm dev
+pnpm dev                          # http://localhost:3001, local D1, R2, and KV
+pnpm seed http://localhost:3001   # once: creates the tables and sample content
 ```
 
-| URL | Content |
-| --- | --- |
-| http://localhost:3000 | live site |
-| http://draft.localhost:3000 | draft site |
-| http://localhost:3000/admin | admin (sign in through AuthKit) |
-| http://localhost:3000/llms.txt | agent entry point |
-| http://localhost:3000/docs?md | any page as Markdown |
-| http://localhost:3000/mcp | MCP endpoint (OAuth or bearer token) |
+| URL                            | Content                              |
+| ------------------------------ | ------------------------------------ |
+| http://localhost:3001          | live site                            |
+| http://draft.localhost:3001    | draft site                           |
+| http://localhost:3001/admin    | admin (sign in through AuthKit)      |
+| http://localhost:3001/llms.txt | agent entry point                    |
+| http://localhost:3001/docs?md  | any page as Markdown                 |
+| http://localhost:3001/mcp      | MCP endpoint (OAuth or bearer token) |
+
+The admin does not load under `pnpm dev` yet (Vite pre-bundles AuthKit with server-only code). Use the production build locally for admin work:
+
+```bash
+pnpm build && pnpm preview        # same URLs, same local data
+```
 
 ## Users and editors
 
 - Anyone can sign up. A new user can open the admin and use MCP, but only to **read**.
-- Every write (save, publish, upload, MCP edit) answers: *"Your account must be activated by an administrator before you can change content."*
+- Every write (save, publish, upload, MCP edit) answers: _"Your account must be activated by an administrator before you can change content."_
 - To activate a user, set their WorkOS user metadata to `{ "headcode_role": "editor" }` (dashboard, WorkOS MCP, or ask your agent). The JWT template puts this into every access token, for the admin and for MCP OAuth. A change applies when the token is refreshed (admin: within 5 minutes; MCP: re-authenticate if needed).
 - The shared MCP bearer token (`ALLOWED_MCP_TOKENS`) can always write.
 
@@ -81,60 +88,79 @@ pnpm dev
 
 The host decides which version you see and edit: `draft.localhost` shows the draft, every other host shows live. This applies to the site, the admin, and MCP.
 
-| State | What happens |
-| --- | --- |
-| Start (after `pnpm seed`) | One version with sample content. Draft and live are **shared**, so every edit is live immediately. |
-| **New draft** (Admin → Versions) | Copies live into a separate draft. Edits on the draft host are now only visible there. |
-| **Publish draft** | The draft becomes live, and a new draft is copied from it automatically. |
+| State                            | What happens                                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Start (after `pnpm seed`)        | One version with sample content. Draft and live are **shared**, so every edit is live immediately. |
+| **New draft** (Admin → Versions) | Copies live into a separate draft. Edits on the draft host are now only visible there.             |
+| **Publish draft**                | The draft becomes live, and a new draft is copied from it automatically.                           |
 
 Typical workflow:
 
 1. Once: Admin → Versions → **New draft**.
-2. Edit on `http://draft.localhost:3000/admin` (or through MCP on `draft.localhost`).
-3. Check on `http://draft.localhost:3000`.
+2. Edit on `http://draft.localhost:3001/admin` (or through MCP on `draft.localhost`).
+3. Check on `http://draft.localhost:3001`.
 4. Admin → Versions → **Publish draft**.
 
-Edits on the live host (`localhost:3000/admin`) change live directly. Without `NEXT_PUBLIC_HEADCODE_VERSION=auto` and `NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS`, there is only live.
+## Content and images
+
+- Content lives in D1. The schema is `headcode/schema.ts`. After a change, run `pnpm db:generate` (SQL migration in `drizzle/`). `pnpm seed <url>` applies pending migrations, then adds missing globals.
+- Uploaded images go to R2 and are served from `/media/<key>`. `?w=<width>` returns a resized AVIF, WebP, or JPEG, cached at the edge; the site uses it for `srcset`. Image transformations are free up to 5,000 a month.
 
 ## Caching
 
-The site uses Next.js Cache Components. Every page is prerendered once per version (live and draft) and served as static HTML. Navigation prefetches it, so page changes are instant.
+The site uses Next.js Cache Components. Every page is cached once per version (live and draft), in Workers KV.
 
-- Content comes from Convex through one cached helper (`'use cache'`, tag `headcode`).
-- Saving in the admin or through MCP expires the cache, so the next page view shows the change.
-- Changes made elsewhere (Convex dashboard, scripts) show up after at most one hour.
-- New blog posts and pages render on their first visit and are cached after that.
+- Content comes from D1 through one cached helper (`'use cache'`, tag `headcode`).
+- Saving in the admin or through MCP expires the cache, so the next page view shows the change. Live and draft share one Worker and one cache, so a publish shows on the live site at once.
+- Changes made elsewhere (D1 console, scripts) show up after at most one hour.
 
 ## Commands
 
 ```bash
-pnpm test                 # Convex service tests
-pnpm seed                 # add missing globals after changing headcode/config.ts
+pnpm dev                  # vinext dev server on port 3001
+pnpm build && pnpm preview
+pnpm test                 # service tests (in-memory SQLite)
 pnpm lint
 pnpm typecheck
-pnpm build
+pnpm db:generate          # SQL migration after a schema change
+pnpm seed [url]           # migrations + missing globals (default http://localhost:3001)
 pnpm mcp                  # list MCP tools (pinned to spec 2026-07-28)
-pnpm mcp http://draft.localhost:3000/mcp headcode_get_version
-pnpm parity               # contract tests against http://draft.localhost:3000
+pnpm mcp http://draft.localhost:3001/mcp headcode_get_version
+pnpm parity               # contract tests against http://draft.localhost:3001
 pnpm parity <url> --write # also add, edit and delete a test entry (never publishes)
+pnpm release              # build, deploy, migrate, seed (see Deploy)
 ```
 
-## Deploy (Vercel + Convex)
+## Deploy (Cloudflare)
 
-1. Convex production deployment: set `WORKOS_CLIENT_ID`, `WORKOS_AUTHKIT_DOMAIN`, `ALLOWED_MCP_TOKENS` with `pnpm convex env set --prod ...`, then create a deploy key: `pnpm convex deployment token create vercel --deployment prod`.
-2. WorkOS production environment: the same settings as in step 3 of the setup, with your domains (`https://<host>/callback`, `https://<host>/`, `https://<host>/mcp`). Social logins need your own OAuth credentials in production.
-3. Vercel project with Root Directory `apps/vercel` (or the app folder). `vercel.json` sets the build: `pnpm convex deploy && pnpm seed && pnpm build`, so functions are live and globals exist before Next.js prerenders.
-4. Vercel environment variables (production): `CONVEX_DEPLOY_KEY`, `NEXT_PUBLIC_CONVEX_URL`, `WORKOS_CLIENT_ID`, `WORKOS_AUTHKIT_DOMAIN`, `WORKOS_COOKIE_PASSWORD`, `ALLOWED_MCP_TOKENS`, `NEXT_PUBLIC_WORKOS_REDIRECT_URI`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_HEADCODE_VERSION=auto`, `NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=<draft host>`.
-5. Add the live and draft domains to the Vercel project.
-6. Check the deployment for the live and the draft host. Save the token once per host in `.parity/<host>.env` (gitignored; Vercel hides sensitive values later):
+1. **Domains:** set the live and the draft host in `cloudflare.config.ts` (`domains`, live first). The zone must be on Cloudflare. A free plan is enough. The deploy creates the DNS records and certificates.
+2. **R2:** enable it once in the Cloudflare dashboard (R2 → Enable). It needs a payment method on file; the free tier covers 10 GB.
+3. **WorkOS** production environment: the same settings as in setup step 2, with your hosts (`https://<host>/callback`, `https://<host>/`, `https://<host>/mcp`). Social logins need your own OAuth credentials in production.
+4. **First deploy**, with the secrets in a file outside the repo (not committed, deleted afterwards):
 
    ```bash
-   printf 'MCP_TOKEN=%s\n' <token> > .parity/<host>.env
+   cat > /tmp/headcode-secrets.env <<'EOF'
+   WORKOS_CLIENT_ID=client_...
+   WORKOS_AUTHKIT_DOMAIN=<name>.authkit.app
+   WORKOS_COOKIE_PASSWORD=<openssl rand -base64 32>
+   ALLOWED_MCP_TOKENS=<openssl rand -hex 32>
+   EOF
+   printf 'MCP_TOKEN=%s\n' <same token> > .parity/<live host>.env
+   pnpm release --secrets-file /tmp/headcode-secrets.env
+   rm /tmp/headcode-secrets.env
+   ```
+
+   `cf deploy` creates the D1 database, the R2 bucket, and the KV namespace on the first run.
+
+5. **Later deploys:** `pnpm release`. It builds with `NEXT_PUBLIC_SITE_URL` and the draft host taken from `cloudflare.config.ts`, deploys, and runs `pnpm seed` against the live host (pending migrations, missing globals).
+6. Check the live and the draft host (copy `.parity/<live host>.env` to `.parity/<draft host>.env`):
+
+   ```bash
    pnpm parity https://<host> --login            # a human signs in once
    pnpm parity https://<host> --admin --write
    ```
 
-**About the shared token:** `ALLOWED_MCP_TOKENS` is for scripts only (parity, CI). People and MCP clients (Claude, Cursor, ChatGPT) sign in with WorkOS OAuth and never need it. If it is lost, create a new one and set it in Convex and Vercel; nothing else breaks.
+**About the shared token:** `ALLOWED_MCP_TOKENS` is for scripts only (seed, parity, CI). People and MCP clients (Claude, Cursor, ChatGPT) sign in with WorkOS OAuth and never need it. If it is lost, create a new one and set it with `npx cf workers secrets update`; nothing else breaks.
 
 ## MCP clients
 
@@ -143,8 +169,8 @@ The request host selects the content version. Register live and draft as two ser
 **OAuth (Claude Code and other OAuth clients).** Sign in once through AuthKit with a WorkOS user:
 
 ```bash
-claude mcp add --transport http headcode-live http://localhost:3000/mcp
-claude mcp add --transport http headcode-draft http://draft.localhost:3000/mcp
+claude mcp add --transport http headcode-live https://<live host>/mcp
+claude mcp add --transport http headcode-draft https://<draft host>/mcp
 # then in Claude Code: /mcp → headcode-draft → Authenticate
 ```
 
@@ -155,7 +181,7 @@ claude mcp add --transport http headcode-draft http://draft.localhost:3000/mcp
   "mcpServers": {
     "headcode-draft": {
       "type": "http",
-      "url": "http://draft.localhost:3000/mcp",
+      "url": "https://<draft host>/mcp",
       "headers": { "Authorization": "Bearer <token>" }
     }
   }
@@ -165,16 +191,8 @@ claude mcp add --transport http headcode-draft http://draft.localhost:3000/mcp
 How it works:
 
 - `/.well-known/oauth-protected-resource/mcp` points clients to AuthKit, and a `401` carries the link in `WWW-Authenticate`.
-- `app/mcp/auth.ts` checks the token's issuer and audience (the `/mcp` URL of the request host). Convex checks the same JWT, so MCP writes run as the signed-in user.
+- `app/mcp/auth.ts` checks the token's issuer and audience (the `/mcp` URL of the request host). MCP writes run as the signed-in user (`headcode_role` claim).
 - The server only speaks the stateless `2026-07-28` protocol. Clients still on `initialize` (2025 era) receive `UnsupportedProtocolVersion`. MCP edits never publish unless you ask for it.
-
-## Install into another app
-
-```bash
-pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
-```
-
-The registry lives in the monorepo root (`registry.json`) and points into this app. Agents can follow [`public/start.md`](public/start.md).
 
 ## License
 

@@ -1,10 +1,14 @@
+import { revalidateTag } from 'next/cache'
+
+import { headcodeTag } from '@/app/(site)/_lib/headcode'
 import { isAllowedMcpToken } from '@/headcode/authorization'
 import { getDb } from '@/headcode/db'
 import { migrate } from '@/headcode/migrate'
 import { seed } from '@/headcode/services'
 
 // `pnpm seed <url>`: applies pending migrations and seeds the database from
-// headcode/config.ts. Needs the shared MCP token (scripts only).
+// headcode/config.ts, then expires the site cache. Needs the shared MCP
+// token (scripts only).
 export const POST = async (req: Request) => {
   const token = req.headers.get('authorization')?.replace(/^Bearer /, '')
   if (!isAllowedMcpToken(token))
@@ -12,5 +16,6 @@ export const POST = async (req: Request) => {
   const db = getDb()
   const migrated = await migrate(db)
   await seed(db)
+  revalidateTag(headcodeTag, { expire: 0 })
   return Response.json({ migrated, seeded: true })
 }

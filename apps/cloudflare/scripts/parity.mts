@@ -22,7 +22,7 @@ import { chromium, type Browser, type Page } from 'playwright-core'
 
 const args = process.argv.slice(2)
 const base = new URL(
-  args.find((arg) => !arg.startsWith('--')) ?? 'http://draft.localhost:3000',
+  args.find((arg) => !arg.startsWith('--')) ?? 'http://draft.localhost:3001',
 )
 const write = args.includes('--write')
 const original = args

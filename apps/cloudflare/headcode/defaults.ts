@@ -124,8 +124,7 @@ export const defaultLogos = {
     eyebrow: 'Built with',
     items: [
       { name: 'Next.js', iconPath: '' },
-      { name: 'Vercel', iconPath: '' },
-      { name: 'Convex', iconPath: '' },
+      { name: 'Cloudflare', iconPath: '' },
       { name: 'shadcn/ui', iconPath: '' },
       { name: 'Tailwind CSS', iconPath: '' },
       { name: 'React', iconPath: '' },
@@ -211,10 +210,10 @@ export const defaultImageTexts = [
   {
     name: imageText.name,
     data: {
-      eyebrow: 'Realtime data',
-      title: 'Powered by Convex',
+      eyebrow: 'Edge platform',
+      title: 'Powered by Cloudflare',
       description:
-        'A realtime database with end-to-end types and serverless functions. Collaborators and agents see the same document, updating as it changes.',
+        'Workers run the site, D1 stores the content, R2 holds the images, and the Images binding resizes them. Pages are cached at the edge, close to every visitor.',
       image: null,
       reversed: false,
       action: {
@@ -252,7 +251,7 @@ export const defaultLlmsTxt = {
   data: {
     content: `# Headcode CMS
 
-> Headcode CMS is a Next.js, Convex, and WorkOS content system for agent-assisted website editing.
+> Headcode CMS is a Next.js, Cloudflare (Workers, D1, R2), and WorkOS content system for agent-assisted website editing.
 
 ## Summary
 
@@ -431,44 +430,38 @@ export const defaultDocs = [
     data: {
       content: `## Fast local install
 
-Use this path for a new local project on \`http://localhost:3000\`. Draft content is served on \`http://draft.localhost:3000\`.
+Use this path for a new local project on \`http://localhost:3001\`. Draft content is served on \`http://draft.localhost:3001\`.
 
 \`\`\`bash
-rm -f app/page.tsx app/layout.tsx
-pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
+npx degit headcodecms/headcodecms/apps/cloudflare my-site
+cd my-site
 pnpm install
-pnpm convex dev --run seed:init
+npx cf auth login
 \`\`\`
 
-Create a WorkOS environment with email-code and social sign-in. Sign-up can stay open: new users can read, and you activate editors with the user metadata \`{ "headcode_role": "editor" }\` plus the JWT template \`{"headcode_role": {{ user.metadata.headcode_role || 'viewer' }}}\`. Then add the callback \`http://localhost:3000/callback\`, the sign-out URI \`http://localhost:3000/\`, and the initiate login URI \`http://localhost:3000/admin/login\`.
+Create a WorkOS environment with email-code and social sign-in. Sign-up can stay open: new users can read, and you activate editors with the user metadata \`{ "headcode_role": "editor" }\` plus the JWT template \`{"headcode_role": {{ user.metadata.headcode_role || 'viewer' }}}\`. Then add the callback \`http://localhost:3001/callback\`, the sign-out URI \`http://localhost:3001/\`, and the initiate login URI \`http://localhost:3001/admin/login\`.
 
-\`\`\`bash
-pnpm convex env set WORKOS_CLIENT_ID "client_..."
-pnpm convex env set WORKOS_AUTHKIT_DOMAIN "your-app.authkit.app"
-pnpm convex env set ALLOWED_MCP_TOKENS "$(openssl rand -hex 32)"
-\`\`\`
-
-Add the matching values to \`.env.local\`:
+Add the values to \`.env.local\`:
 
 \`\`\`env
 WORKOS_CLIENT_ID=client_...
 WORKOS_AUTHKIT_DOMAIN=your-app.authkit.app
 WORKOS_COOKIE_PASSWORD=at-least-32-characters
-NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3000/callback
-ALLOWED_MCP_TOKENS=the-same-token
+NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3001/callback
+ALLOWED_MCP_TOKENS=a-random-token
 \`\`\`
 
-Start the app with \`pnpm dev\`, then open \`http://localhost:3000\` and \`http://localhost:3000/admin\`.
+Start the app with \`pnpm dev\`, run \`pnpm seed\` once to create the tables and sample content, then open \`http://localhost:3001\`.
 
 ### Live and draft hosts
 
-\`\`\`env
-NEXT_PUBLIC_HEADCODE_VERSION=auto
-NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=draft.example.com
-NEXT_PUBLIC_SITE_URL=https://www.example.com
+Put both hosts in \`cloudflare.config.ts\` (\`domains\`, live first). \`pnpm release\` builds with them, deploys the Worker, and seeds the database.
+
+\`\`\`ts
+domains: ['www.example.com', 'draft.example.com'],
 \`\`\`
 
-MCP clients sign in with OAuth through AuthKit. Enable Client ID Metadata Documents and Dynamic Client Registration in WorkOS and add each \`/mcp\` URL as a resource indicator. Clients without OAuth can send a bearer token from \`ALLOWED_MCP_TOKENS\` (set in both Convex and the Next.js environment). Use separate MCP client names for draft and live hosts, for example \`headcode-draft\` and \`headcode-live\`.`,
+MCP clients sign in with OAuth through AuthKit. Enable Client ID Metadata Documents and Dynamic Client Registration in WorkOS and add each \`/mcp\` URL as a resource indicator. Clients without OAuth can send a bearer token from \`ALLOWED_MCP_TOKENS\` (a Worker secret). Use separate MCP client names for draft and live hosts, for example \`headcode-draft\` and \`headcode-live\`.`,
     },
   },
   {
@@ -526,25 +519,24 @@ MCP clients sign in with OAuth through AuthKit. Enable Client ID Metadata Docume
     data: {
       title: 'Manual installation',
       description:
-        'Install Headcode from the shadcn registry, then connect Convex and WorkOS. This is the same path coding agents should use.',
+        'Copy the Cloudflare app, seed the local database, and deploy with one command. This is the same path coding agents should use.',
       icon: 'none',
       tabs: [
         {
           value: 'pnpm',
           label: 'pnpm',
           command:
-            'rm -f app/page.tsx app/layout.tsx && pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode && pnpm install',
+            'npx degit headcodecms/headcodecms/apps/cloudflare my-site && cd my-site && pnpm install',
         },
         {
-          value: 'convex',
-          label: 'Convex',
-          command: 'pnpm convex dev --run seed:init',
+          value: 'seed',
+          label: 'Seed',
+          command: 'pnpm dev & pnpm seed http://localhost:3001',
         },
         {
-          value: 'env',
-          label: 'Env',
-          command:
-            'pnpm convex env set WORKOS_CLIENT_ID "client_..." && pnpm convex env set WORKOS_AUTHKIT_DOMAIN "your-app.authkit.app" && pnpm convex env set ALLOWED_MCP_TOKENS "$(openssl rand -hex 32)"',
+          value: 'deploy',
+          label: 'Deploy',
+          command: 'pnpm release',
         },
       ],
     },
