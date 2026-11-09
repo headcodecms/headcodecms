@@ -13,4 +13,5 @@ Based on `apps/vercel` (see its CHANGELOG for core changes). This file lists wha
 - `pnpm release`: build with `NEXT_PUBLIC_SITE_URL` and the draft host from `cloudflare.config.ts`, `cf deploy` (first run with `--secrets-file`), then seed.
 - Service tests run on in-memory libSQL with a convex-test-like harness.
 - `scripts/parity.mts`, `scripts/mcp-smoke.mts`, `scripts/seed.mts` default to port 3001. `parity.mts` types the OAuth metadata body (Workers types make `json()` return `unknown`).
+- Cache: Workers Response Store (self-contained) instead of the KV data cache, whose tag markers can be a minute stale per edge location (parity failed about every second run). Pages are not cached (`connection()` in the site layout): vinext's page ISR kept stale HTML after repeated writes. Writes call `expireSite()`. Missing pages are soft 404s (200 + `noindex`).
 - Known: the admin does not load under `pnpm dev` (AuthKit pre-bundling); use `pnpm build && pnpm preview`.

@@ -1,7 +1,15 @@
+import { createWorkersResponseStoreSelfContainedConfig } from '@vinext/cloudflare/cache/config'
 import { bindings, defineConfig, defineWorker } from 'cf/config'
+
+// Page and data cache (vite.config.ts): R2 bodies, Durable Object metadata.
+const cache = await createWorkersResponseStoreSelfContainedConfig({
+  worker: 'headcode-cloudflare',
+  bucket: 'headcode-cloudflare-cache',
+})
 
 export default defineConfig({
   worker: defineWorker({
+    ...cache,
     name: 'headcode-cloudflare',
     entrypoint: 'vinext/server/fetch-handler',
     compatibilityDate: '2026-11-08',
@@ -17,7 +25,7 @@ export default defineConfig({
     env: {
       ASSETS: bindings.assets(),
       IMAGES: bindings.images(),
-      VINEXT_KV_CACHE: bindings.kv(),
+      ...cache.env,
       // Content (headcode/db.ts) and uploaded images (headcode/images.ts).
       DB: bindings.d1({ name: 'headcode-cloudflare' }),
       MEDIA: bindings.r2({ name: 'headcode-cloudflare-media' }),
@@ -27,5 +35,6 @@ export default defineConfig({
       WORKOS_AUTHKIT_DOMAIN: bindings.secret(),
       ALLOWED_MCP_TOKENS: bindings.secret(),
     },
+    exports: { ...cache.exports },
   }),
 })

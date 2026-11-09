@@ -52,10 +52,12 @@ Platform code lives only in these files. Everything else stays platform-neutral,
 - `app/mcp/route.ts` is a stateless MCP server (`@modelcontextprotocol/server` v2, `legacy: 'reject'`). It checks Origin and the bearer token (`app/mcp/auth.ts`: AuthKit OAuth JWT with audience = `/mcp` URL of the request host, or a shared token). OAuth discovery is served by `app/.well-known/[...path]/route.ts`. `app/mcp/seed/route.ts` (shared token only) runs migrations and the seed. MCP tools must keep parity with admin entry and section operations, and must never publish unless the user explicitly asks.
 - The site renders HTML and Markdown from the same validated section data (`app/(site)/_sections`).
 - SEO lives in `app/(site)/_lib/seo.tsx`: every page's `generateMetadata` returns `pageMetadata(...)` (canonical, Open Graph, Twitter card), structured data uses `<JsonLd>`. Draft hosts are `noindex` (layout) and disallowed in `app/robots.ts`.
-- Caching uses Next.js Cache Components (`cacheComponents`, `partialPrefetching`; vinext support is experimental). The data cache is Workers KV (`VINEXT_KV_CACHE`), shared by both hosts:
-  - All site reads go through `cachedQuery` in `app/(site)/_lib/headcode.ts` (`'use cache'`, `cacheLife('hours')`, tag `headcode`).
-  - Every write expires the tag: the admin in `app/(admin)/admin/services/route.ts`, MCP in `app/mcp/route.ts`. Writes from elsewhere (D1 console, scripts) show after at most one hour.
+- Caching uses Next.js Cache Components (`cacheComponents`; vinext support is experimental) for data only:
+  - All site reads go through `cachedQuery` in `app/(site)/_lib/headcode.ts` (`'use cache'`, `cacheLife('hours')`, tag `headcode`). The data cache is the Workers Response Store (`vite.config.ts`, self-contained: R2 bucket for bodies, Durable Object for tags). Its tag invalidation is consistent across edge locations; the KV data cache was not (markers up to a minute stale).
+  - Pages are not cached: `app/(site)/[version]/layout.tsx` calls `connection()`, so every page renders per request from cached data. vinext's page ISR cache kept stale HTML after repeated writes (pages rendered from data-cache hits lose the `headcode` tag). Side effect: a missing page answers with status 200 and `noindex` (soft 404), not 404.
+  - Every write calls `expireSite()` (`app/(site)/_lib/headcode.ts`). It expires the `headcode` tag and the implicit root layout path tag `_N_T_/layout`: vinext can store a data entry again without `headcode` when it was filled from a cache hit. Callers: the admin in `app/(admin)/admin/services/route.ts`, MCP in `app/mcp/route.ts`, and the seed route. Writes from elsewhere (D1 console, scripts) show after at most one hour.
   - Do not read `headers()`, `cookies()` or uncached data in site pages; pass the version from `siteVersion()` into the cached helpers.
+  - Check cache changes with repeated writes to the same page (`pnpm parity <url> --admin --write` a few times in a row); a single write passed even with the broken page cache.
 
 ## Checks
 

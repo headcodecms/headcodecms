@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { siteVersion } from '@/app/(site)/_lib/version'
 import { Geist_Mono, Inter } from 'next/font/google'
+import { connection } from 'next/server'
 import { Suspense } from 'react'
 
 import '../../globals.css'
@@ -55,6 +56,9 @@ export const generateStaticParams = () => [
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Render pages per request from the (consistent) data cache. vinext's page
+  // ISR cache does not reliably expire after writes, so pages are not cached.
+  await connection()
   const { header, footer } = await getHeadcodeSiteChrome(await siteVersion())
   const headerProps = chromeProps<HeaderData>(header, 'header')
   const footerProps = chromeProps<FooterData>(footer, 'footer')

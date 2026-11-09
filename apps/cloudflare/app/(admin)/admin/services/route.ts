@@ -1,6 +1,4 @@
-import { revalidateTag } from 'next/cache'
-
-import { headcodeTag } from '@/app/(site)/_lib/headcode'
+import { expireSite } from '@/app/(site)/_lib/headcode'
 import { getAdminIdentity } from '@/headcode/auth'
 import { HeadcodeError } from '@/headcode/authorization'
 import { getDb } from '@/headcode/db'
@@ -17,7 +15,7 @@ export const POST = async (req: Request) => {
     const { kind, result } = await callService(getDb(), name, args, {
       identity,
     })
-    if (kind === 'mutation') revalidateTag(headcodeTag, { expire: 0 })
+    if (kind === 'mutation') expireSite()
     return Response.json({ result: result ?? null })
   } catch (error) {
     return Response.json(

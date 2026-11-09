@@ -35,7 +35,8 @@ export const generateMetadata = async ({
     'pages',
     (await params).slug,
   )
-  if (!page) return {}
+  // Before the body streams, so a missing page answers with status 404.
+  if (!page) notFound()
   const meta = getMeta(page)
   return pageMetadata({
     title: meta ? `${meta.title} - Headcode` : 'Headcode',

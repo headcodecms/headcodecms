@@ -4,9 +4,8 @@ import {
   McpServer,
   originValidationResponse,
 } from '@modelcontextprotocol/server'
-import { revalidateTag } from 'next/cache'
 import { z } from 'zod'
-import { headcodeTag } from '@/app/(site)/_lib/headcode'
+import { expireSite } from '@/app/(site)/_lib/headcode'
 import { api, type FunctionArgs, type ServiceRef } from '@/headcode/api'
 import type { Id } from '@/headcode/data-model'
 import {
@@ -199,7 +198,7 @@ const createServer = ({ token, extra, resource }: AuthInfo, host: string) => {
         user,
       )
       // Expire the cached site so the change shows on the next request.
-      revalidateTag(headcodeTag, { expire: 0 })
+      expireSite()
       return result
     } catch (error) {
       // HeadcodeError data (e.g. "account must be activated") is the tool error text.

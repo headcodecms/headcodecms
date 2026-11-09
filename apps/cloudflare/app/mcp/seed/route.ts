@@ -1,6 +1,4 @@
-import { revalidateTag } from 'next/cache'
-
-import { headcodeTag } from '@/app/(site)/_lib/headcode'
+import { expireSite } from '@/app/(site)/_lib/headcode'
 import { isAllowedMcpToken } from '@/headcode/authorization'
 import { getDb } from '@/headcode/db'
 import { migrate } from '@/headcode/migrate'
@@ -16,6 +14,6 @@ export const POST = async (req: Request) => {
   const db = getDb()
   const migrated = await migrate(db)
   await seed(db)
-  revalidateTag(headcodeTag, { expire: 0 })
+  expireSite()
   return Response.json({ migrated, seeded: true })
 }

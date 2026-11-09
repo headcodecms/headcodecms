@@ -45,6 +45,8 @@ export const generateMetadata = async ({
 }: Props): Promise<Metadata> => {
   const post = await getPost(params)
   const meta = post && getBlogMetaSection(post)?.data
+  // Before the body streams, so a missing post answers with status 404.
+  if (!meta) notFound()
   return meta
     ? pageMetadata({
         title: `${meta.title} - Headcode Blog`,

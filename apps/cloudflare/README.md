@@ -4,7 +4,7 @@ A CMS for Next.js websites that people and agents both edit. It has a public sit
 
 This app runs on Cloudflare Workers. It behaves like `apps/vercel` (same `pnpm parity` contract), but uses Cloudflare services instead of Vercel and Convex.
 
-**Stack:** Next.js 16 on [vinext](https://github.com/cloudflare/vinext) (Vite), React 19, Cloudflare D1 + Drizzle, R2, Cloudflare Images binding, Workers KV (cache), WorkOS AuthKit, shadcn/ui, TipTap, MCP SDK v2 (spec `2026-07-28`, stateless).
+**Stack:** Next.js 16 on [vinext](https://github.com/cloudflare/vinext) (Vite), React 19, Cloudflare D1 + Drizzle, R2, Cloudflare Images binding, Workers Response Store (cache), WorkOS AuthKit, shadcn/ui, TipTap, MCP SDK v2 (spec `2026-07-28`, stateless).
 
 |         | apps/vercel                  | apps/cloudflare                               |
 | ------- | ---------------------------- | --------------------------------------------- |
@@ -58,7 +58,7 @@ You do not need `WORKOS_API_KEY`, because AuthKit runs as a public PKCE client. 
 **4. Run**
 
 ```bash
-pnpm dev                          # http://localhost:3001, local D1, R2, and KV
+pnpm dev                          # http://localhost:3001, local D1 and R2
 pnpm seed http://localhost:3001   # once: creates the tables and sample content
 ```
 
@@ -108,10 +108,8 @@ Typical workflow:
 
 ## Caching
 
-The site uses Next.js Cache Components. Every page is cached once per version (live and draft), in Workers KV.
-
-- Content comes from D1 through one cached helper (`'use cache'`, tag `headcode`).
-- Saving in the admin or through MCP expires the cache, so the next page view shows the change. Live and draft share one Worker and one cache, so a publish shows on the live site at once.
+- Content comes from D1 through one cached helper (`'use cache'`, tag `headcode`). The cache is the Workers Response Store: R2 for the cached data, a Durable Object for tags. A save in the admin or through MCP expires it on every edge location at once.
+- Pages are rendered per request from the cached data (no page cache), so edits show immediately. Unknown pages answer with status 200 and `noindex` instead of 404.
 - Changes made elsewhere (D1 console, scripts) show up after at most one hour.
 
 ## Commands
@@ -150,7 +148,7 @@ pnpm release              # build, deploy, migrate, seed (see Deploy)
    rm /tmp/headcode-secrets.env
    ```
 
-   `cf deploy` creates the D1 database, the R2 bucket, and the KV namespace on the first run.
+   `cf deploy` creates the D1 database and the R2 buckets (images, cache) on the first run.
 
 5. **Later deploys:** `pnpm release`. It builds with `NEXT_PUBLIC_SITE_URL` and the draft host taken from `cloudflare.config.ts`, deploys, and runs `pnpm seed` against the live host (pending migrations, missing globals).
 6. Check the live and the draft host (copy `.parity/<live host>.env` to `.parity/<draft host>.env`):

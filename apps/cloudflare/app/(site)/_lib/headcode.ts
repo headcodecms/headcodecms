@@ -1,4 +1,4 @@
-import { cacheLife, cacheTag } from 'next/cache'
+import { cacheLife, cacheTag, revalidateTag } from 'next/cache'
 
 import {
   api,
@@ -27,6 +27,15 @@ const entryConfigs = [...headcodeConfig.globals, ...headcodeConfig.collections]
 // All site content is cached and prerendered per version. Admin and MCP
 // writes expire this tag (app/(admin)/admin/services/route.ts, app/mcp/route.ts).
 export const headcodeTag = 'headcode'
+
+// Expires all cached site content after a write (admin, MCP, seed).
+// vinext can store a "use cache" entry again without its `headcode` tag
+// (when it was filled from a cache hit during a render), but every entry
+// keeps the implicit root layout path tag, so that one expires as well.
+export const expireSite = () => {
+  revalidateTag(headcodeTag, { expire: 0 })
+  revalidateTag('_N_T_/layout', { expire: 0 })
+}
 
 const cachedQuery = async (
   name: Parameters<typeof makeFunctionReference>[0],
