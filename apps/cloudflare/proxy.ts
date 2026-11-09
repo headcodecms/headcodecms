@@ -1,5 +1,5 @@
-import { authkit, handleAuthkitHeaders } from '@workos-inc/authkit-nextjs'
 import { NextResponse, type NextRequest } from 'next/server'
+import { protectAdmin } from '@/headcode/auth'
 import { requestOrigin } from '@/headcode/utils'
 import { getHeadcodeVersionForHost } from '@/headcode/versions'
 
@@ -13,15 +13,8 @@ export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
   const origin = requestOrigin(req)
 
-  // Live and draft hosts each get their own session cookie and callback.
-  if (pathname.startsWith('/admin')) {
-    const { session, headers, authorizationUrl } = await authkit(req, {
-      redirectUri: `${origin}/callback`,
-    })
-    if (!session.user && authorizationUrl)
-      return handleAuthkitHeaders(req, headers, { redirect: authorizationUrl })
-    return handleAuthkitHeaders(req, headers)
-  }
+  // Admin sign-in (auth seam, headcode/auth.ts).
+  if (pathname.startsWith('/admin')) return protectAdmin(req, origin)
 
   // Site pages live under app/(site)/[version]; the host picks the version.
   // Direct /live/... and /draft/... URLs would bypass that, so they are 404.
@@ -41,11 +34,11 @@ export default async function proxy(req: NextRequest) {
 }
 
 // Every site page, plus /admin and the direct version URLs. Not: Next.js
-// internals, MCP, the auth callback, uploaded media, OAuth discovery, and files with an
+// internals, API routes (auth), MCP, the auth callback, uploaded media, OAuth discovery, and files with an
 // extension (public assets, robots.txt, sitemap.xml) except /llms.txt.
 export const config = {
   matcher: [
-    '/((?!_next/|mcp|callback|media/|\\.well-known/|.*\\.[a-z0-9]+$).*)',
+    '/((?!_next/|api/|mcp|callback|media/|\\.well-known/|.*\\.[a-z0-9]+$).*)',
     '/llms.txt',
   ],
 }

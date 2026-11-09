@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@workos-inc/authkit-nextjs/components'
+import { useAdminUser } from '@/headcode/auth-client'
 import { Authenticated, AuthLoading, Unauthenticated } from '@/headcode/client'
 import {
   ArrowUpRight,
@@ -61,7 +61,7 @@ const AdminHeader = ({
   versionResolved?: boolean
 }) => {
   const [isDark, setIsDark] = React.useState(getInitialTheme)
-  const { user, signOut } = useAuth()
+  const { email, signOut } = useAdminUser()
   const pathname = usePathname()
 
   React.useEffect(() => {
@@ -140,9 +140,9 @@ const AdminHeader = ({
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
               </DropdownMenuGroup>
-              {user && (
+              {email && (
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+                  <DropdownMenuLabel>{email}</DropdownMenuLabel>
                 </DropdownMenuGroup>
               )}
               <DropdownMenuItem
@@ -151,11 +151,7 @@ const AdminHeader = ({
                 {isDark ? <Sun /> : <Moon />}
                 {isDark ? 'Light mode' : 'Dark mode'}
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() =>
-                  void signOut({ returnTo: `${location.origin}/` })
-                }
-              >
+              <DropdownMenuItem onClick={signOut}>
                 <LogOut />
                 Sign out
               </DropdownMenuItem>

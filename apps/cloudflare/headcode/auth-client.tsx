@@ -6,6 +6,15 @@ import type * as React from 'react'
 
 export const AuthProvider = AuthKitProvider
 
+// The signed-in admin user and sign-out, for the admin header.
+export const useAdminUser = () => {
+  const { user, signOut } = useAuth()
+  return {
+    email: user?.email ?? null,
+    signOut: () => void signOut({ returnTo: `${location.origin}/` }),
+  }
+}
+
 // Auth gates in the style of convex/react, based on the AuthKit session.
 export const AuthLoading = ({ children }: { children: React.ReactNode }) =>
   useAuth().loading ? children : null

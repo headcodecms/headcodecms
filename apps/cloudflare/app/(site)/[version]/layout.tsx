@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import { siteVersion } from '@/app/(site)/_lib/version'
-import { Geist_Mono, Inter } from 'next/font/google'
+// One font per import: vinext names the font chunk after the list, and a
+// comma in the file name breaks the Node build (`vinext start`).
+import { Geist_Mono } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 

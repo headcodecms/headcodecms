@@ -12,15 +12,17 @@ Setup and deploy steps are in `README.md`. This file contains the rules.
 
 ## Seams
 
-Platform code lives only in these files. Everything else stays platform-neutral, so `apps/local` (planned: libSQL, Better Auth, files) can be a copy that swaps only these:
+Platform code lives only in these files, with the same exports in `apps/cloudflare` and `apps/local`. Everything else must stay byte-identical between the two apps: `pnpm drift ../<other app>` fails on any other difference (allowed files are listed in `scripts/drift.mts`). Fix core code in both apps and keep them in sync.
 
-| File                                     | Here                                                                           |
-| ---------------------------------------- | ------------------------------------------------------------------------------ |
-| `headcode/db.ts`                         | `drizzle(env.DB)` on D1                                                        |
-| `headcode/images.ts`                     | R2 (`env.MEDIA`) storage, `env.IMAGES` for dimensions, ThumbHash, and resizing |
-| `headcode/auth.ts`                       | AuthKit session (`getAdminIdentity`) and MCP OAuth token check                 |
-| `headcode/auth-client.tsx`               | `AuthKitProvider` and the `Authenticated`/`Unauthenticated` gates              |
-| `cloudflare.config.ts`, `vite.config.ts` | Worker, bindings, domains, vinext plugins                                      |
+Auth seam exports: `getAdminIdentity`, `protectAdmin` (proxy.ts), `verifyMcpAccessToken`, `getMcpIdentity`, `authServerMetadata` (`headcode/auth.ts`); `AuthProvider`, `useAdminUser`, `Authenticated`, `AuthLoading`, `Unauthenticated` (`headcode/auth-client.tsx`). Images seam: `imageSrc`, `storeImage`, `readImage`, `deleteStoredImage`, `imageMetadata`, `transformImage`. Database seam: `getDb`.
+
+| File                                                          | Here                                                                           |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `headcode/db.ts`                                              | `drizzle(env.DB)` on D1                                                        |
+| `headcode/images.ts`                                          | R2 (`env.MEDIA`) storage, `env.IMAGES` for dimensions, ThumbHash, and resizing |
+| `headcode/auth.ts`, `app/callback`, `app/(admin)/admin/login` | AuthKit session, admin redirect, MCP OAuth token check                         |
+| `headcode/auth-client.tsx`                                    | `AuthKitProvider`, admin user, and the auth gates                              |
+| `cloudflare.config.ts`, `vite.config.ts`                      | Worker, bindings, domains, vinext plugins                                      |
 
 ## Architecture
 
@@ -63,6 +65,7 @@ Platform code lives only in these files. Everything else stays platform-neutral,
 
 ```bash
 pnpm test && pnpm lint && pnpm typecheck && pnpm build
+pnpm drift ../local                                  # no core drift to apps/local
 pnpm seed http://localhost:3001                      # migrations + seed of the local D1
 pnpm mcp http://draft.localhost:3001/mcp headcode_get_version
 pnpm parity http://draft.localhost:3001 --write

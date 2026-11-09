@@ -4,6 +4,13 @@ Based on `apps/vercel` (see its CHANGELOG for core changes). This file lists wha
 
 ## Unreleased
 
+- Core changes shared with `apps/local` (kept identical, checked by `pnpm drift`):
+  - `proxy.ts` calls `protectAdmin` from the auth seam and skips `/api/`; `chrome.tsx` uses `useAdminUser`; `headcode/server.ts` uses `getMcpIdentity` (no WorkOS claims in neutral code).
+  - `transformImage(storageId, options)` in the images seam; the media route cancels the unused body and uses the Cache API only where it exists.
+  - `app/.well-known/[...path]` also serves the authorization server metadata at the RFC 8414 path (`/.well-known/oauth-authorization-server/<issuer path>`).
+  - `scripts/parity.mts`: `/admin` without a session may redirect to a hosted sign-in (callback on this host) or to `/admin/login` on this host; `--login` waits for an admin page other than `/admin/login`.
+  - One font per `next/font/google` import (vinext's comma in the chunk name breaks the Node build).
+  - `scripts/drift.mts` (`pnpm drift ../local`).
 - Runs on Cloudflare Workers via vinext (`vinext init --platform=cloudflare`, KV data cache, Images optimizer). `cloudflare.config.ts` declares the Worker, the bindings, the server secrets, and both domains (one Worker serves live and draft, so they share one cache).
 - Convex replaced by D1 + Drizzle (`headcode/schema.ts`, `headcode/services.ts`) with the same service names, args, and document shapes. Callers use Convex-style helpers: `headcode/server.ts` (`fetchQuery`/`fetchMutation`) and `headcode/client.tsx` (`useQuery`/`useMutation`/`usePaginatedQuery` via `POST /admin/services`).
 - Seams for platform code: `headcode/db.ts`, `headcode/images.ts`, `headcode/auth.ts`, `headcode/auth-client.tsx`. Everything else is platform-neutral.

@@ -23,6 +23,8 @@ export const GET = async (
       },
     })
 
+  // Resizing reads the file itself.
+  await image.body.cancel()
   if (!mediaWidths.includes(width))
     return new Response('Unsupported width', { status: 400 })
   const accept = req.headers.get('accept') ?? ''
@@ -32,7 +34,8 @@ export const GET = async (
       ? 'image/webp'
       : 'image/jpeg'
 
-  // One cached copy per key, width, and format.
+  // One cached copy per key, width, and format (Cache API where it exists;
+  // apps/local caches resized files in its images seam).
   const cache = (globalThis as { caches?: { default?: Cache } }).caches?.default
   const cacheKey = new Request(
     new URL(`/media/${key}?w=${width}&f=${format}`, url),
@@ -40,7 +43,7 @@ export const GET = async (
   const cached = await cache?.match(cacheKey)
   if (cached) return cached
 
-  const resized = await transformImage(image.body, {
+  const resized = await transformImage(key, {
     width,
     quality: 75,
     format,

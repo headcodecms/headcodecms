@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
-import { Geist_Mono, Inter } from 'next/font/google'
+// One font per import: vinext names the font chunk after the list, and a
+// comma in the file name breaks the Node build (`vinext start`).
+import { Geist_Mono } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { Suspense } from 'react'
 import './admin.css'
 import { AdminProvider } from './_components/admin-provider'

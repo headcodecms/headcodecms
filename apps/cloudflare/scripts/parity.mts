@@ -55,7 +55,10 @@ if (args.includes('--login')) {
   await page.goto(new URL('/admin', base).href)
   console.log(`Sign in to ${base.host} in the browser window (5 minutes).`)
   await page.waitForURL(
-    (url) => url.host === base.host && url.pathname.startsWith('/admin'),
+    (url) =>
+      url.host === base.host &&
+      url.pathname.startsWith('/admin') &&
+      !url.pathname.startsWith('/admin/login'),
     { timeout: 300_000 },
   )
   await waitForAdmin(page)
@@ -307,14 +310,19 @@ describe('Site', () => {
 })
 
 describe('Admin', () => {
-  test('/admin without a session redirects to AuthKit with this callback', async () => {
+  // Hosted sign-in (AuthKit) must call back to this host; an own sign-in
+  // page (Better Auth) must be on this host.
+  test('/admin without a session redirects to sign-in for this host', async () => {
     const res = await get('/admin', { redirect: 'manual' })
     assert.equal(res.status, 307)
-    const location = new URL(res.headers.get('location') ?? '')
-    assert.equal(
-      location.searchParams.get('redirect_uri'),
-      new URL('/callback', base).href,
-    )
+    const location = new URL(res.headers.get('location') ?? '', base)
+    if (location.origin === base.origin)
+      assert.match(location.pathname, /^\/admin\/login/)
+    else
+      assert.equal(
+        location.searchParams.get('redirect_uri'),
+        new URL('/callback', base).href,
+      )
   })
 
   test('admin.css has its own theme and imports nothing from the site', () => {

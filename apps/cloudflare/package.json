@@ -14,7 +14,8 @@
     "typecheck": "cf workers types >/dev/null && next typegen && tsc --noEmit",
     "test": "vitest run",
     "mcp": "node --env-file=.env.local scripts/mcp-smoke.mts",
-    "parity": "node --env-file-if-exists=.env.local scripts/parity.mts"
+    "parity": "node --env-file-if-exists=.env.local scripts/parity.mts",
+    "drift": "node scripts/drift.mts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

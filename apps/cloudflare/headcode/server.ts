@@ -1,7 +1,6 @@
-import { decodeJwt } from 'jose'
-
 import type { FunctionArgs, FunctionReturnType, ServiceRef } from './api'
 import { type Auth, requireHeadcodeUser } from './authorization'
+import { getMcpIdentity } from './auth'
 import { getDb } from './db'
 import { callService } from './services'
 
@@ -12,17 +11,8 @@ export { HeadcodeError } from './authorization'
 // access token that app/mcp/auth.ts has already verified.
 type Options = { token?: string; auth?: Auth }
 
-const toAuth = ({ token, auth }: Options = {}): Auth => {
-  if (auth) return auth
-  if (!token) return {}
-  const claims = decodeJwt(token)
-  return {
-    identity: {
-      subject: String(claims.sub ?? ''),
-      headcode_role: claims.headcode_role,
-    },
-  }
-}
+const toAuth = ({ token, auth }: Options = {}): Auth =>
+  auth ?? (token ? { identity: getMcpIdentity(token) } : {})
 
 const call = async <R extends ServiceRef>(
   ref: R,

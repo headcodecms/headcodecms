@@ -1,0 +1,32 @@
+import {
+  ArrowRight,
+  BookOpen,
+  Check,
+  Database,
+  Eye,
+  Layers,
+  type LucideIcon,
+  Network,
+  Newspaper,
+  PlayCircle,
+  Rocket,
+  Sparkles,
+  Workflow,
+  Zap,
+} from 'lucide-react'
+
+export const siteIcons: Record<string, LucideIcon> = {
+  'arrow-right': ArrowRight,
+  'book-open': BookOpen,
+  check: Check,
+  database: Database,
+  eye: Eye,
+  layers: Layers,
+  network: Network,
+  newspaper: Newspaper,
+  'play-circle': PlayCircle,
+  rocket: Rocket,
+  sparkles: Sparkles,
+  workflow: Workflow,
+  zap: Zap,
+}

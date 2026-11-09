@@ -54,18 +54,21 @@ export const imageMetadata = async (buffer: ArrayBuffer) => {
 
 // Resized copy for /media/<key>?w=<width> (responsive images on the site).
 export const transformImage = async (
-  body: ReadableStream,
+  storageId: string,
   {
     width,
     quality,
     format,
   }: { width: number; quality: number; format: string },
-) =>
-  (
-    await env.IMAGES.input(body)
+) => {
+  const object = await env.MEDIA.get(storageId)
+  if (!object) throw new Error('Image not found.')
+  return (
+    await env.IMAGES.input(object.body)
       .transform({ width, fit: 'scale-down' })
       .output({
         format: format as 'image/avif' | 'image/webp' | 'image/jpeg',
         quality,
       })
   ).response()
+}
