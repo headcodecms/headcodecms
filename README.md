@@ -10,8 +10,8 @@ Every app is a complete, standalone project. Nothing is shared between apps, so 
 | --- | --- | --- |
 | [`apps/vercel`](apps/vercel) | Next.js, Convex, WorkOS AuthKit, Vercel | ready |
 | `apps/www` | headcodecms.com, based on `vercel` | planned |
-| `apps/cloudflare` | Astro, React, Cloudflare Workers, D1, R2, WorkOS AuthKit | planned |
-| `apps/local` | Astro, React, SQLite, file storage, BetterAuth, no cloud services | planned |
+| [`apps/cloudflare`](apps/cloudflare) | Next.js on vinext, Cloudflare Workers, D1, R2, Images, WorkOS AuthKit | beta (vinext) |
+| [`apps/local`](apps/local) | Next.js on vinext, Node, SQLite, files, Better Auth, no cloud services | beta (vinext) |
 | `apps/blog`, `apps/docs`, `apps/shopify` | templates based on `vercel` | planned |
 
 ## Start your own
@@ -21,7 +21,7 @@ npx degit headcodecms/headcodecms/apps/vercel my-site
 cd my-site && pnpm install
 ```
 
-Then follow the app's README (Convex, WorkOS, environment, run).
+Then follow the app's README (Convex, WorkOS, environment, run). Use `apps/cloudflare` or `apps/local` the same way for the other platforms.
 
 Convert an existing (vibe-coded) website: tell your coding agent
 
@@ -41,9 +41,11 @@ pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
 
 ```bash
 pnpm install                         # installs every app (one lockfile per app)
-pnpm dev --filter headcode-vercel    # run one app
+pnpm dev --filter headcode-vercel    # run one app (headcode-cloudflare, headcode-local)
 pnpm lint && pnpm typecheck && pnpm test && pnpm build   # all apps through Turborepo
 ```
+
+`apps/cloudflare` and `apps/local` share their core and differ only in a few seam files (database, images, auth, platform config). Check that with `pnpm drift ../local` in `apps/cloudflare`.
 
 Version 1 is on the [`v1`](https://github.com/headcodecms/headcodecms/tree/v1) branch.
 

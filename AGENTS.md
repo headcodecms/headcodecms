@@ -9,6 +9,7 @@ Turborepo with independent apps in `apps/*`. Each app has its own `AGENTS.md` wi
 - `apps/vercel` is the reference app. Variants (`www`, `blog`, `docs`, `shopify`) start as a copy of it and should differ mainly in `headcode/config.ts`, sections, and content. When you fix something in the core (`convex/`, `app/mcp`, admin), note it in `apps/vercel/CHANGELOG.md` so variants can follow.
 - Platform apps (`vercel`, `cloudflare`, `local`) are reference builds, not a matrix. Themes run on one platform only. Other combinations (for example Cloudflare with BetterAuth) are built by the user's agent from these sources, like shadcn/ui components.
 - Every app passes `pnpm parity <url> --write` (copied from `apps/vercel/scripts/parity.mts`), locally and after each deploy.
+- `apps/cloudflare` and `apps/local` are copies with the same core; platform code lives only in seam files. `pnpm drift ../<other app>` must pass in both before you finish (see their AGENTS.md).
 - Root `registry.json` is the shadcn registry. Its `path` values point into `apps/vercel`, `target` values are paths in the user's app. Run `pnpm dlx shadcn@latest registry validate` after you change files listed there.
 - The root only holds Turborepo, the workspace list, the registry and docs. Ask before you add anything else to the root.
 

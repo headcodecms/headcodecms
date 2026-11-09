@@ -17,10 +17,8 @@ export const useAdminUser = () => {
   const { data } = authClient.useSession()
   return {
     email: data?.user.email ?? null,
-    signOut: () =>
-      void authClient.signOut().then(() => {
-        window.location.href = '/'
-      }),
+    // Without a session, the reload lands on /admin/login (proxy.ts).
+    signOut: () => void authClient.signOut().then(() => location.reload()),
   }
 }
 
