@@ -13,7 +13,7 @@ import { authDb } from './db'
 
 // The live host is NEXT_PUBLIC_SITE_URL; draft hosts share its protocol and port.
 export const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001'
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3074'
 ).replace(/\/$/, '')
 const site = new URL(siteUrl)
 const draftOrigins = (process.env.NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS ?? '')

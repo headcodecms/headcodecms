@@ -3,9 +3,9 @@
   "version": "0.3.0",
   "private": true,
   "scripts": {
-    "dev": "vite dev --port 3001",
+    "dev": "vite dev --port 3073",
     "build": "vite build",
-    "preview": "vite preview --port 3001",
+    "preview": "vite preview --port 3073",
     "release": "node --env-file-if-exists=.env.local scripts/release.mts",
     "seed": "node --env-file-if-exists=.env.local scripts/seed.mts",
     "db:generate": "drizzle-kit generate",

@@ -20,18 +20,18 @@ pnpm seed   # fills the database from headcode/config.ts
 
 **3. WorkOS** (dashboard, WorkOS MCP server, or `workos` CLI), for one environment:
 
-| Setting | Value |
-| --- | --- |
-| Redirect URIs | `http://localhost:3000/callback` (default), `http://draft.localhost:3000/callback` |
-| Sign-out URIs | `http://localhost:3000/` (default), `http://draft.localhost:3000/` |
-| Initiate login URI | `http://localhost:3000/admin/login` |
-| Authentication | email code + social logins, password off |
-| Sign-up | enabled (new users can read, not edit) |
-| JWT template | `{"headcode_role": {{ user.metadata.headcode_role || 'viewer' }}}` |
-| Editors | user metadata `{ "headcode_role": "editor" }` |
-| MCP OAuth | enable Client ID Metadata Document and Dynamic Client Registration |
-| Resource indicators | `http://localhost:3000/mcp` (default), `http://draft.localhost:3000/mcp` |
-| Branding (optional) | sign-in heading `Sign in to Headcode CMS` |
+| Setting             | Value                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| Redirect URIs       | `http://localhost:3072/callback` (default), `http://draft.localhost:3072/callback` |
+| Sign-out URIs       | `http://localhost:3072/` (default), `http://draft.localhost:3072/`                 |
+| Initiate login URI  | `http://localhost:3072/admin/login`                                                |
+| Authentication      | email code + social logins, password off                                           |
+| Sign-up             | enabled (new users can read, not edit)                                             |
+| JWT template        | `{"headcode_role": {{ user.metadata.headcode_role                                  |     | 'viewer' }}}` |
+| Editors             | user metadata `{ "headcode_role": "editor" }`                                      |
+| MCP OAuth           | enable Client ID Metadata Document and Dynamic Client Registration                 |
+| Resource indicators | `http://localhost:3072/mcp` (default), `http://draft.localhost:3072/mcp`           |
+| Branding (optional) | sign-in heading `Sign in to Headcode CMS`                                          |
 
 **4. Environment**
 
@@ -47,7 +47,8 @@ Add to `.env.local`:
 WORKOS_CLIENT_ID=client_...
 WORKOS_AUTHKIT_DOMAIN=<name>.authkit.app
 WORKOS_COOKIE_PASSWORD=<openssl rand -base64 32>
-NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3000/callback
+NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3072/callback
+NEXT_PUBLIC_SITE_URL=http://localhost:3072
 NEXT_PUBLIC_HEADCODE_VERSION=auto
 NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=draft.localhost
 ALLOWED_MCP_TOKENS=<same token>
@@ -61,19 +62,19 @@ You do not need `WORKOS_API_KEY`, because AuthKit runs as a public PKCE client.
 pnpm dev
 ```
 
-| URL | Content |
-| --- | --- |
-| http://localhost:3000 | live site |
-| http://draft.localhost:3000 | draft site |
-| http://localhost:3000/admin | admin (sign in through AuthKit) |
-| http://localhost:3000/llms.txt | agent entry point |
-| http://localhost:3000/docs?md | any page as Markdown |
-| http://localhost:3000/mcp | MCP endpoint (OAuth or bearer token) |
+| URL                            | Content                              |
+| ------------------------------ | ------------------------------------ |
+| http://localhost:3072          | live site                            |
+| http://draft.localhost:3072    | draft site                           |
+| http://localhost:3072/admin    | admin (sign in through AuthKit)      |
+| http://localhost:3072/llms.txt | agent entry point                    |
+| http://localhost:3072/docs?md  | any page as Markdown                 |
+| http://localhost:3072/mcp      | MCP endpoint (OAuth or bearer token) |
 
 ## Users and editors
 
 - Anyone can sign up. A new user can open the admin and use MCP, but only to **read**.
-- Every write (save, publish, upload, MCP edit) answers: *"Your account must be activated by an administrator before you can change content."*
+- Every write (save, publish, upload, MCP edit) answers: _"Your account must be activated by an administrator before you can change content."_
 - To activate a user, set their WorkOS user metadata to `{ "headcode_role": "editor" }` (dashboard, WorkOS MCP, or ask your agent). The JWT template puts this into every access token, for the admin and for MCP OAuth. A change applies when the token is refreshed (admin: within 5 minutes; MCP: re-authenticate if needed).
 - The shared MCP bearer token (`ALLOWED_MCP_TOKENS`) can always write.
 
@@ -81,20 +82,20 @@ pnpm dev
 
 The host decides which version you see and edit: `draft.localhost` shows the draft, every other host shows live. This applies to the site, the admin, and MCP.
 
-| State | What happens |
-| --- | --- |
-| Start (after `pnpm seed`) | One version with sample content. Draft and live are **shared**, so every edit is live immediately. |
-| **New draft** (Admin → Versions) | Copies live into a separate draft. Edits on the draft host are now only visible there. |
-| **Publish draft** | The draft becomes live, and a new draft is copied from it automatically. |
+| State                            | What happens                                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Start (after `pnpm seed`)        | One version with sample content. Draft and live are **shared**, so every edit is live immediately. |
+| **New draft** (Admin → Versions) | Copies live into a separate draft. Edits on the draft host are now only visible there.             |
+| **Publish draft**                | The draft becomes live, and a new draft is copied from it automatically.                           |
 
 Typical workflow:
 
 1. Once: Admin → Versions → **New draft**.
-2. Edit on `http://draft.localhost:3000/admin` (or through MCP on `draft.localhost`).
-3. Check on `http://draft.localhost:3000`.
+2. Edit on `http://draft.localhost:3072/admin` (or through MCP on `draft.localhost`).
+3. Check on `http://draft.localhost:3072`.
 4. Admin → Versions → **Publish draft**.
 
-Edits on the live host (`localhost:3000/admin`) change live directly. Without `NEXT_PUBLIC_HEADCODE_VERSION=auto` and `NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS`, there is only live.
+Edits on the live host (`localhost:3072/admin`) change live directly. Without `NEXT_PUBLIC_HEADCODE_VERSION=auto` and `NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS`, there is only live.
 
 ## Caching
 
@@ -114,8 +115,8 @@ pnpm lint
 pnpm typecheck
 pnpm build
 pnpm mcp                  # list MCP tools (pinned to spec 2026-07-28)
-pnpm mcp http://draft.localhost:3000/mcp headcode_get_version
-pnpm parity               # contract tests against http://draft.localhost:3000
+pnpm mcp http://draft.localhost:3072/mcp headcode_get_version
+pnpm parity               # contract tests against http://draft.localhost:3072
 pnpm parity <url> --write # also add, edit and delete a test entry (never publishes)
 ```
 
@@ -143,8 +144,8 @@ The request host selects the content version. Register live and draft as two ser
 **OAuth (Claude Code and other OAuth clients).** Sign in once through AuthKit with a WorkOS user:
 
 ```bash
-claude mcp add --transport http headcode-live http://localhost:3000/mcp
-claude mcp add --transport http headcode-draft http://draft.localhost:3000/mcp
+claude mcp add --transport http headcode-live http://localhost:3072/mcp
+claude mcp add --transport http headcode-draft http://draft.localhost:3072/mcp
 # then in Claude Code: /mcp → headcode-draft → Authenticate
 ```
 
@@ -155,7 +156,7 @@ claude mcp add --transport http headcode-draft http://draft.localhost:3000/mcp
   "mcpServers": {
     "headcode-draft": {
       "type": "http",
-      "url": "http://draft.localhost:3000/mcp",
+      "url": "http://draft.localhost:3072/mcp",
       "headers": { "Authorization": "Bearer <token>" }
     }
   }

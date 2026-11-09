@@ -431,7 +431,7 @@ export const defaultDocs = [
     data: {
       content: `## Fast local install
 
-Use this path for a new local project on \`http://localhost:3000\`. Draft content is served on \`http://draft.localhost:3000\`.
+Use this path for a new local project on \`http://localhost:3072\`. Draft content is served on \`http://draft.localhost:3072\`.
 
 \`\`\`bash
 rm -f app/page.tsx app/layout.tsx
@@ -440,7 +440,7 @@ pnpm install
 pnpm convex dev --run seed:init
 \`\`\`
 
-Create a WorkOS environment with email-code and social sign-in. Sign-up can stay open: new users can read, and you activate editors with the user metadata \`{ "headcode_role": "editor" }\` plus the JWT template \`{"headcode_role": {{ user.metadata.headcode_role || 'viewer' }}}\`. Then add the callback \`http://localhost:3000/callback\`, the sign-out URI \`http://localhost:3000/\`, and the initiate login URI \`http://localhost:3000/admin/login\`.
+Create a WorkOS environment with email-code and social sign-in. Sign-up can stay open: new users can read, and you activate editors with the user metadata \`{ "headcode_role": "editor" }\` plus the JWT template \`{"headcode_role": {{ user.metadata.headcode_role || 'viewer' }}}\`. Then add the callback \`http://localhost:3072/callback\`, the sign-out URI \`http://localhost:3072/\`, and the initiate login URI \`http://localhost:3072/admin/login\`.
 
 \`\`\`bash
 pnpm convex env set WORKOS_CLIENT_ID "client_..."
@@ -454,11 +454,11 @@ Add the matching values to \`.env.local\`:
 WORKOS_CLIENT_ID=client_...
 WORKOS_AUTHKIT_DOMAIN=your-app.authkit.app
 WORKOS_COOKIE_PASSWORD=at-least-32-characters
-NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3000/callback
+NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3072/callback
 ALLOWED_MCP_TOKENS=the-same-token
 \`\`\`
 
-Start the app with \`pnpm dev\`, then open \`http://localhost:3000\` and \`http://localhost:3000/admin\`.
+Start the app with \`pnpm dev\`, then open \`http://localhost:3072\` and \`http://localhost:3072/admin\`.
 
 ### Live and draft hosts
 

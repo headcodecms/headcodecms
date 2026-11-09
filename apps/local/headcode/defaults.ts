@@ -430,7 +430,7 @@ export const defaultDocs = [
     data: {
       content: `## Fast local install
 
-Use this path for a new local project on \`http://localhost:3001\`. Draft content is served on \`http://draft.localhost:3001\`.
+Use this path for a new local project on \`http://localhost:3074\`. Draft content is served on \`http://draft.localhost:3074\`.
 
 \`\`\`bash
 npx degit headcodecms/headcodecms/apps/local my-site
@@ -443,12 +443,12 @@ Add the values to \`.env.local\`:
 \`\`\`env
 BETTER_AUTH_SECRET=at-least-32-characters
 ALLOWED_MCP_TOKENS=a-random-token
-NEXT_PUBLIC_SITE_URL=http://localhost:3001
+NEXT_PUBLIC_SITE_URL=http://localhost:3074
 NEXT_PUBLIC_HEADCODE_VERSION=auto
 NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=draft.localhost
 \`\`\`
 
-Start the app with \`pnpm dev\`, run \`pnpm seed\` once to create the tables and sample content, then open \`http://localhost:3001/admin\` and create an account. The first account becomes the editor; later accounts can read until an editor activates them.
+Start the app with \`pnpm dev\`, run \`pnpm seed\` once to create the tables and sample content, then open \`http://localhost:3074/admin\` and create an account. The first account becomes the editor; later accounts can read until an editor activates them.
 
 ### Production
 
@@ -524,7 +524,7 @@ MCP clients sign in with OAuth: Better Auth is the authorization server and supp
         {
           value: 'seed',
           label: 'Seed',
-          command: 'pnpm dev & pnpm seed http://localhost:3001',
+          command: 'pnpm dev & pnpm seed http://localhost:3074',
         },
         {
           value: 'start',

@@ -4,8 +4,9 @@ Based on `apps/cloudflare` (same core, checked with `pnpm drift ../cloudflare`).
 
 ## Unreleased
 
+- Default local port is 3074 (vercel 3072, cloudflare 3073). `seo.tsx` falls back to `http://localhost`; set `NEXT_PUBLIC_SITE_URL` in `.env.local`.
 - `scripts/parity.mts` is the same file in every app again: `/admin` without a session may redirect to a hosted sign-in (callback on this host, AuthKit) or to `/admin/login` on this host (Better Auth); `--login` waits for an admin page other than `/admin/login`. `parity`, `mcp`, and `seed` default to the app's dev server (port from `--port` in the `dev` script, else 3000).
-- Node instead of Workers: vinext `vite build` + `vinext start` (port 3001), no `cloudflare.config.ts`, no `pnpm release`.
+- Node instead of Workers: vinext `vite build` + `vinext start` (port 3074), no `cloudflare.config.ts`, no `pnpm release`.
 - Seams: `headcode/db.ts` (libSQL file, `DATABASE_URL`), `headcode/images.ts` (files in `MEDIA_DIR`, sharp, resized files cached), `headcode/auth.ts` + `headcode/auth-client.tsx` + `headcode/better-auth.ts` (Better Auth).
 - Better Auth: email/password, the first account becomes the editor (`user.headcode_role`), OAuth 2.1 authorization server for MCP (`@better-auth/mcp`, CIMD and Dynamic Client Registration, JWT access tokens with `headcode_role`, live and draft `/mcp` as resources). Own `/admin/login` and `/admin/consent` pages; `app/api/auth/[...all]`.
 - Migrations: `drizzle/0000_init.sql` is the same as on Cloudflare, `0001_auth.sql` adds the Better Auth tables (`headcode/auth-schema.ts`, generated with `npx auth generate`).

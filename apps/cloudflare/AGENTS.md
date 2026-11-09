@@ -7,7 +7,7 @@ Setup and deploy steps are in `README.md`. This file contains the rules.
 - Next.js 16 App Router on Cloudflare Workers via [vinext](https://github.com/cloudflare/vinext) (Vite), React 19, TypeScript, D1 + Drizzle, R2, Cloudflare Images binding, WorkOS AuthKit, shadcn/ui (base-ui), kibo-ui, TipTap, Zod, Vitest, pnpm.
 - Ask before you add dependencies. Make the smallest change, with arrow functions, single quotes, and no semicolons.
 - `components/` and `lib/` hold generated shadcn/kibo code. Do not put app code there. Local patches: the TipTap `signal` pass-through in `components/kibo-ui/editor`, and `render` on `DialogStackNext`/`DialogStackPrevious` in `components/kibo-ui/dialog-stack` (shadcn turns `asChild` into `render`). Keep `headcode/utils.ts` the only registry file named `utils` (with two, shadcn rewrites `utils` imports to the first one).
-- Do not start `pnpm dev` if it is already running (http://localhost:3001).
+- Do not start `pnpm dev` if it is already running (http://localhost:3073).
 - `cloudflare.config.ts` (the `cf` CLI format, not `wrangler.jsonc`) defines the Worker, its bindings, and the live and draft domains. Every server-side env value must be declared there (`bindings.secret()`), otherwise `process.env` is empty on Workers. Use the `cf` CLI, not Wrangler.
 
 ## Seams
@@ -66,11 +66,11 @@ Auth seam exports: `getAdminIdentity`, `protectAdmin` (proxy.ts), `verifyMcpAcce
 ```bash
 pnpm test && pnpm lint && pnpm typecheck && pnpm build
 pnpm drift ../local                                  # no core drift to apps/local
-pnpm seed http://localhost:3001                      # migrations + seed of the local D1
-pnpm mcp http://draft.localhost:3001/mcp headcode_get_version
-pnpm parity http://draft.localhost:3001 --write
-pnpm parity http://localhost:3001 --login            # once per host: a human signs in
-pnpm parity http://localhost:3001 --admin --write    # admin theme, entries, edit in the admin
+pnpm seed http://localhost:3073                      # migrations + seed of the local D1
+pnpm mcp http://draft.localhost:3073/mcp headcode_get_version
+pnpm parity http://draft.localhost:3073 --write
+pnpm parity http://localhost:3073 --login            # once per host: a human signs in
+pnpm parity http://localhost:3073 --admin --write    # admin theme, entries, edit in the admin
 pnpm parity https://<host> --admin --write           # after each deploy, live and draft host
 ```
 

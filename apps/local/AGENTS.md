@@ -7,7 +7,7 @@ Setup and production steps are in `README.md`. This file contains the rules.
 - Next.js 16 App Router on Node via [vinext](https://github.com/cloudflare/vinext) (Vite), React 19, TypeScript, SQLite (libSQL) + Drizzle, sharp, Better Auth, shadcn/ui (base-ui), kibo-ui, TipTap, Zod, Vitest, pnpm.
 - Ask before you add dependencies. Make the smallest change, with arrow functions, single quotes, and no semicolons.
 - `components/` and `lib/` hold generated shadcn/kibo code. Do not put app code there. Local patches: the TipTap `signal` pass-through in `components/kibo-ui/editor`, and `render` on `DialogStackNext`/`DialogStackPrevious` in `components/kibo-ui/dialog-stack` (shadcn turns `asChild` into `render`). Keep `headcode/utils.ts` the only registry file named `utils` (with two, shadcn rewrites `utils` imports to the first one).
-- Do not start `pnpm dev` if it is already running (http://localhost:3001).
+- Do not start `pnpm dev` if it is already running (http://localhost:3074).
 - Data lives in `data/` (gitignored): `headcode.db` (`DATABASE_URL`) and `media/` (`MEDIA_DIR`). `pnpm db:studio` opens the database in Drizzle Studio; direct edits there show on the site after the cache expires (up to an hour) or the next save in the admin or MCP.
 
 ## Seams
@@ -66,12 +66,12 @@ Auth seam exports: `getAdminIdentity`, `protectAdmin` (proxy.ts), `verifyMcpAcce
 ```bash
 pnpm test && pnpm lint && pnpm typecheck && pnpm build
 pnpm drift ../cloudflare                             # no core drift to apps/cloudflare
-pnpm seed http://localhost:3001                      # migrations + seed of data/headcode.db
+pnpm seed http://localhost:3074                      # migrations + seed of data/headcode.db
 pnpm db:studio                                       # Drizzle Studio on data/headcode.db
-pnpm mcp http://draft.localhost:3001/mcp headcode_get_version
-pnpm parity http://draft.localhost:3001 --write
-pnpm parity http://localhost:3001 --login            # once per host: sign in or create an account
-pnpm parity http://localhost:3001 --admin --write    # admin theme, entries, edit in the admin
+pnpm mcp http://draft.localhost:3074/mcp headcode_get_version
+pnpm parity http://draft.localhost:3074 --write
+pnpm parity http://localhost:3074 --login            # once per host: sign in or create an account
+pnpm parity http://localhost:3074 --admin --write    # admin theme, entries, edit in the admin
 pnpm build && pnpm start                             # then the same parity runs against the Node server
 ```
 

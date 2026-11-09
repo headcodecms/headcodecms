@@ -26,33 +26,33 @@ pnpm install
 ```env
 BETTER_AUTH_SECRET=<openssl rand -base64 32>
 ALLOWED_MCP_TOKENS=<openssl rand -hex 32>
-NEXT_PUBLIC_SITE_URL=http://localhost:3001
+NEXT_PUBLIC_SITE_URL=http://localhost:3074
 NEXT_PUBLIC_HEADCODE_VERSION=auto
 NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=draft.localhost
 # optional: DATABASE_URL=file:data/headcode.db, MEDIA_DIR=data/media
 ```
 
 ```bash
-pnpm dev                          # http://localhost:3001
-pnpm seed http://localhost:3001   # once: creates the tables and sample content
+pnpm dev                          # http://localhost:3074
+pnpm seed http://localhost:3074   # once: creates the tables and sample content
 ```
 
-Open http://localhost:3001/admin and **create an account. The first account becomes the editor**; later accounts can read until an editor activates them.
+Open http://localhost:3074/admin and **create an account. The first account becomes the editor**; later accounts can read until an editor activates them.
 
 | URL                            | Content                              |
 | ------------------------------ | ------------------------------------ |
-| http://localhost:3001          | live site                            |
-| http://draft.localhost:3001    | draft site                           |
-| http://localhost:3001/admin    | admin (sign in or create an account) |
-| http://localhost:3001/llms.txt | agent entry point                    |
-| http://localhost:3001/docs?md  | any page as Markdown                 |
-| http://localhost:3001/mcp      | MCP endpoint (OAuth or bearer token) |
+| http://localhost:3074          | live site                            |
+| http://draft.localhost:3074    | draft site                           |
+| http://localhost:3074/admin    | admin (sign in or create an account) |
+| http://localhost:3074/llms.txt | agent entry point                    |
+| http://localhost:3074/docs?md  | any page as Markdown                 |
+| http://localhost:3074/mcp      | MCP endpoint (OAuth or bearer token) |
 
 ## Run in production
 
 ```bash
 pnpm build
-pnpm start          # vinext production server on port 3001
+pnpm start          # vinext production server on port 3074
 pnpm seed <url>     # after each deploy: pending migrations, missing globals
 ```
 
@@ -100,8 +100,8 @@ The request host selects the content version. Register live and draft as two ser
 **OAuth (Claude Code and other OAuth clients).** Better Auth is the authorization server. Clients register themselves (Client ID Metadata Document or Dynamic Client Registration), you sign in on `/admin/login` and allow access on `/admin/consent`:
 
 ```bash
-claude mcp add --transport http headcode-live http://localhost:3001/mcp
-claude mcp add --transport http headcode-draft http://draft.localhost:3001/mcp
+claude mcp add --transport http headcode-live http://localhost:3074/mcp
+claude mcp add --transport http headcode-draft http://draft.localhost:3074/mcp
 # then in Claude Code: /mcp → headcode-draft → Authenticate
 ```
 
@@ -114,7 +114,7 @@ Tokens are JWTs bound to one `/mcp` URL (live or draft) and carry the account's 
   "mcpServers": {
     "headcode-draft": {
       "type": "http",
-      "url": "http://draft.localhost:3001/mcp",
+      "url": "http://draft.localhost:3074/mcp",
       "headers": { "Authorization": "Bearer <token>" }
     }
   }
@@ -124,15 +124,15 @@ Tokens are JWTs bound to one `/mcp` URL (live or draft) and carry the account's 
 ## Commands
 
 ```bash
-pnpm dev                  # vinext dev server on port 3001
+pnpm dev                  # vinext dev server on port 3074
 pnpm build && pnpm start  # production server
 pnpm test                 # service tests (in-memory SQLite)
 pnpm lint
 pnpm typecheck
 pnpm db:generate          # SQL migration after a schema change
 pnpm db:studio            # browse and edit data/headcode.db (https://local.drizzle.studio)
-pnpm seed [url]           # migrations + missing globals (default http://localhost:3001)
-pnpm mcp http://draft.localhost:3001/mcp headcode_get_version
+pnpm seed [url]           # migrations + missing globals (default http://localhost:3074)
+pnpm mcp http://draft.localhost:3074/mcp headcode_get_version
 pnpm parity [url] [--write] [--login] [--admin]
 pnpm drift ../cloudflare  # differences to apps/cloudflare outside the seams
 ```

@@ -3,9 +3,9 @@
   "version": "0.3.0",
   "private": true,
   "scripts": {
-    "dev": "vite dev --port 3001",
+    "dev": "vite dev --port 3074",
     "build": "vite build",
-    "start": "vinext start --port 3001",
+    "start": "vinext start --port 3074",
     "seed": "node --env-file-if-exists=.env.local scripts/seed.mts",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",

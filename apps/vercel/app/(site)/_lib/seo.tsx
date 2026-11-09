@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3072'
 ).replace(/\/$/, '')
 
 type Image = { src?: string; alt?: string; width?: unknown; height?: unknown }

@@ -4,6 +4,7 @@ Based on `apps/vercel` (see its CHANGELOG for core changes). This file lists wha
 
 ## Unreleased
 
+- Default local port is 3073 (vercel 3072, local 3074). `seo.tsx` falls back to `http://localhost`; set `NEXT_PUBLIC_SITE_URL` in `.env.local`.
 - `scripts/parity.mts` is the same file in every app again: `/admin` without a session may redirect to a hosted sign-in (callback on this host, AuthKit) or to `/admin/login` on this host (Better Auth); `--login` waits for an admin page other than `/admin/login`. `parity`, `mcp`, and `seed` default to the app's dev server (port from `--port` in the `dev` script, else 3000).
 - Core changes shared with `apps/local` (kept identical, checked by `pnpm drift`):
   - `proxy.ts` calls `protectAdmin` from the auth seam and skips `/api/`; `chrome.tsx` uses `useAdminUser`; `headcode/server.ts` uses `getMcpIdentity` (no WorkOS claims in neutral code).
@@ -20,6 +21,6 @@ Based on `apps/vercel` (see its CHANGELOG for core changes). This file lists wha
 - Migrations: `pnpm db:generate` (drizzle-kit) and `pnpm seed <url>` (applies `drizzle/` via `headcode/migrate.ts`, then seeds; `app/mcp/seed/route.ts`, shared token only).
 - `pnpm release`: build with `NEXT_PUBLIC_SITE_URL` and the draft host from `cloudflare.config.ts`, `cf deploy` (first run with `--secrets-file`), then seed.
 - Service tests run on in-memory libSQL with a convex-test-like harness.
-- `scripts/parity.mts`, `scripts/mcp-smoke.mts`, `scripts/seed.mts` default to port 3001. `parity.mts` types the OAuth metadata body (Workers types make `json()` return `unknown`).
+- `scripts/parity.mts`, `scripts/mcp-smoke.mts`, `scripts/seed.mts` default to port 3073. `parity.mts` types the OAuth metadata body (Workers types make `json()` return `unknown`).
 - Cache: Workers Response Store (self-contained) instead of the KV data cache, whose tag markers can be a minute stale per edge location (parity failed about every second run). Pages are not cached (`connection()` in the site layout): vinext's page ISR kept stale HTML after repeated writes. Writes call `expireSite()`. Missing pages are soft 404s (200 + `noindex`).
 - Known: the admin does not load under `pnpm dev` (AuthKit pre-bundling); use `pnpm build && pnpm preview`.

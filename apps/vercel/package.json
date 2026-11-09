@@ -3,9 +3,9 @@
   "version": "0.3.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3072",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --port 3072",
     "lint": "eslint",
     "format": "prettier --write .",
     "typecheck": "next typegen && tsc --noEmit",

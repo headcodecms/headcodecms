@@ -7,7 +7,7 @@ Setup steps are in `README.md`. This file contains the rules.
 - Next.js 16 App Router, React 19, TypeScript, Convex, WorkOS AuthKit, shadcn/ui (base-ui), kibo-ui, TipTap, Zod, Vitest, pnpm.
 - Ask before you add dependencies. Make the smallest change, with arrow functions, single quotes, and no semicolons.
 - `components/` and `lib/` hold generated shadcn/kibo code. Do not put app code there. Local patches: the TipTap `signal` pass-through in `components/kibo-ui/editor`, and `render` on `DialogStackNext`/`DialogStackPrevious` in `components/kibo-ui/dialog-stack` (shadcn turns `asChild` into `render`). Keep `headcode/utils.ts` the only registry file named `utils` (with two, shadcn rewrites `utils` imports to the first one).
-- Do not start `pnpm dev` or `pnpm convex dev` if they are already running (http://localhost:3000).
+- Do not start `pnpm dev` or `pnpm convex dev` if they are already running (http://localhost:3072).
 
 ## Architecture
 
@@ -39,11 +39,11 @@ Setup steps are in `README.md`. This file contains the rules.
 
 ```bash
 pnpm test && pnpm lint && pnpm typecheck && pnpm build
-pnpm mcp http://draft.localhost:3000/mcp headcode_get_version
-pnpm parity http://draft.localhost:3000 --write
-pnpm parity http://localhost:3000 --login            # once per host: a human signs in
-pnpm parity http://localhost:3000 --admin --write    # admin theme, entries, edit in the admin
-pnpm parity http://localhost:3000 --compare=<url>    # same text, SEO and look as another site (a convert's original)
+pnpm mcp http://draft.localhost:3072/mcp headcode_get_version
+pnpm parity http://draft.localhost:3072 --write
+pnpm parity http://localhost:3072 --login            # once per host: a human signs in
+pnpm parity http://localhost:3072 --admin --write    # admin theme, entries, edit in the admin
+pnpm parity http://localhost:3072 --compare=<url>    # same text, SEO and look as another site (a convert's original)
 # in the monorepo root, after changing files listed in registry.json:
 pnpm dlx shadcn@latest registry validate
 ```

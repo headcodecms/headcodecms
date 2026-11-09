@@ -279,7 +279,7 @@ Tell the user in one sentence, so a token does not confuse them: "For the automa
 
 ## 6. Checks
 
-All must pass. Run them on the live host (`localhost:3000`) and the draft host (`draft.localhost:3000`).
+All must pass. Run them on the live host (`localhost:3072`) and the draft host (`draft.localhost:3072`).
 
 | Check | How | Pass |
 |---|---|---|

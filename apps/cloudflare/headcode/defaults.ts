@@ -430,7 +430,7 @@ export const defaultDocs = [
     data: {
       content: `## Fast local install
 
-Use this path for a new local project on \`http://localhost:3001\`. Draft content is served on \`http://draft.localhost:3001\`.
+Use this path for a new local project on \`http://localhost:3073\`. Draft content is served on \`http://draft.localhost:3073\`.
 
 \`\`\`bash
 npx degit headcodecms/headcodecms/apps/cloudflare my-site
@@ -439,7 +439,7 @@ pnpm install
 npx cf auth login
 \`\`\`
 
-Create a WorkOS environment with email-code and social sign-in. Sign-up can stay open: new users can read, and you activate editors with the user metadata \`{ "headcode_role": "editor" }\` plus the JWT template \`{"headcode_role": {{ user.metadata.headcode_role || 'viewer' }}}\`. Then add the callback \`http://localhost:3001/callback\`, the sign-out URI \`http://localhost:3001/\`, and the initiate login URI \`http://localhost:3001/admin/login\`.
+Create a WorkOS environment with email-code and social sign-in. Sign-up can stay open: new users can read, and you activate editors with the user metadata \`{ "headcode_role": "editor" }\` plus the JWT template \`{"headcode_role": {{ user.metadata.headcode_role || 'viewer' }}}\`. Then add the callback \`http://localhost:3073/callback\`, the sign-out URI \`http://localhost:3073/\`, and the initiate login URI \`http://localhost:3073/admin/login\`.
 
 Add the values to \`.env.local\`:
 
@@ -447,11 +447,11 @@ Add the values to \`.env.local\`:
 WORKOS_CLIENT_ID=client_...
 WORKOS_AUTHKIT_DOMAIN=your-app.authkit.app
 WORKOS_COOKIE_PASSWORD=at-least-32-characters
-NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3001/callback
+NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3073/callback
 ALLOWED_MCP_TOKENS=a-random-token
 \`\`\`
 
-Start the app with \`pnpm dev\`, run \`pnpm seed\` once to create the tables and sample content, then open \`http://localhost:3001\`.
+Start the app with \`pnpm dev\`, run \`pnpm seed\` once to create the tables and sample content, then open \`http://localhost:3073\`.
 
 ### Live and draft hosts
 
@@ -531,7 +531,7 @@ MCP clients sign in with OAuth through AuthKit. Enable Client ID Metadata Docume
         {
           value: 'seed',
           label: 'Seed',
-          command: 'pnpm dev & pnpm seed http://localhost:3001',
+          command: 'pnpm dev & pnpm seed http://localhost:3073',
         },
         {
           value: 'deploy',

@@ -30,15 +30,15 @@ npx cf auth login          # Cloudflare account (opens the browser)
 
 | Setting             | Value                                                                              |
 | ------------------- | ---------------------------------------------------------------------------------- |
-| Redirect URIs       | `http://localhost:3001/callback` (default), `http://draft.localhost:3001/callback` |
-| Sign-out URIs       | `http://localhost:3001/` (default), `http://draft.localhost:3001/`                 |
-| Initiate login URI  | `http://localhost:3001/admin/login`                                                |
+| Redirect URIs       | `http://localhost:3073/callback` (default), `http://draft.localhost:3073/callback` |
+| Sign-out URIs       | `http://localhost:3073/` (default), `http://draft.localhost:3073/`                 |
+| Initiate login URI  | `http://localhost:3073/admin/login`                                                |
 | Authentication      | email code + social logins, password off                                           |
 | Sign-up             | enabled (new users can read, not edit)                                             |
 | JWT template        | `{"headcode_role": {{ user.metadata.headcode_role                                  |     | 'viewer' }}}` |
 | Editors             | user metadata `{ "headcode_role": "editor" }`                                      |
 | MCP OAuth           | enable Client ID Metadata Document and Dynamic Client Registration                 |
-| Resource indicators | `http://localhost:3001/mcp` (default), `http://draft.localhost:3001/mcp`           |
+| Resource indicators | `http://localhost:3073/mcp` (default), `http://draft.localhost:3073/mcp`           |
 | Branding (optional) | sign-in heading `Sign in to Headcode CMS`                                          |
 
 **3. Environment** (`.env.local`; the Cloudflare plugin passes it to the local Worker)
@@ -47,7 +47,8 @@ npx cf auth login          # Cloudflare account (opens the browser)
 WORKOS_CLIENT_ID=client_...
 WORKOS_AUTHKIT_DOMAIN=<name>.authkit.app
 WORKOS_COOKIE_PASSWORD=<openssl rand -base64 32>
-NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3001/callback
+NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3073/callback
+NEXT_PUBLIC_SITE_URL=http://localhost:3073
 NEXT_PUBLIC_HEADCODE_VERSION=auto
 NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=draft.localhost
 ALLOWED_MCP_TOKENS=<openssl rand -hex 32>
@@ -58,18 +59,18 @@ You do not need `WORKOS_API_KEY`, because AuthKit runs as a public PKCE client. 
 **4. Run**
 
 ```bash
-pnpm dev                          # http://localhost:3001, local D1 and R2
-pnpm seed http://localhost:3001   # once: creates the tables and sample content
+pnpm dev                          # http://localhost:3073, local D1 and R2
+pnpm seed http://localhost:3073   # once: creates the tables and sample content
 ```
 
 | URL                            | Content                              |
 | ------------------------------ | ------------------------------------ |
-| http://localhost:3001          | live site                            |
-| http://draft.localhost:3001    | draft site                           |
-| http://localhost:3001/admin    | admin (sign in through AuthKit)      |
-| http://localhost:3001/llms.txt | agent entry point                    |
-| http://localhost:3001/docs?md  | any page as Markdown                 |
-| http://localhost:3001/mcp      | MCP endpoint (OAuth or bearer token) |
+| http://localhost:3073          | live site                            |
+| http://draft.localhost:3073    | draft site                           |
+| http://localhost:3073/admin    | admin (sign in through AuthKit)      |
+| http://localhost:3073/llms.txt | agent entry point                    |
+| http://localhost:3073/docs?md  | any page as Markdown                 |
+| http://localhost:3073/mcp      | MCP endpoint (OAuth or bearer token) |
 
 The admin does not load under `pnpm dev` yet (Vite pre-bundles AuthKit with server-only code). Use the production build locally for admin work:
 
@@ -97,8 +98,8 @@ The host decides which version you see and edit: `draft.localhost` shows the dra
 Typical workflow:
 
 1. Once: Admin → Versions → **New draft**.
-2. Edit on `http://draft.localhost:3001/admin` (or through MCP on `draft.localhost`).
-3. Check on `http://draft.localhost:3001`.
+2. Edit on `http://draft.localhost:3073/admin` (or through MCP on `draft.localhost`).
+3. Check on `http://draft.localhost:3073`.
 4. Admin → Versions → **Publish draft**.
 
 ## Content and images
@@ -115,16 +116,16 @@ Typical workflow:
 ## Commands
 
 ```bash
-pnpm dev                  # vinext dev server on port 3001
+pnpm dev                  # vinext dev server on port 3073
 pnpm build && pnpm preview
 pnpm test                 # service tests (in-memory SQLite)
 pnpm lint
 pnpm typecheck
 pnpm db:generate          # SQL migration after a schema change
-pnpm seed [url]           # migrations + missing globals (default http://localhost:3001)
+pnpm seed [url]           # migrations + missing globals (default http://localhost:3073)
 pnpm mcp                  # list MCP tools (pinned to spec 2026-07-28)
-pnpm mcp http://draft.localhost:3001/mcp headcode_get_version
-pnpm parity               # contract tests against http://draft.localhost:3001
+pnpm mcp http://draft.localhost:3073/mcp headcode_get_version
+pnpm parity               # contract tests against http://draft.localhost:3073
 pnpm parity <url> --write # also add, edit and delete a test entry (never publishes)
 pnpm release              # build, deploy, migrate, seed (see Deploy)
 ```
