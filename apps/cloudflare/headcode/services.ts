@@ -1,4 +1,13 @@
-import { and, asc, desc, eq, inArray, like, sql } from 'drizzle-orm'
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  getTableColumns,
+  inArray,
+  like,
+  sql,
+} from 'drizzle-orm'
 import type { SQLiteTable } from 'drizzle-orm/sqlite-core'
 import type { BaseSQLiteDatabase } from 'drizzle-orm/sqlite-core'
 
@@ -60,16 +69,32 @@ const adminMutation = <Args = Record<string, never>, Result = unknown>(
 type Int = number | bigint
 const first = async <T>(rows: Promise<T[]>) => (await rows)[0] ?? null
 
-// D1 allows at most 100 bound parameters per statement.
-const insertMany = async <T extends SQLiteTable>(
+// Writes that belong together run as one batch: D1 and libSQL execute a
+// batch as a single transaction, so it applies completely or not at all.
+type Statement = unknown
+const commit = async (db: Db, statements: Statement[]) => {
+  if (statements.length)
+    await (
+      db as unknown as { batch: (s: Statement[]) => Promise<unknown> }
+    ).batch(statements)
+}
+
+// Insert statements in chunks: D1 allows at most 100 bound parameters each.
+const insertRows = <T extends SQLiteTable>(
   db: Db,
   table: T,
   rows: T['$inferInsert'][],
-) => {
-  if (!rows.length) return
-  const size = Math.max(1, Math.floor(99 / Object.keys(rows[0]).length))
+): Statement[] => {
+  if (!rows.length) return []
+  // Every column is bound, also the ones with defaults (_id, _creationTime).
+  const size = Math.max(
+    1,
+    Math.floor(99 / Object.keys(getTableColumns(table)).length),
+  )
+  const statements: Statement[] = []
   for (let i = 0; i < rows.length; i += size)
-    await db.insert(table).values(rows.slice(i, i + size))
+    statements.push(db.insert(table).values(rows.slice(i, i + size)))
+  return statements
 }
 
 const globalSlugs: string[] = headcodeConfig.globals.map((item) => item.slug)
@@ -111,54 +136,65 @@ export const ensureVersionId = async (db: Db, version: HeadcodeVersion) =>
   (await getVersionId(db, version)) ??
   (await insertVersion(db, { live: true, draft: true }))
 
-const cloneVersion = async (
+// Statements that copy a version (entries and sections) into a new one.
+const cloneStatements = async (
   db: Db,
   source: string,
+  version: string,
   flags: { live: boolean; draft: boolean },
 ) => {
-  const version = await insertVersion(db, flags)
   const sourceEntries = await getEntries(db, source)
   const ids = new Map(
     sourceEntries.map((entry) => [entry._id, crypto.randomUUID()]),
-  )
-  await insertMany(
-    db,
-    entries,
-    sourceEntries.map((entry) => ({
-      _id: ids.get(entry._id),
-      slug: entry.slug,
-      name: entry.name,
-      modificationTime: Date.now(),
-      version,
-    })),
   )
   const sourceSections = await db
     .select({ section: sections })
     .from(sections)
     .innerJoin(entries, eq(entries._id, sections.entry))
     .where(eq(entries.version, source))
-  await insertMany(
-    db,
-    sections,
-    sourceSections.map(({ section: { name, pos, data, entry } }) => ({
-      name,
-      pos,
-      data,
-      entry: ids.get(entry)!,
-    })),
-  )
-  return version
+  return [
+    db.insert(versions).values({ _id: version, ...flags }),
+    ...insertRows(
+      db,
+      entries,
+      sourceEntries.map((entry) => ({
+        _id: ids.get(entry._id),
+        slug: entry.slug,
+        name: entry.name,
+        modificationTime: Date.now(),
+        version,
+      })),
+    ),
+    ...insertRows(
+      db,
+      sections,
+      sourceSections.map(({ section: { name, pos, data, entry } }) => ({
+        name,
+        pos,
+        data,
+        entry: ids.get(entry)!,
+      })),
+    ),
+  ]
 }
 
+// The old draft stops being the draft and a copy of live becomes the new one.
 const newDraftVersion = async (db: Db) => {
   const live = await ensureVersionId(db, 'live')
   const oldDraft = await findVersion(db, 'draft')
-  if (oldDraft)
-    await db
-      .update(versions)
-      .set({ draft: false })
-      .where(eq(versions._id, oldDraft._id))
-  return cloneVersion(db, live, { live: false, draft: true })
+  const version = crypto.randomUUID()
+  await commit(db, [
+    ...(oldDraft
+      ? [
+          db
+            .update(versions)
+            .set({ draft: false })
+            .where(eq(versions._id, oldDraft._id)),
+        ]
+      : []),
+    ...(await cloneStatements(db, live, version, { live: false, draft: true })),
+  ])
+  return version
 }
 
 const getVersion = (db: Db, id: string) =>
@@ -259,22 +295,24 @@ const createEntry = async (
   const kind = entry.name === null ? 'global' : 'collection'
   if (!config) throw new Error(`Unknown ${kind} "${entry.slug}".`)
 
-  const [{ _id }] = await db
-    .insert(entries)
-    .values({ ...entry, modificationTime: Date.now(), version })
-    .returning()
-  await insertMany(
-    db,
-    sections,
-    (entrySections ?? config.defaults).map((section, index) =>
-      validateSectionForStorage({
-        name: section.name,
-        pos: index,
-        data: JSON.stringify(section.data),
-        entry: _id,
-      }),
+  const _id = crypto.randomUUID()
+  await commit(db, [
+    db
+      .insert(entries)
+      .values({ ...entry, _id, modificationTime: Date.now(), version }),
+    ...insertRows(
+      db,
+      sections,
+      (entrySections ?? config.defaults).map((section, index) =>
+        validateSectionForStorage({
+          name: section.name,
+          pos: index,
+          data: JSON.stringify(section.data),
+          entry: _id,
+        }),
+      ),
     ),
-  )
+  ])
   return _id
 }
 
@@ -295,15 +333,11 @@ const getSortedSections = async (db: Db, entry: string) =>
 const getSectionById = (db: Db, id: string) =>
   first(db.select().from(sections).where(eq(sections._id, id)))
 
-const insertSection = async (db: Db, section: SectionInput) =>
-  (
-    await db
-      .insert(sections)
-      .values(
-        validateSectionForStorage({ ...section, pos: Number(section.pos) }),
-      )
-      .returning()
-  )[0]._id
+// A section insert with a known id (for a batch).
+const insertSection = (db: Db, section: SectionInput & { _id: string }) =>
+  db
+    .insert(sections)
+    .values(validateSectionForStorage({ ...section, pos: Number(section.pos) }))
 
 const touchEntry = (db: Db, entry: string) =>
   db
@@ -443,13 +477,27 @@ export const services = {
   publish: adminMutation(async ({ db }) => {
     const live = await ensureVersionId(db, 'live')
     const draft = (await getVersionId(db, 'draft')) ?? live
-    if (live !== draft)
-      await db
+    // The draft becomes live, and a copy of it becomes the new draft.
+    const version = crypto.randomUUID()
+    await commit(db, [
+      ...(live !== draft
+        ? [
+            db
+              .update(versions)
+              .set({ live: false })
+              .where(eq(versions._id, live)),
+          ]
+        : []),
+      db
         .update(versions)
-        .set({ live: false })
-        .where(eq(versions._id, live))
-    await db.update(versions).set({ live: true }).where(eq(versions._id, draft))
-    return newDraftVersion(db)
+        .set({ live: true, draft: false })
+        .where(eq(versions._id, draft)),
+      ...(await cloneStatements(db, draft, version, {
+        live: false,
+        draft: true,
+      })),
+    ])
+    return version
   }),
 
   newDraft: adminMutation(async ({ db }) => newDraftVersion(db)),
@@ -460,12 +508,22 @@ export const services = {
       if (!source) throw new Error('Version not found.')
       if (source.live) throw new Error('Version is already live.')
       const oldLive = await findVersion(db, 'live')
-      if (oldLive)
-        await db
-          .update(versions)
-          .set({ live: false })
-          .where(eq(versions._id, oldLive._id))
-      return cloneVersion(db, versionId, { live: true, draft: false })
+      const version = crypto.randomUUID()
+      await commit(db, [
+        ...(oldLive
+          ? [
+              db
+                .update(versions)
+                .set({ live: false })
+                .where(eq(versions._id, oldLive._id)),
+            ]
+          : []),
+        ...(await cloneStatements(db, versionId, version, {
+          live: true,
+          draft: false,
+        })),
+      ])
+      return version
     },
   ),
 
@@ -484,9 +542,11 @@ export const services = {
         .select({ count: sql<number>`count(*)` })
         .from(entries)
         .where(eq(entries.version, versionId))
-      await db.delete(sections).where(inArray(sections.entry, entryIds))
-      await db.delete(entries).where(eq(entries.version, versionId))
-      await db.delete(versions).where(eq(versions._id, versionId))
+      await commit(db, [
+        db.delete(sections).where(inArray(sections.entry, entryIds)),
+        db.delete(entries).where(eq(entries.version, versionId)),
+        db.delete(versions).where(eq(versions._id, versionId)),
+      ])
       return { deleted: true, entries: entryCount, sections: sectionCount }
     },
   ),
@@ -576,8 +636,10 @@ export const services = {
   ),
 
   deleteEntry: adminMutation(async ({ db }, { id }: { id: string }) => {
-    await db.delete(sections).where(eq(sections.entry, id))
-    await db.delete(entries).where(eq(entries._id, id))
+    await commit(db, [
+      db.delete(sections).where(eq(sections.entry, id)),
+      db.delete(entries).where(eq(entries._id, id)),
+    ])
     return null
   }),
 
@@ -594,21 +656,26 @@ export const services = {
 
   addSection: adminMutation(async ({ db }, section: SectionInput) => {
     await assertSectionAllowed(db, section.entry, section.name)
-    const id = await insertSection(db, section)
-    await touchEntry(db, section.entry)
+    const id = crypto.randomUUID()
+    await commit(db, [
+      insertSection(db, { ...section, _id: id }),
+      touchEntry(db, section.entry),
+    ])
     return id
   }),
 
   updateSection: adminMutation(
     async ({ db }, { id, ...section }: SectionInput & { id: string }) => {
       await assertSectionAllowed(db, section.entry, section.name)
-      await db
-        .update(sections)
-        .set(
-          validateSectionForStorage({ ...section, pos: Number(section.pos) }),
-        )
-        .where(eq(sections._id, id))
-      await touchEntry(db, section.entry)
+      await commit(db, [
+        db
+          .update(sections)
+          .set(
+            validateSectionForStorage({ ...section, pos: Number(section.pos) }),
+          )
+          .where(eq(sections._id, id)),
+        touchEntry(db, section.entry),
+      ])
       return null
     },
   ),
@@ -619,16 +686,20 @@ export const services = {
       { sections: order }: { sections: { id: string; pos: Int }[] },
     ) => {
       const touched = new Set<string>()
+      const statements: Statement[] = []
       for (const { id, pos } of order) {
         const existing = await getSectionById(db, id)
         if (!existing) throw new Error('Section not found.')
-        await db
-          .update(sections)
-          .set({ pos: Number(pos) })
-          .where(eq(sections._id, id))
+        statements.push(
+          db
+            .update(sections)
+            .set({ pos: Number(pos) })
+            .where(eq(sections._id, id)),
+        )
         touched.add(existing.entry)
       }
-      for (const entry of touched) await touchEntry(db, entry)
+      for (const entry of touched) statements.push(touchEntry(db, entry))
+      await commit(db, statements)
       return null
     },
   ),
@@ -641,26 +712,32 @@ export const services = {
 
     const list = await getSortedSections(db, section.entry)
     const index = list.findIndex((item) => item._id === id)
-    for (const [i, item] of list.entries())
-      await db
-        .update(sections)
-        .set({ pos: (i <= index ? i + 1 : i + 2) * 100 })
-        .where(eq(sections._id, item._id))
-
-    const copyId = await insertSection(db, {
-      name: section.name,
-      pos: (index + 2) * 100,
-      data: section.data,
-      entry: section.entry,
-    })
-    await touchEntry(db, section.entry)
+    const copyId = crypto.randomUUID()
+    await commit(db, [
+      ...list.map((item, i) =>
+        db
+          .update(sections)
+          .set({ pos: (i <= index ? i + 1 : i + 2) * 100 })
+          .where(eq(sections._id, item._id)),
+      ),
+      insertSection(db, {
+        _id: copyId,
+        name: section.name,
+        pos: (index + 2) * 100,
+        data: section.data,
+        entry: section.entry,
+      }),
+      touchEntry(db, section.entry),
+    ])
     return copyId
   }),
 
   deleteSection: adminMutation(async ({ db }, { id }: { id: string }) => {
     const section = await getSectionById(db, id)
-    await db.delete(sections).where(eq(sections._id, id))
-    if (section) await touchEntry(db, section.entry)
+    await commit(db, [
+      db.delete(sections).where(eq(sections._id, id)),
+      ...(section ? [touchEntry(db, section.entry)] : []),
+    ])
     return null
   }),
 

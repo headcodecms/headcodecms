@@ -4,6 +4,9 @@ Based on `apps/vercel` (see its CHANGELOG for core changes). This file lists wha
 
 ## Unreleased
 
+- Atomic writes: publish, new draft, restore, delete version, add/delete entry, add/update/duplicate/reorder/delete section run as one `db.batch` (D1 and libSQL execute a batch as one transaction). IDs are generated up front.
+- Fix: inserts are chunked by the table's column count (defaults like `_id` and `_creationTime` are bound too). Before, cloning a version with many sections exceeded D1's 100 bound parameters, so new draft and publish failed on Cloudflare (parity never publishes, so it did not show).
+- Missing pages stay soft 404s (200 + `noindex`): vinext 1.4 answers 200 even for unmatched routes and ignores a 404 status set by the proxy.
 - Default local port is 3073 (vercel 3072, local 3074). `seo.tsx` falls back to `http://localhost`; set `NEXT_PUBLIC_SITE_URL` in `.env.local`.
 - `scripts/parity.mts` is the same file in every app again: `/admin` without a session may redirect to a hosted sign-in (callback on this host, AuthKit) or to `/admin/login` on this host (Better Auth); `--login` waits for an admin page other than `/admin/login`. `parity`, `mcp`, and `seed` default to the app's dev server (port from `--port` in the `dev` script, else 3000).
 - Core changes shared with `apps/local` (kept identical, checked by `pnpm drift`):
