@@ -27,7 +27,7 @@ const allowed = [
   /^headcode\/defaults\.ts$/,
 ]
 const ignored =
-  /^(node_modules|\.next|\.cloudflare|\.vinext|\.parity|dist|data|coverage)(\/|$)|^\.env|^next-env\.d\.ts$|\.tsbuildinfo$|\.DS_Store$/
+  /^(node_modules|\.next|\.turbo|\.cloudflare|\.vinext|\.parity|dist|data|coverage)(\/|$)|^\.env|^next-env\.d\.ts$|\.tsbuildinfo$|\.DS_Store$/
 
 const other = process.argv[2]
 if (!other) throw new Error('Usage: pnpm drift <path to the other app>')
