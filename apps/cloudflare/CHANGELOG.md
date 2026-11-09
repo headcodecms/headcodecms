@@ -4,6 +4,7 @@ Based on `apps/vercel` (see its CHANGELOG for core changes). This file lists wha
 
 ## Unreleased
 
+- `scripts/parity.mts` is the same file in every app again: `/admin` without a session may redirect to a hosted sign-in (callback on this host, AuthKit) or to `/admin/login` on this host (Better Auth); `--login` waits for an admin page other than `/admin/login`. `parity`, `mcp`, and `seed` default to the app's dev server (port from `--port` in the `dev` script, else 3000).
 - Core changes shared with `apps/local` (kept identical, checked by `pnpm drift`):
   - `proxy.ts` calls `protectAdmin` from the auth seam and skips `/api/`; `chrome.tsx` uses `useAdminUser`; `headcode/server.ts` uses `getMcpIdentity` (no WorkOS claims in neutral code).
   - `transformImage(storageId, options)` in the images seam; the media route cancels the unused body and uses the Cache API only where it exists.

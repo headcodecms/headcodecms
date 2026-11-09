@@ -20,9 +20,16 @@ import {
 } from '@modelcontextprotocol/client'
 import { chromium, type Browser, type Page } from 'playwright-core'
 
+// The app's dev server: the port of `--port` in the dev script, else 3000.
+const devPort =
+  /--port[ =](\d+)/.exec(
+    JSON.parse(readFileSync('package.json', 'utf8')).scripts?.dev ?? '',
+  )?.[1] ?? '3000'
+
 const args = process.argv.slice(2)
 const base = new URL(
-  args.find((arg) => !arg.startsWith('--')) ?? 'http://draft.localhost:3000',
+  args.find((arg) => !arg.startsWith('--')) ??
+    `http://draft.localhost:${devPort}`,
 )
 const write = args.includes('--write')
 const original = args
@@ -55,7 +62,10 @@ if (args.includes('--login')) {
   await page.goto(new URL('/admin', base).href)
   console.log(`Sign in to ${base.host} in the browser window (5 minutes).`)
   await page.waitForURL(
-    (url) => url.host === base.host && url.pathname.startsWith('/admin'),
+    (url) =>
+      url.host === base.host &&
+      url.pathname.startsWith('/admin') &&
+      !url.pathname.startsWith('/admin/login'),
     { timeout: 300_000 },
   )
   await waitForAdmin(page)
@@ -143,7 +153,10 @@ describe('MCP auth', () => {
   test('protected resource metadata names this host', async () => {
     const res = await get('/.well-known/oauth-protected-resource/mcp')
     assert.equal(res.status, 200)
-    const body = await res.json()
+    const body = (await res.json()) as {
+      resource?: string
+      authorization_servers?: string[]
+    }
     assert.equal(body.resource, mcp.href)
     assert.ok(body.authorization_servers?.length)
   })
@@ -304,14 +317,19 @@ describe('Site', () => {
 })
 
 describe('Admin', () => {
-  test('/admin without a session redirects to AuthKit with this callback', async () => {
+  // Hosted sign-in (AuthKit) must call back to this host; an own sign-in
+  // page (Better Auth) must be on this host.
+  test('/admin without a session redirects to sign-in for this host', async () => {
     const res = await get('/admin', { redirect: 'manual' })
     assert.equal(res.status, 307)
-    const location = new URL(res.headers.get('location') ?? '')
-    assert.equal(
-      location.searchParams.get('redirect_uri'),
-      new URL('/callback', base).href,
-    )
+    const location = new URL(res.headers.get('location') ?? '', base)
+    if (location.origin === base.origin)
+      assert.match(location.pathname, /^\/admin\/login/)
+    else
+      assert.equal(
+        location.searchParams.get('redirect_uri'),
+        new URL('/callback', base).href,
+      )
   })
 
   test('admin.css has its own theme and imports nothing from the site', () => {

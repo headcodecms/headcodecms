@@ -20,9 +20,16 @@ import {
 } from '@modelcontextprotocol/client'
 import { chromium, type Browser, type Page } from 'playwright-core'
 
+// The app's dev server: the port of `--port` in the dev script, else 3000.
+const devPort =
+  /--port[ =](\d+)/.exec(
+    JSON.parse(readFileSync('package.json', 'utf8')).scripts?.dev ?? '',
+  )?.[1] ?? '3000'
+
 const args = process.argv.slice(2)
 const base = new URL(
-  args.find((arg) => !arg.startsWith('--')) ?? 'http://draft.localhost:3001',
+  args.find((arg) => !arg.startsWith('--')) ??
+    `http://draft.localhost:${devPort}`,
 )
 const write = args.includes('--write')
 const original = args

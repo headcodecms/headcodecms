@@ -4,6 +4,7 @@ Core changes that variants based on `vercel` should follow.
 
 ## Unreleased
 
+- `scripts/parity.mts` is the same file in every app again: `/admin` without a session may redirect to a hosted sign-in (callback on this host, AuthKit) or to `/admin/login` on this host (Better Auth); `--login` waits for an admin page other than `/admin/login`. `parity`, `mcp`, and `seed` default to the app's dev server (port from `--port` in the `dev` script, else 3000).
 - `pnpm parity` loads `.parity/<host>.env` (gitignored), so each deployed host keeps its own `MCP_TOKEN`. README and convert.md explain the shared token: scripts only, created by the agent, people and MCP clients use OAuth.
 - `ListField({ label, description, fields })` in `headcode/fields.ts`: lists get a label and description in the admin (list title, breadcrumb) and in MCP. It is still an array (`[fields]`), so `[{ ... }]` keeps working. MCP `headcode_list_section_types` describes a list as `{ type: 'list', label, description, item }` instead of `[item]`.
 - Registry install fixes (found by installing into a fresh `shadcn init` app):

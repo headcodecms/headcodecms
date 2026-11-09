@@ -4,8 +4,15 @@ import {
   Client,
   StreamableHTTPClientTransport,
 } from '@modelcontextprotocol/client'
+import { readFileSync } from 'node:fs'
 
-const [url = 'http://localhost:3000/mcp', tool, args = '{}'] =
+// The app's dev server: the port of `--port` in the dev script, else 3000.
+const devPort =
+  /--port[ =](\d+)/.exec(
+    JSON.parse(readFileSync('package.json', 'utf8')).scripts?.dev ?? '',
+  )?.[1] ?? '3000'
+
+const [url = `http://localhost:${devPort}/mcp`, tool, args = '{}'] =
   process.argv.slice(2)
 const token = process.env.ALLOWED_MCP_TOKENS?.split(',')[0]?.trim()
 

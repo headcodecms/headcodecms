@@ -1,9 +1,15 @@
 // Applies migrations and seeds the database of a running Headcode app.
-// Usage: pnpm seed [base-url]   (token: MCP_TOKEN, .parity/<host>.env, or
+// Usage: pnpm seed [base-url]   (default: the dev server)   (token: MCP_TOKEN, .parity/<host>.env, or
 // the first ALLOWED_MCP_TOKENS value from .env.local)
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 
-const base = new URL(process.argv[2] ?? 'http://localhost:3001')
+// The app's dev server: the port of `--port` in the dev script, else 3000.
+const devPort =
+  /--port[ =](\d+)/.exec(
+    JSON.parse(readFileSync('package.json', 'utf8')).scripts?.dev ?? '',
+  )?.[1] ?? '3000'
+
+const base = new URL(process.argv[2] ?? `http://localhost:${devPort}`)
 if (existsSync(`.parity/${base.host}.env`))
   process.loadEnvFile(`.parity/${base.host}.env`)
 const token =
