@@ -2,11 +2,10 @@ import type { Metadata } from 'next'
 import { Geist_Mono, Inter } from 'next/font/google'
 import { Suspense } from 'react'
 import './admin.css'
-import { ConvexClientProvider } from './_components/convex-client-provider'
+import { AdminProvider } from './_components/admin-provider'
 import { cn } from '@/lib/utils'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
-
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -37,7 +36,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col">
         {/* The admin is a client app; route params resolve at request time. */}
         <Suspense>
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+          <AdminProvider>{children}</AdminProvider>
         </Suspense>
       </body>
     </html>

@@ -24,3 +24,9 @@ export const requestOrigin = (req: Request) => {
     req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? url.host
   return url.origin
 }
+
+// Responsive widths served by /media/<key>?w=<width> (app/media/[key]).
+export const mediaWidths = [384, 640, 828, 1080, 1200, 1920, 2048]
+
+export const mediaSrcSet = (src: string) =>
+  mediaWidths.map((width) => `${src}?w=${width} ${width}w`).join(', ')

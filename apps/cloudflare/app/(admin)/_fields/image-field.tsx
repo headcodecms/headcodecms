@@ -12,7 +12,7 @@ import {
   Upload,
 } from 'lucide-react'
 import * as React from 'react'
-import { useMutation, usePaginatedQuery, useQuery } from 'convex/react'
+import { useMutation, usePaginatedQuery, useQuery } from '@/headcode/client'
 import { rgbaToThumbHash, thumbHashToDataURL } from 'thumbhash'
 
 import { Dropzone } from '@/components/kibo-ui/dropzone'
@@ -26,8 +26,8 @@ import {
 } from '@/components/ui/dialog'
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty'
 import { Input } from '@/components/ui/input'
-import { api } from '@/convex/_generated/api'
-import type { Doc, Id } from '@/convex/_generated/dataModel'
+import { api } from '@/headcode/api'
+import type { Doc, Id } from '@/headcode/data-model'
 import type { ImageFieldAccept, ImageFieldValue } from '@/headcode/types'
 import { cn } from '@/lib/utils'
 import { errorMessage } from '../_lib/use-actions'
@@ -88,12 +88,12 @@ export const ImageField = ({
     const { _id } = await addUploadedImage({
       storageId,
       alt: image?.alt ?? '',
-      width: BigInt(width),
-      height: BigInt(height),
+      width,
+      height,
       blurDataURL,
       name: file.name,
       type: file.type || 'image/*',
-      size: BigInt(file.size),
+      size: file.size,
     })
     onChange({ imageId: _id })
   }

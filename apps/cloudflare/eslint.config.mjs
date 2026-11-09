@@ -8,7 +8,6 @@ export default defineConfig([
   globalIgnores([
     '.next/**',
     'next-env.d.ts',
-    'convex/_generated/**',
     '.agents/**',
     '.claude/**',
     '.cloudflare/**',

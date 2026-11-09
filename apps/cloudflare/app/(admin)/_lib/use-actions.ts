@@ -1,11 +1,11 @@
 'use client'
 
-import { ConvexError } from 'convex/values'
+import { HeadcodeError } from '@/headcode/authorization'
 import * as React from 'react'
 
-// ConvexError data reaches the client as-is; other errors carry Convex prefixes.
+// HeadcodeError data is the user-facing message.
 export const errorMessage = (error: unknown, fallback: string) =>
-  error instanceof ConvexError && typeof error.data === 'string'
+  error instanceof HeadcodeError
     ? error.data
     : error instanceof Error
       ? error.message

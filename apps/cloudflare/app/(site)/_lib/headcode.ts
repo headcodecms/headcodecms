@@ -1,15 +1,15 @@
-import { fetchQuery } from 'convex/nextjs'
+import { cacheLife, cacheTag } from 'next/cache'
+
 import {
+  api,
   type FunctionArgs,
-  type FunctionReference,
   type FunctionReturnType,
   getFunctionName,
   makeFunctionReference,
-} from 'convex/server'
-import { cacheLife, cacheTag } from 'next/cache'
-
-import { api } from '@/convex/_generated/api'
+  type ServiceRef,
+} from '@/headcode/api'
 import { headcodeConfig } from '@/headcode/config'
+import { fetchQuery } from '@/headcode/server'
 import type { BlogMetaData } from '@/headcode/sections'
 import type {
   DataHeadcode,
@@ -25,18 +25,21 @@ export type EntryBundle = ServiceEntryBundle
 const entryConfigs = [...headcodeConfig.globals, ...headcodeConfig.collections]
 
 // All site content is cached and prerendered per version. Admin and MCP
-// writes expire this tag (app/(admin)/_lib/revalidate.ts, app/mcp/route.ts).
+// writes expire this tag (app/(admin)/admin/services/route.ts, app/mcp/route.ts).
 export const headcodeTag = 'headcode'
 
-const cachedQuery = async (name: string, args: Record<string, unknown>) => {
+const cachedQuery = async (
+  name: Parameters<typeof makeFunctionReference>[0],
+  args: Record<string, unknown>,
+) => {
   'use cache'
   cacheLife('hours')
   cacheTag(headcodeTag)
-  return fetchQuery(makeFunctionReference<'query'>(name), args)
+  return fetchQuery(makeFunctionReference(name), args as never)
 }
 
-// Function references are proxies, so the cache key uses the function name.
-const query = <Query extends FunctionReference<'query'>>(
+// The cache key uses the function name.
+const query = <Query extends ServiceRef>(
   fn: Query,
   args: FunctionArgs<Query>,
 ) =>

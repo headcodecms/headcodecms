@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { Doc, Id } from '../convex/_generated/dataModel'
+import type { Doc, Id } from './data-model'
 
 export type HeadcodeFieldType =
   | 'text'

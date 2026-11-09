@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation, useQuery } from 'convex/react'
+import { useMutation, useQuery } from '@/headcode/client'
 import {
   Bookmark,
   ChevronRight,
@@ -16,8 +16,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { api } from '@/convex/_generated/api'
-import type { Doc, Id } from '@/convex/_generated/dataModel'
+import { api } from '@/headcode/api'
+import type { Doc, Id } from '@/headcode/data-model'
 import { headcodeConfig } from '@/headcode/config'
 import { entryPath } from '@/headcode/utils'
 import { cn } from '@/lib/utils'

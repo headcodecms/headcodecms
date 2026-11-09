@@ -4,17 +4,23 @@ import {
   McpServer,
   originValidationResponse,
 } from '@modelcontextprotocol/server'
-import { fetchMutation, fetchQuery } from 'convex/nextjs'
-import type { FunctionArgs, FunctionReference } from 'convex/server'
-import { ConvexError } from 'convex/values'
-import { env } from 'cloudflare:workers'
-import { rgbaToThumbHash, thumbHashToDataURL } from 'thumbhash'
 import { revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { headcodeTag } from '@/app/(site)/_lib/headcode'
-import { api } from '@/convex/_generated/api'
-import type { Id } from '@/convex/_generated/dataModel'
-import { getEntryConfig } from '@/convex/db'
+import { api, type FunctionArgs, type ServiceRef } from '@/headcode/api'
+import type { Id } from '@/headcode/data-model'
+import {
+  imageMetadata,
+  readImage as readStoredImage,
+  storeImage,
+} from '@/headcode/images'
+import {
+  fetchMutation,
+  fetchQuery,
+  HeadcodeError,
+  requireWrite,
+} from '@/headcode/server'
+import { getEntryConfig } from '@/headcode/services'
 import { headcodeConfig } from '@/headcode/config'
 import { DEFAULT_IMAGE_ACCEPT, DEFAULT_IMAGE_MAX_SIZE } from '@/headcode/fields'
 import type { HeadcodeFieldConfig, ServiceSection } from '@/headcode/types'
@@ -156,44 +162,33 @@ const readImage = async (url: URL, maxContentLength?: boolean) => {
     Number(response.headers.get('content-length') ?? 0) > DEFAULT_IMAGE_MAX_SIZE
   )
     throw new Error(tooLarge)
-  const buffer = Buffer.from(await response.arrayBuffer())
+  const buffer = await response.arrayBuffer()
   if (buffer.byteLength > DEFAULT_IMAGE_MAX_SIZE) throw new Error(tooLarge)
   return { buffer, type }
 }
 
-// Dimensions and ThumbHash blur placeholder, generated with the Images binding.
-const imageMetadata = async (buffer: Buffer) => {
-  const stream = () => new Blob([new Uint8Array(buffer)]).stream()
-  const info = await env.IMAGES.info(stream())
-  if (!('width' in info) || !info.width || !info.height)
-    throw new Error('Could not read image dimensions.')
-  const { width, height } = info
-  const scale = Math.min(1, 100 / width, 100 / height)
-  const w = Math.max(1, Math.round(width * scale))
-  const blurDataURL = await env.IMAGES.input(stream())
-    .transform({ width: w, fit: 'scale-down' })
-    .output({ format: 'rgba' })
-    .then(async (result) => {
-      const data = new Uint8Array(await result.response().arrayBuffer())
-      return thumbHashToDataURL(
-        rgbaToThumbHash(w, data.byteLength / (w * 4), data),
-      )
-    })
-    .catch((error) => {
-      // Local `vite dev` cannot output raw RGBA; use a grey placeholder there.
-      if (!import.meta.env.DEV) throw error
-      return thumbHashToDataURL(rgbaToThumbHash(1, 1, [128, 128, 128, 255]))
-    })
-  return { width: BigInt(width), height: BigInt(height), blurDataURL }
+// An image uploaded to a one-time upload URL (see app/media/upload).
+const readUploadedImage = async (storageId: string) => {
+  const stored = await readStoredImage(storageId)
+  if (!stored) throw new Error('Uploaded image is not available.')
+  const type = stored.type.split(';')[0].trim().toLowerCase()
+  if (!acceptedTypes.includes(type))
+    throw new Error(
+      `Image type "${type || 'unknown'}" is not allowed. Allowed types: ${acceptedTypes.join(', ')}.`,
+    )
+  const buffer = await new Response(stored.body).arrayBuffer()
+  if (buffer.byteLength > DEFAULT_IMAGE_MAX_SIZE)
+    throw new Error(`Image must be ${DEFAULT_IMAGE_MAX_SIZE} bytes or smaller.`)
+  return { buffer, type }
 }
 
-const createServer = ({ token, extra }: AuthInfo, host: string) => {
+const createServer = ({ token, extra, resource }: AuthInfo, host: string) => {
   const version = getHeadcodeVersionForHost(host)
-  // Shared tokens go to Convex as `mcpToken`, OAuth tokens as the user JWT.
+  // Shared tokens go to the services as `mcpToken`, OAuth tokens as the user JWT.
   const [auth, user] = extra?.shared
     ? [{ mcpToken: token }, {}]
     : [{}, { token }]
-  const mutate = async <M extends FunctionReference<'mutation'>>(
+  const mutate = async <M extends ServiceRef>(
     fn: M,
     args: Omit<FunctionArgs<M>, 'mcpToken'>,
   ) => {
@@ -207,8 +202,8 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
       revalidateTag(headcodeTag, { expire: 0 })
       return result
     } catch (error) {
-      // ConvexError data (e.g. "account must be activated") is the tool error text.
-      throw error instanceof ConvexError ? new Error(error.data) : error
+      // HeadcodeError data (e.g. "account must be activated") is the tool error text.
+      throw error instanceof HeadcodeError ? new Error(error.data) : error
     }
   }
   const versionStatus = () => fetchQuery(api.services.getVersionStatus, {})
@@ -276,7 +271,7 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
 
   const addImage = async (
     action: string,
-    image: { buffer: Buffer; type: string },
+    image: { buffer: ArrayBuffer; type: string },
     storageId: Id<'_storage'>,
     name: string,
     alt = '',
@@ -286,7 +281,7 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
       name,
       alt,
       type: image.type,
-      size: BigInt(image.buffer.byteLength),
+      size: image.buffer.byteLength,
       ...(await imageMetadata(image.buffer)),
     })
     return json({
@@ -455,7 +450,7 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
     {
       title: 'Upload image from URL',
       description:
-        'Fetches an http(s) image URL, validates the default Headcode image limits, generates image dimensions and ThumbHash blur data, uploads the file to Convex storage, and creates an image library record. This does not update section content and never publishes. Use the returned imageId in image fields as { imageId } when calling headcode_update_section or headcode_add_section.',
+        'Fetches an http(s) image URL, validates the default Headcode image limits, generates image dimensions and ThumbHash blur data, stores the file, and creates an image library record. This does not update section content and never publishes. Use the returned imageId in image fields as { imageId } when calling headcode_update_section or headcode_add_section.',
       annotations: { ...write, openWorldHint: true },
       inputSchema: z.object({
         url: z.url(),
@@ -466,17 +461,8 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
     async ({ url, alt, name }) => {
       const source = new URL(url)
       const image = await readImage(source, true)
-      const uploadUrl = await mutate(api.services.generateImageUploadUrl, {})
-      const upload = await fetch(uploadUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': image.type },
-        body: new Uint8Array(image.buffer),
-      })
-      if (!upload.ok)
-        throw new Error('Could not upload image to Convex storage.')
-      const { storageId } = (await upload.json()) as {
-        storageId: Id<'_storage'>
-      }
+      requireWrite(auth, user)
+      const storageId = await storeImage(image.buffer, image.type)
       const fileName =
         decodeURIComponent(source.pathname.split('/').pop() ?? '') ||
         `image${DEFAULT_IMAGE_ACCEPT[image.type as keyof typeof DEFAULT_IMAGE_ACCEPT]?.[0] ?? ''}`
@@ -489,12 +475,15 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
     {
       title: 'Create image upload URL',
       description:
-        'Creates a signed Convex upload URL for MCP clients that can upload binary image files themselves. Upload the file with HTTP POST, not PUT, using the file content as the request body and the image content type header. The Convex upload response returns { storageId }. Then call headcode_register_uploaded_image with that storageId; Headcode will read dimensions and generate blur data. Prefer headcode_upload_image_from_url when the image is already available at an http(s) URL.',
+        'Creates a one-time upload URL for MCP clients that can upload binary image files themselves. Upload the file with HTTP POST, not PUT, using the file content as the request body and the image content type header. The upload response returns { storageId }. Then call headcode_register_uploaded_image with that storageId; Headcode will read dimensions and generate blur data. Prefer headcode_upload_image_from_url when the image is already available at an http(s) URL.',
       annotations: write,
     },
     async () =>
       json({
-        uploadUrl: await mutate(api.services.generateImageUploadUrl, {}),
+        uploadUrl: new URL(
+          await mutate(api.services.generateImageUploadUrl, {}),
+          resource,
+        ).href,
         uploadMethod: 'POST',
         uploadHeaders: {
           'Content-Type': 'image/jpeg, image/png, image/webp, or image/avif',
@@ -518,7 +507,7 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
     {
       title: 'Register uploaded image',
       description:
-        'Creates an image library record after a client uploads binary data to a signed Convex upload URL. Provide the storageId from the Convex upload response; Headcode fetches the uploaded image, validates type and size, reads dimensions, and generates ThumbHash blur data. This does not update section content and never publishes. Use the returned imageId in image fields as { imageId }.',
+        'Creates an image library record after a client uploads binary data to a one-time upload URL. Provide the storageId from the upload response; Headcode reads the uploaded image, validates type and size, reads dimensions, and generates ThumbHash blur data. This does not update section content and never publishes. Use the returned imageId in image fields as { imageId }.',
       annotations: write,
       inputSchema: z.object({
         storageId: z.string(),
@@ -528,15 +517,10 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
     },
     async ({ storageId, alt, name }) => {
       const id = storageId as Id<'_storage'>
-      const src = await fetchQuery(
-        api.services.getUploadedImageUrl,
-        { storageId: id, ...auth },
-        user,
-      )
-      if (!src) throw new Error('Uploaded image is not available.')
+      requireWrite(auth, user)
       return addImage(
         'image_registered',
-        await readImage(new URL(src)),
+        await readUploadedImage(id),
         id,
         name ?? 'uploaded-image',
         alt,
@@ -635,7 +619,7 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
     {
       title: 'Delete image',
       description:
-        'Deletes an unused image from Convex storage and the Headcode image library. This is destructive, but fails if the image is still referenced by section content. This does not publish.',
+        'Deletes an unused image from storage and the Headcode image library. This is destructive, but fails if the image is still referenced by section content. This does not publish.',
       annotations: destructive,
       inputSchema: z.object({ imageId: z.string() }),
     },
@@ -713,7 +697,7 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
       )
       const sectionId = await mutate(api.services.addSection, {
         name: sectionName,
-        pos: BigInt(position ?? lastPos + 100),
+        pos: position ?? lastPos + 100,
         data: JSON.stringify(data ?? {}),
         entry: entry._id,
       })
@@ -793,7 +777,7 @@ const createServer = ({ token, extra }: AuthInfo, host: string) => {
       await mutate(api.services.reorderSections, {
         sections: ordered.map((section, index) => ({
           id: section._id,
-          pos: BigInt((index + 1) * 100),
+          pos: (index + 1) * 100,
         })),
       })
       return json({

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation, useQuery } from 'convex/react'
+import { useMutation, useQuery } from '@/headcode/client'
 import {
   Check,
   GitBranch,
@@ -24,8 +24,8 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@/components/ui/item'
-import { api } from '@/convex/_generated/api'
-import type { Doc } from '@/convex/_generated/dataModel'
+import { api } from '@/headcode/api'
+import type { Doc } from '@/headcode/data-model'
 import {
   ConfirmDialog,
   EmptyState,

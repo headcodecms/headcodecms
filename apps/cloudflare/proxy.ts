@@ -41,11 +41,11 @@ export default async function proxy(req: NextRequest) {
 }
 
 // Every site page, plus /admin and the direct version URLs. Not: Next.js
-// internals, MCP, the auth callback, OAuth discovery, and files with an
+// internals, MCP, the auth callback, uploaded media, OAuth discovery, and files with an
 // extension (public assets, robots.txt, sitemap.xml) except /llms.txt.
 export const config = {
   matcher: [
-    '/((?!_next/|mcp|callback|\\.well-known/|.*\\.[a-z0-9]+$).*)',
+    '/((?!_next/|mcp|callback|media/|\\.well-known/|.*\\.[a-z0-9]+$).*)',
     '/llms.txt',
   ],
 }

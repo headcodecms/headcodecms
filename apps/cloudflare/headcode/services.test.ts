@@ -1,27 +1,81 @@
-import { convexTest } from 'convex-test'
+import { createClient } from '@libsql/client'
+import { eq, inArray } from 'drizzle-orm'
+import { drizzle } from 'drizzle-orm/libsql'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { api, internal } from './_generated/api'
-import { headcodeConfig } from '../headcode/config'
-import { editorRequired } from './authorization'
-import schema from './schema'
+import {
+  api,
+  type FunctionArgs,
+  type FunctionReturnType,
+  type ServiceRef,
+} from './api'
+import { editorRequired, type Identity } from './authorization'
+import { headcodeConfig } from './config'
+import { migrate } from './migrate'
+import * as schema from './schema'
+import { callService, type Db, seed } from './services'
 
-const modules = (
-  import.meta as unknown as {
-    glob: (pattern: string) => Record<string, () => Promise<unknown>>
+// Same shape as convex-test: t.query, t.mutation, t.withIdentity, plus the
+// database (t.db) and the seed (t.seed). Each test gets an in-memory SQLite.
+const harness = (db: Db, ready: Promise<unknown>, identity?: Identity) => {
+  const call = async <R extends ServiceRef>(ref: R, args: FunctionArgs<R>) => {
+    await ready
+    const { result } = await callService(
+      db,
+      ref.name,
+      args as Record<string, unknown>,
+      { identity },
+    )
+    return result as FunctionReturnType<R>
   }
-).glob('./**/*.ts')
+  return {
+    db,
+    query: call,
+    mutation: call,
+    seed: async () => {
+      await ready
+      await seed(db)
+    },
+    withIdentity: (next: Identity) => harness(db, ready, next),
+  }
+}
 
-const createRawTest = () => convexTest({ schema, modules })
+const createRawTest = () => {
+  const db = drizzle(createClient({ url: ':memory:' }), {
+    schema,
+  }) as unknown as Db
+  return harness(db, migrate(db))
+}
 
 const createTest = () =>
   createRawTest().withIdentity({
-    issuer: 'test',
     subject: 'test-user',
-    tokenIdentifier: 'test|test-user',
     headcode_role: 'editor',
   })
 
 const stringify = (value: unknown) => JSON.stringify(value)
+
+// Entries and sections stored for a version (to check clone and delete).
+const countVersion = async (db: Db, version: string) => {
+  const entryIds = (
+    await db
+      .select({ id: schema.entries._id })
+      .from(schema.entries)
+      .where(eq(schema.entries.version, version))
+  ).map((row) => row.id)
+  const sections = entryIds.length
+    ? await db
+        .select()
+        .from(schema.sections)
+        .where(inArray(schema.sections.entry, entryIds))
+    : []
+  return { entries: entryIds.length, sections: sections.length }
+}
+
+// Inserts a raw section without validation (data stored by an older schema).
+const insertRawSection = async (
+  db: Db,
+  section: typeof schema.sections.$inferInsert,
+) => (await db.insert(schema.sections).values(section).returning())[0]._id
 
 // Seeds the database (idempotent) and returns the id of a global entry.
 const seedGlobal = async (
@@ -29,7 +83,7 @@ const seedGlobal = async (
   slug: string,
   version: 'live' | 'draft',
 ) => {
-  await t.mutation(internal.seed.init, {})
+  await t.seed()
   const global = await t.query(api.services.getGlobalWithSections, {
     slug,
     version,
@@ -66,8 +120,8 @@ describe('services', () => {
       (await t.query(api.services.getAll, { version: 'draft' })).globals,
     ).toEqual([])
 
-    await t.mutation(internal.seed.init, {})
-    await t.mutation(internal.seed.init, {})
+    await t.seed()
+    await t.seed()
 
     const draft = await t.query(api.services.getAll, { version: 'draft' })
     const live = await t.query(api.services.getAll, { version: 'live' })
@@ -115,7 +169,7 @@ describe('services', () => {
     const liveEntry = await seedGlobal(t, 'home', 'live')
     await t.mutation(api.services.addSection, {
       name: 'text',
-      pos: BigInt(1000),
+      pos: 1000,
       entry: liveEntry,
       data: stringify({ content: 'Original live content' }),
     })
@@ -129,7 +183,7 @@ describe('services', () => {
     expect(draft).not.toBeNull()
     await t.mutation(api.services.addSection, {
       name: 'text',
-      pos: BigInt(1100),
+      pos: 1100,
       entry: draft!.entry._id,
       data: stringify({ content: 'Published draft content' }),
     })
@@ -140,28 +194,7 @@ describe('services', () => {
     const retired = history.find((version) => !version.live && !version.draft)
     expect(retired).toBeDefined()
 
-    const retiredCounts = await t.run(async (ctx) => {
-      const entries = await ctx.db
-        .query('entries')
-        .withIndex('by_version', (q) => q.eq('version', retired!._id))
-        .take(1000)
-      const sections = await Promise.all(
-        entries.map(
-          async (entry) =>
-            (
-              await ctx.db
-                .query('sections')
-                .withIndex('by_entry', (q) => q.eq('entry', entry._id))
-                .take(1000)
-            ).length,
-        ),
-      )
-
-      return {
-        entries: entries.length,
-        sections: sections.reduce((sum, count) => sum + count, 0),
-      }
-    })
+    const retiredCounts = await countVersion(t.db, retired!._id)
 
     const restored = await t.mutation(api.services.restoreLiveVersion, {
       versionId: retired!._id,
@@ -229,29 +262,7 @@ describe('services', () => {
     history = await t.query(api.services.getVersionHistory, {})
     expect(history.some((version) => version._id === retired!._id)).toBe(false)
 
-    const remainingCounts = await t.run(async (ctx) => {
-      const entries = await ctx.db
-        .query('entries')
-        .withIndex('by_version', (q) => q.eq('version', retired!._id))
-        .take(1)
-
-      return {
-        entries: entries.length,
-        sections: (
-          await Promise.all(
-            entries.map(
-              async (entry) =>
-                (
-                  await ctx.db
-                    .query('sections')
-                    .withIndex('by_entry', (q) => q.eq('entry', entry._id))
-                    .take(1)
-                ).length,
-            ),
-          )
-        ).reduce((sum, count) => sum + count, 0),
-      }
-    })
+    const remainingCounts = await countVersion(t.db, retired!._id)
     expect(remainingCounts).toEqual({ entries: 0, sections: 0 })
   })
 
@@ -331,7 +342,7 @@ describe('services', () => {
   test('finds collection entries by nested path', async () => {
     const t = createTest()
 
-    await t.mutation(internal.seed.init, {})
+    await t.seed()
     await t.mutation(api.services.addCollection, {
       slug: 'blog',
       name: 'Guides/Getting Started',
@@ -350,7 +361,7 @@ describe('services', () => {
   test('returns live site bundles with parsed sections', async () => {
     const t = createTest()
 
-    await t.mutation(internal.seed.init, {})
+    await t.seed()
     await t.mutation(api.services.addCollection, {
       slug: 'blog',
       name: 'Getting Started',
@@ -390,7 +401,7 @@ describe('services', () => {
 
     const sectionId = await t.mutation(api.services.addSection, {
       name: 'hero',
-      pos: BigInt(100),
+      pos: 100,
       entry,
       data: stringify({
         eyebrow: 'Beta',
@@ -436,7 +447,7 @@ describe('services', () => {
 
     const sectionId = await t.mutation(api.services.addSection, {
       name: 'hero',
-      pos: BigInt(100),
+      pos: 100,
       entry,
       data: stringify({
         title: 'Only title',
@@ -471,7 +482,7 @@ describe('services', () => {
     await expect(
       t.mutation(api.services.addSection, {
         name: 'hero',
-        pos: BigInt(100),
+        pos: 100,
         entry,
         data: stringify({ title: 123, eyebrowIcon: 'missing-icon' }),
       }),
@@ -485,14 +496,12 @@ describe('services', () => {
     const entry = await seedGlobal(t, 'home', 'draft')
 
     // Stored before a field changed, so it no longer passes the validator.
-    const sectionId = await t.run((ctx) =>
-      ctx.db.insert('sections', {
-        name: 'hero',
-        pos: BigInt(100),
-        entry,
-        data: stringify({ title: 123, eyebrowIcon: 'missing-icon' }),
-      }),
-    )
+    const sectionId = await insertRawSection(t.db, {
+      name: 'hero',
+      pos: 100,
+      entry,
+      data: stringify({ title: 123, eyebrowIcon: 'missing-icon' }),
+    })
 
     const section = await t.query(api.services.getSection, { id: sectionId })
 
@@ -510,7 +519,7 @@ describe('services', () => {
     await expect(
       t.mutation(api.services.addSection, {
         name: 'hero',
-        pos: BigInt(100),
+        pos: 100,
         entry,
         data: '{nope',
       }),
@@ -519,7 +528,7 @@ describe('services', () => {
     await expect(
       t.mutation(api.services.addSection, {
         name: 'unknown',
-        pos: BigInt(100),
+        pos: 100,
         entry,
         data: stringify({}),
       }),
@@ -533,7 +542,7 @@ describe('services', () => {
     await expect(
       t.mutation(api.services.addSection, {
         name: 'header',
-        pos: BigInt(100),
+        pos: 100,
         entry,
         data: stringify({}),
       }),
@@ -547,7 +556,7 @@ describe('services', () => {
     await expect(
       t.mutation(api.services.addSection, {
         name: 'header',
-        pos: BigInt(100),
+        pos: 100,
         entry,
         data: stringify({
           navigation: [{ navItem: { title: 123 } }, 'skip me'],
@@ -557,29 +566,27 @@ describe('services', () => {
       /data\.navigation\.0\.navItem: .*data\.navigation\.1: Expected object/,
     )
 
-    const sectionId = await t.run((ctx) =>
-      ctx.db.insert('sections', {
-        name: 'header',
-        pos: BigInt(100),
-        entry,
-        data: stringify({
-          brand: 'Headcode',
-          navigation: [
-            {
-              navItem: {
-                title: 'Docs',
-                url: '/docs',
-                openInNewWindow: false,
-                ignored: true,
-              },
+    const sectionId = await insertRawSection(t.db, {
+      name: 'header',
+      pos: 100,
+      entry,
+      data: stringify({
+        brand: 'Headcode',
+        navigation: [
+          {
+            navItem: {
+              title: 'Docs',
+              url: '/docs',
+              openInNewWindow: false,
+              ignored: true,
             },
-            { navItem: { title: 123 } },
-            'skip me',
-          ],
-          primaryLink: { title: 'Admin', url: '/admin' },
-        }),
+          },
+          { navItem: { title: 123 } },
+          'skip me',
+        ],
+        primaryLink: { title: 'Admin', url: '/admin' },
       }),
-    )
+    })
 
     const section = await t.query(api.services.getSection, { id: sectionId })
 
@@ -615,7 +622,7 @@ describe('services', () => {
     const entry = await seedGlobal(t, 'home', 'draft')
     const sectionId = await t.mutation(api.services.addSection, {
       name: 'text',
-      pos: BigInt(100),
+      pos: 100,
       entry,
       data: stringify({ content: 'Before' }),
     })
@@ -624,7 +631,7 @@ describe('services', () => {
       t.mutation(api.services.updateSection, {
         id: sectionId,
         name: 'text',
-        pos: BigInt(100),
+        pos: 100,
         entry,
         data: stringify(data),
       })
@@ -642,21 +649,21 @@ describe('services', () => {
     const entry = await seedGlobal(t, 'home', 'draft')
     const first = await t.mutation(api.services.addSection, {
       name: 'text',
-      pos: BigInt(1),
+      pos: 1,
       entry,
       data: stringify({ content: 'First' }),
     })
     const second = await t.mutation(api.services.addSection, {
       name: 'text',
-      pos: BigInt(2),
+      pos: 2,
       entry,
       data: stringify({ content: 'Second' }),
     })
 
     await t.mutation(api.services.reorderSections, {
       sections: [
-        { id: first, pos: BigInt(20) },
-        { id: second, pos: BigInt(10) },
+        { id: first, pos: 20 },
+        { id: second, pos: 10 },
       ],
     })
 
@@ -673,13 +680,13 @@ describe('services', () => {
     const entry = await seedGlobal(t, 'home', 'draft')
     const first = await t.mutation(api.services.addSection, {
       name: 'text',
-      pos: BigInt(100),
+      pos: 100,
       entry,
       data: stringify({ content: 'First' }),
     })
     await t.mutation(api.services.addSection, {
       name: 'text',
-      pos: BigInt(200),
+      pos: 200,
       entry,
       data: stringify({ content: 'Second' }),
     })
@@ -709,7 +716,7 @@ describe('services', () => {
     await waitForModificationTime()
     const sectionId = await t.mutation(api.services.addSection, {
       name: 'text',
-      pos: BigInt(100),
+      pos: 100,
       entry,
       data: stringify({ content: 'Initial content' }),
     })
@@ -723,7 +730,7 @@ describe('services', () => {
     await t.mutation(api.services.updateSection, {
       id: sectionId,
       name: 'text',
-      pos: BigInt(100),
+      pos: 100,
       entry,
       data: stringify({ content: 'Updated content' }),
     })
@@ -735,7 +742,7 @@ describe('services', () => {
 
     await waitForModificationTime()
     await t.mutation(api.services.reorderSections, {
-      sections: [{ id: sectionId, pos: BigInt(1) }],
+      sections: [{ id: sectionId, pos: 1 }],
     })
     const afterReorder = await t.query(api.services.getEntry, { id: entry })
 

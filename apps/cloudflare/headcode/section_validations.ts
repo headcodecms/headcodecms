@@ -1,10 +1,10 @@
-import { ConvexError } from 'convex/values'
-import { headcodeConfig } from '../headcode/config'
+import { HeadcodeError } from './authorization'
+import { headcodeConfig } from './config'
 import type {
   HeadcodeFieldConfig,
   HeadcodeSectionConfig,
   HeadcodeSectionLike,
-} from '../headcode/types'
+} from './types'
 
 type Fields = Record<string, HeadcodeFieldConfig>
 
@@ -124,7 +124,7 @@ export const validateSectionForStorage = <TSection extends HeadcodeSectionLike>(
     issues,
   )
   if (issues.length)
-    throw new ConvexError(
+    throw new HeadcodeError(
       `Invalid ${section.name} section. ${issues.join('; ')}`,
     )
   return { ...section, data: JSON.stringify(data) }

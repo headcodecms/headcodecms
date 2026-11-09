@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation, usePaginatedQuery, useQuery } from 'convex/react'
+import { useMutation, usePaginatedQuery, useQuery } from '@/headcode/client'
 import { Check, Copy, ImageIcon, Loader2, Search, Trash2 } from 'lucide-react'
 import * as React from 'react'
 
@@ -22,8 +22,8 @@ import {
 } from '@/components/ui/input-group'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { api } from '@/convex/_generated/api'
-import type { Doc, Id } from '@/convex/_generated/dataModel'
+import { api } from '@/headcode/api'
+import type { Doc, Id } from '@/headcode/data-model'
 
 import {
   EmptyState,

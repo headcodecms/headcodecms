@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation, useQuery } from 'convex/react'
+import { useMutation, useQuery } from '@/headcode/client'
 import {
   ArrowDown,
   ArrowUp,
@@ -72,8 +72,8 @@ import {
   DialogStackPrevious,
   DialogStackTitle,
 } from '@/components/kibo-ui/dialog-stack'
-import { api } from '@/convex/_generated/api'
-import type { Id } from '@/convex/_generated/dataModel'
+import { api } from '@/headcode/api'
+import type { Id } from '@/headcode/data-model'
 import { headcodeConfig } from '@/headcode/config'
 import type {
   HeadcodeFieldConfig,
@@ -366,8 +366,8 @@ export default function EntryEditPage({
             pos:
               sections.reduce(
                 (max, section) => (section.pos > max ? section.pos : max),
-                BigInt(0),
-              ) + BigInt(100),
+                0,
+              ) + 100,
             entry: entryId,
             data: JSON.stringify({}),
           }),
@@ -400,7 +400,7 @@ export default function EntryEditPage({
         reorderSections({
           sections: ordered.map((section, index) => ({
             id: section._id,
-            pos: BigInt((index + 1) * 100),
+            pos: (index + 1) * 100,
           })),
         }),
       'Could not reorder sections.',

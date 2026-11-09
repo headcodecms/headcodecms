@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@workos-inc/authkit-nextjs/components'
-import { Authenticated, AuthLoading, Unauthenticated } from 'convex/react'
+import { Authenticated, AuthLoading, Unauthenticated } from '@/headcode/client'
 import {
   ArrowUpRight,
   CircleUser,

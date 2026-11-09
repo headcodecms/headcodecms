@@ -18,6 +18,9 @@ export default defineConfig({
       ASSETS: bindings.assets(),
       IMAGES: bindings.images(),
       VINEXT_KV_CACHE: bindings.kv(),
+      // Content (headcode/db.ts) and uploaded images (headcode/images.ts).
+      DB: bindings.d1({ name: 'headcode-cloudflare' }),
+      MEDIA: bindings.r2({ name: 'headcode-cloudflare-media' }),
       // Server-only values; locally from .env.local, deployed via secrets.
       WORKOS_CLIENT_ID: bindings.secret(),
       WORKOS_COOKIE_PASSWORD: bindings.secret(),
