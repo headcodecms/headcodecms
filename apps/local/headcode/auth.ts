@@ -38,12 +38,14 @@ export const authServerMetadata = async () =>
     )
   ).json()
 
-// proxy.ts: /admin needs a session; the sign-in and consent pages are open.
+// proxy.ts: /admin needs a session; sign-in, consent, and password reset
+// pages are open.
 export const protectAdmin = async (req: NextRequest, origin: string) => {
   const { pathname, search } = req.nextUrl
   if (
     pathname.startsWith('/admin/login') ||
     pathname.startsWith('/admin/consent') ||
+    pathname.startsWith('/admin/reset-password') ||
     getSessionCookie(req)
   )
     return NextResponse.next()

@@ -16,14 +16,45 @@ import { Label } from '@/components/ui/label'
 import { authClient } from '@/headcode/auth-client'
 import { ErrorAlert } from '../../_components/admin-ui'
 
+type Mode = 'sign-in' | 'sign-up' | 'reset'
+
+const copy: Record<
+  Mode,
+  { title: string; description: string; submit: string }
+> = {
+  'sign-in': {
+    title: 'Sign in to Headcode CMS',
+    description: 'Use your email and password.',
+    submit: 'Sign in',
+  },
+  'sign-up': {
+    title: 'Create account',
+    description: 'New accounts can read. An editor activates writing.',
+    submit: 'Create account',
+  },
+  reset: {
+    title: 'Reset password',
+    description:
+      'Headcode sends no email: the reset link is written to the server log. Ask the person who runs this site for it.',
+    submit: 'Request reset link',
+  },
+}
+
 // Sign-in for the admin and for MCP clients (Better Auth). During an MCP
 // authorization the URL carries a signed `oauth_query`; the auth client
 // forwards it and continues to the consent page.
 export default function LoginPage() {
   const params = useSearchParams()
-  const [mode, setMode] = React.useState<'sign-in' | 'sign-up'>('sign-in')
+  const [mode, setMode] = React.useState<Mode>('sign-in')
   const [error, setError] = React.useState<string | null>(null)
+  const [notice, setNotice] = React.useState<string | null>(null)
   const [pending, setPending] = React.useState(false)
+
+  const switchTo = (next: Mode) => {
+    setMode(next)
+    setError(null)
+    setNotice(null)
+  }
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -33,6 +64,18 @@ export default function LoginPage() {
     const next = params.get('next') ?? '/admin'
     setPending(true)
     setError(null)
+    if (mode === 'reset') {
+      const { error: resetError } = await authClient.requestPasswordReset({
+        email,
+        redirectTo: '/admin/reset-password',
+      })
+      setPending(false)
+      if (resetError)
+        return setError(resetError.message ?? 'Could not request a reset.')
+      return setNotice(
+        'If the account exists, its reset link is now in the server log.',
+      )
+    }
     const { error: authError } =
       mode === 'sign-in'
         ? await authClient.signIn.email({ email, password, callbackURL: next })
@@ -52,14 +95,8 @@ export default function LoginPage() {
     <div className="bg-background flex min-h-svh items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>
-            {mode === 'sign-in' ? 'Sign in to Headcode CMS' : 'Create account'}
-          </CardTitle>
-          <CardDescription>
-            {mode === 'sign-in'
-              ? 'Use your email and password.'
-              : 'New accounts can read. An editor activates writing.'}
-          </CardDescription>
+          <CardTitle>{copy[mode].title}</CardTitle>
+          <CardDescription>{copy[mode].description}</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="flex flex-col gap-4" onSubmit={submit}>
@@ -79,34 +116,54 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete={
-                  mode === 'sign-in' ? 'current-password' : 'new-password'
-                }
-                minLength={8}
-                required
-              />
-            </div>
+            {mode !== 'reset' ? (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete={
+                    mode === 'sign-in' ? 'current-password' : 'new-password'
+                  }
+                  minLength={8}
+                  required
+                />
+              </div>
+            ) : null}
             <ErrorAlert error={error} />
+            {notice ? (
+              <p className="text-muted-foreground text-sm">{notice}</p>
+            ) : null}
             <Button type="submit" disabled={pending}>
-              {mode === 'sign-in' ? 'Sign in' : 'Create account'}
+              {copy[mode].submit}
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() =>
-                setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in')
-              }
-            >
-              {mode === 'sign-in'
-                ? 'Create an account'
-                : 'I already have an account'}
-            </Button>
+            {mode === 'sign-in' ? (
+              <>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => switchTo('sign-up')}
+                >
+                  Create an account
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => switchTo('reset')}
+                >
+                  Forgot password?
+                </Button>
+              </>
+            ) : (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => switchTo('sign-in')}
+              >
+                Back to sign in
+              </Button>
+            )}
           </form>
         </CardContent>
       </Card>

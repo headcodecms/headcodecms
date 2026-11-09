@@ -16,14 +16,15 @@ Platform code lives only in these files, with the same exports in `apps/cloudfla
 
 Auth seam exports: `getAdminIdentity`, `protectAdmin` (proxy.ts), `verifyMcpAccessToken`, `getMcpIdentity`, `authServerMetadata` (`headcode/auth.ts`); `AuthProvider`, `useAdminUser`, `Authenticated`, `AuthLoading`, `Unauthenticated` (`headcode/auth-client.tsx`). Images seam: `imageSrc`, `storeImage`, `readImage`, `deleteStoredImage`, `imageMetadata`, `transformImage`. Database seam: `getDb`.
 
-| File                                                                     | Here                                                                                          |
-| ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| `headcode/db.ts`                                                         | libSQL file (`DATABASE_URL`, default `file:data/headcode.db`); `authDb` for Better Auth       |
-| `headcode/images.ts`                                                     | files in `MEDIA_DIR`, sharp for dimensions, ThumbHash, and resizing (cached under `resized/`) |
-| `headcode/auth.ts`, `headcode/better-auth.ts`, `headcode/auth-schema.ts` | Better Auth: sessions, admin redirect to `/admin/login`, OAuth 2.1 server for MCP             |
-| `headcode/auth-client.tsx`                                               | Better Auth client (`oauthProviderClient`), admin user, auth gates                            |
-| `app/api/auth`, `app/(admin)/admin/login`, `app/(admin)/admin/consent`   | Better Auth handler, sign-in/sign-up page, OAuth consent page                                 |
-| `vite.config.ts`                                                         | vinext for Node                                                                               |
+| File                                                                                                       | Here                                                                                             |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `headcode/db.ts`                                                                                           | libSQL file (`DATABASE_URL`, default `file:data/headcode.db`); `authDb` for Better Auth          |
+| `headcode/images.ts`                                                                                       | files in `MEDIA_DIR`, sharp for dimensions, ThumbHash, and resizing (cached under `resized/`)    |
+| `headcode/auth.ts`, `headcode/better-auth.ts`, `headcode/auth-schema.ts`                                   | Better Auth: sessions, admin redirect to `/admin/login`, OAuth 2.1 server for MCP                |
+| `headcode/auth-client.tsx`                                                                                 | Better Auth client (`oauthProviderClient`), admin user, auth gates                               |
+| `app/api/auth`, `app/(admin)/admin/login`, `app/(admin)/admin/consent`, `app/(admin)/admin/reset-password` | Better Auth handler, sign-in/sign-up/forgot-password page, OAuth consent page, new-password page |
+| `scripts/start.mts`, `scripts/user.mts`, `Dockerfile`                                                      | production start (server, then migrate + seed), account management, container                    |
+| `vite.config.ts`                                                                                           | vinext for Node                                                                                  |
 
 ## Architecture
 
@@ -51,7 +52,8 @@ Auth seam exports: `getAdminIdentity`, `protectAdmin` (proxy.ts), `verifyMcpAcce
 - Versions are `live` and `draft`. Publishing promotes the draft to live and clones a new draft. `headcode/versions.ts` picks the version from the request host (`NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS`), the same way for site, admin, and MCP. One server process serves both hosts.
 - `proxy.ts` handles two things:
   - Site rewrites: every site URL goes to `/live/...` or `/draft/...` (`app/(site)/[version]`, root param read with `siteVersion()`), and `?md` / `Accept: text/markdown` go to `/[version]/headcode-markdown.txt/...`. Direct `/live` and `/draft` URLs return 404. `/api/`, `/mcp`, `/media/`, `/callback`, and `/.well-known/` are not rewritten.
-  - The admin session (`protectAdmin`): `/admin/*` without a Better Auth session cookie redirects to `/admin/login?next=...`; the login and consent pages stay open.
+  - The admin session (`protectAdmin`): `/admin/*` without a Better Auth session cookie redirects to `/admin/login?next=...`; the login, consent, and reset-password pages stay open.
+- Password reset needs no mail: `sendResetPassword` (`better-auth.ts`) logs the link; `pnpm user password <email>` sets a password directly. Rate limiting reads the client IP from `IP_ADDRESS_HEADERS` (default `x-forwarded-for`), so production runs behind a reverse proxy.
 - `app/mcp/route.ts` is a stateless MCP server (`@modelcontextprotocol/server` v2, `legacy: 'reject'`). It checks Origin and the bearer token (`app/mcp/auth.ts`: Better Auth OAuth JWT with audience = `/mcp` URL of the request host, or a shared token). OAuth discovery is served by `app/.well-known/[...path]/route.ts` (protected resource metadata, and the Better Auth server metadata, also at the RFC 8414 path `/.well-known/oauth-authorization-server/api/auth`). New OAuth clients are linked to the live and the draft `/mcp` URL (`clientRegistrationDefaultResources`). `app/mcp/seed/route.ts` (shared token only) runs migrations and the seed. MCP tools must keep parity with admin entry and section operations, and must never publish unless the user explicitly asks.
 - The site renders HTML and Markdown from the same validated section data (`app/(site)/_sections`).
 - SEO lives in `app/(site)/_lib/seo.tsx`: every page's `generateMetadata` returns `pageMetadata(...)` (canonical, Open Graph, Twitter card), structured data uses `<JsonLd>`. Draft hosts are `noindex` (layout) and disallowed in `app/robots.ts`.
@@ -73,11 +75,12 @@ pnpm parity http://draft.localhost:3074 --write
 pnpm parity http://localhost:3074 --login            # once per host: sign in or create an account
 pnpm parity http://localhost:3074 --admin --write    # admin theme, entries, edit in the admin
 pnpm build && pnpm start                             # then the same parity runs against the Node server
+DATABASE_URL=file:/tmp/test.db MEDIA_DIR=/tmp/media pnpm start   # test against a throwaway database
 ```
 
 - `scripts/parity.mts` is the contract every Headcode app keeps (MCP auth, tool list and annotations, site formats, edit-to-site cycle). Change it only together with the behavior, and note it in `CHANGELOG.md`.
 - Before changing Next.js code, read `node_modules/next/dist/docs/`. For vinext limits run `pnpm dlx vinext check`. Better Auth plugin docs: `node_modules/@better-auth/*/README.md` and better-auth.com/docs/plugins/mcp.
-- Admin sign-in is the app's own page (`/admin/login`). A human signs in once (`--login`); the session is saved in `.parity/<host>.json` (gitignored, a secret) and `--admin` reuses it. The first account of a fresh database becomes the editor, so do not create test accounts in a user's database.
+- Admin sign-in is the app's own page (`/admin/login`). A human signs in once (`--login`); the session is saved in `.parity/<host>.json` (gitignored, a secret) and `--admin` reuses it. The first account of a fresh database becomes the editor, so do not create test accounts in a user's database: start the server with `DATABASE_URL`/`MEDIA_DIR` pointing to a throwaway location instead.
 - `vite.config` must not produce chunk names with `%` (Node decodes it in import URLs): keep one font per `next/font/google` import.
 - An install or change is not done until `--admin --write` passes: the admin must look like stock Headcode and work.
 

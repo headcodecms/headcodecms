@@ -29,7 +29,24 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(authDb, { provider: 'sqlite', schema: authSchema }),
   trustedOrigins: [siteUrl, ...draftOrigins],
-  emailAndPassword: { enabled: true },
+  emailAndPassword: {
+    enabled: true,
+    // No mail server needed: the reset link goes to the server log, and
+    // `pnpm user password <email>` sets a new password directly.
+    sendResetPassword: async ({ user, url }) => {
+      console.info(`[headcode] Password reset link for ${user.email}: ${url}`)
+    },
+  },
+  advanced: {
+    ipAddress: {
+      // Header with the client IP set by your reverse proxy (rate limiting).
+      // Behind Cloudflare: cf-connecting-ip. Do not expose the port directly.
+      ipAddressHeaders: (process.env.IP_ADDRESS_HEADERS ?? 'x-forwarded-for')
+        .split(',')
+        .map((header) => header.trim())
+        .filter(Boolean),
+    },
+  },
   user: {
     additionalFields: {
       // "editor" may write; everyone else reads (see headcode/authorization.ts).
@@ -42,7 +59,9 @@ export const auth = betterAuth({
         // The first account of an install becomes the editor.
         before: async (user, ctx) => {
           const users = await ctx?.context.adapter.count({ model: 'user' })
-          return { data: { ...user, headcodeRole: users ? 'viewer' : 'editor' } }
+          return {
+            data: { ...user, headcodeRole: users ? 'viewer' : 'editor' },
+          }
         },
       },
     },

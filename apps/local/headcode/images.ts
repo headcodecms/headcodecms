@@ -70,7 +70,12 @@ export const imageMetadata = async (buffer: ArrayBuffer) => {
   if (!width || !height) throw new Error('Could not read image dimensions.')
   const { data, info } = await sharp(input)
     .rotate()
-    .resize({ width: 100, height: 100, fit: 'inside', withoutEnlargement: true })
+    .resize({
+      width: 100,
+      height: 100,
+      fit: 'inside',
+      withoutEnlargement: true,
+    })
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true })

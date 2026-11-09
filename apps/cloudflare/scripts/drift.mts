@@ -14,14 +14,15 @@ const allowed = [
   // auth routes and pages of one provider
   /^app\/callback\//,
   /^app\/api\/auth\//,
-  /^app\/\(admin\)\/admin\/(login|consent|session|logout)\//,
+  /^app\/\(admin\)\/admin\/(login|consent|session|logout|reset-password)\//,
   // platform config, tooling, and migrations
   /^(cloudflare\.config|vite\.config|vitest\.config|drizzle\.config)\.ts$/,
   /^(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig\.json)$/,
   /^(eslint\.config\.mjs|\.gitignore|\.prettierignore)$/,
   /^drizzle\/(meta\/|0001_)/,
   /^test\//,
-  /^scripts\/release\.mts$/,
+  /^scripts\/(release|user|start)\.mts$/,
+  /^(Dockerfile|\.dockerignore)$/,
   // docs and demo content
   /^(README|AGENTS|CHANGELOG)\.md$/,
   /^headcode\/defaults\.ts$/,

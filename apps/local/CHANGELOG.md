@@ -4,6 +4,10 @@ Based on `apps/cloudflare` (same core, checked with `pnpm drift ../cloudflare`).
 
 ## Unreleased
 
+- Production: `pnpm start` runs the server and then migrations + seed (`scripts/start.mts`); `Dockerfile` (one container, `/app/data` volume, `NEXT_PUBLIC_*` as build args).
+- Accounts: `pnpm user list | role <email> <editor|viewer> | password <email>` (works in the container, no `sqlite3` needed).
+- Forgot password on `/admin/login`: the reset link goes to the server log (no mail server); `/admin/reset-password` sets the new password.
+- Rate limiting reads the client IP from `IP_ADDRESS_HEADERS` (default `x-forwarded-for`, `cf-connecting-ip` behind Cloudflare).
 - Atomic writes: publish, new draft, restore, delete version, add/delete entry, add/update/duplicate/reorder/delete section run as one `db.batch` (D1 and libSQL execute a batch as one transaction). IDs are generated up front.
 - Fix: inserts are chunked by the table's column count (defaults like `_id` and `_creationTime` are bound too). Before, cloning a version with many sections exceeded D1's 100 bound parameters, so new draft and publish failed on Cloudflare (parity never publishes, so it did not show).
 - Missing pages stay soft 404s (200 + `noindex`): vinext 1.4 answers 200 even for unmatched routes and ignores a 404 status set by the proxy.

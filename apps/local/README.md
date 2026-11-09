@@ -51,29 +51,41 @@ Open http://localhost:3074/admin and **create an account. The first account beco
 ## Run in production
 
 ```bash
-pnpm build
-pnpm start          # vinext production server on port 3074
-pnpm seed <url>     # after each deploy: pending migrations, missing globals
+pnpm build          # NEXT_PUBLIC_* values are inlined here
+pnpm start          # production server on port 3074; applies migrations and seeds once it answers
 ```
 
-- Set `NEXT_PUBLIC_SITE_URL` to the live URL and `NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS` to the draft host before `pnpm build` (they are inlined). Better Auth uses them for its issuer, trusted origins, and the MCP resources.
+Or with Docker (one container, data on a volume):
+
+```bash
+docker build -t headcode \
+  --build-arg NEXT_PUBLIC_SITE_URL=https://www.example.com \
+  --build-arg NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=draft.example.com .
+docker run -d -p 3074:3074 -v headcode-data:/app/data \
+  -e BETTER_AUTH_SECRET="$(openssl rand -base64 32)" \
+  -e ALLOWED_MCP_TOKENS="$(openssl rand -hex 32)" \
+  headcode
+```
+
+- `NEXT_PUBLIC_SITE_URL` (live URL) and `NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS` (draft host) are set at build time. Better Auth uses them for its issuer, trusted origins, and the MCP resources.
+- `BETTER_AUTH_SECRET` signs sessions and tokens: set it once and keep it (changing it signs everyone out). `ALLOWED_MCP_TOKENS` is for scripts.
 - Keep `data/` (database and images) on a persistent volume and back it up.
 - Run one server process: the page data cache is in memory, so a second process would not see the other one's cache invalidation.
-- Put it behind a reverse proxy with HTTPS for anything public.
+- Put it behind a reverse proxy with HTTPS (Caddy, nginx, Cloudflare) and do not expose port 3074 directly. Better Auth reads the client IP for rate limiting from `x-forwarded-for`; behind Cloudflare set `IP_ADDRESS_HEADERS=cf-connecting-ip`.
 
 ## Users and editors
 
 - Anyone can create an account. A new account can open the admin and use MCP, but only to **read**.
 - Every write (save, publish, upload, MCP edit) answers: _"Your account must be activated by an administrator before you can change content."_
-- The first account of an install is the editor. To activate another one, set its role in the database:
+- The first account of an install is the editor. Manage accounts with `pnpm user` (in Docker: `docker exec <container> pnpm user ...`):
 
   ```bash
-  sqlite3 data/headcode.db "UPDATE user SET headcode_role = 'editor' WHERE email = 'name@example.com'"
+  pnpm user list
+  pnpm user role name@example.com editor     # or viewer; applies at the next sign-in or token
+  pnpm user password name@example.com        # sets and prints a new random password
   ```
 
-  Or with `pnpm db:studio`: table `user`, column `headcode_role`.
-
-  It applies at the next sign-in (admin) or the next token (MCP).
+- Forgot password: "Forgot password?" on `/admin/login` writes a reset link (valid for one hour) to the server log; there is no mail server. Or use `pnpm user password`.
 
 - The shared MCP bearer token (`ALLOWED_MCP_TOKENS`) can always write. It is for scripts (seed, parity, CI); people and MCP clients use OAuth.
 
@@ -125,7 +137,8 @@ Tokens are JWTs bound to one `/mcp` URL (live or draft) and carry the account's 
 
 ```bash
 pnpm dev                  # vinext dev server on port 3074
-pnpm build && pnpm start  # production server
+pnpm build && pnpm start  # production server (migrates and seeds on start)
+pnpm user list            # accounts; role <email> <editor|viewer>; password <email>
 pnpm test                 # service tests (in-memory SQLite)
 pnpm lint
 pnpm typecheck
