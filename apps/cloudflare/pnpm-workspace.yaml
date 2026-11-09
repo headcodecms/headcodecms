@@ -1,0 +1,8 @@
+packages: []
+
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+  msw: false
+  workerd: true
