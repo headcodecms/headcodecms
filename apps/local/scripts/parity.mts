@@ -51,6 +51,8 @@ const waitForAdmin = (page: Page, timeout = 20_000) =>
     () =>
       location.pathname.startsWith('/admin') &&
       !!document.querySelector('header') &&
+      // main is streamed after the header; wait until it has content
+      !!document.querySelector('main')?.textContent?.trim() &&
       !/Loading /.test(document.body.innerText),
     undefined,
     { timeout },
