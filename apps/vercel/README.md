@@ -27,7 +27,7 @@ pnpm seed   # fills the database from headcode/config.ts
 | Initiate login URI  | `http://localhost:3072/admin/login`                                                |
 | Authentication      | email code + social logins, password off                                           |
 | Sign-up             | enabled (new users can read, not edit)                                             |
-| JWT template        | `{"headcode_role": {{ user.metadata.headcode_role                                  |     | 'viewer' }}}` |
+| JWT template        | `{"headcode_role": {{ user.metadata.headcode_role \|\| 'viewer' }}}`               |
 | Editors             | user metadata `{ "headcode_role": "editor" }`                                      |
 | MCP OAuth           | enable Client ID Metadata Document and Dynamic Client Registration                 |
 | Resource indicators | `http://localhost:3072/mcp` (default), `http://draft.localhost:3072/mcp`           |

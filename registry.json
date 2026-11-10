@@ -31,6 +31,7 @@
         "tooltip"
       ],
       "dependencies": [
+        "@base-ui/react@^1.9.0",
         "@modelcontextprotocol/server@^2.4.0",
         "@radix-ui/react-use-controllable-state@^1.3.0",
         "@tiptap/core@^3.32.0",
@@ -49,14 +50,17 @@
         "@tiptap/suggestion@^3.32.0",
         "@workos-inc/authkit-nextjs@^4.6.0",
         "@workos-inc/node@^12.0.0",
+        "class-variance-authority@^0.7.1",
         "cmdk@^1.1.1",
         "convex@^1.48.0",
         "fuse.js@^7.5.0",
         "jose@^6.2.13",
         "lowlight@^3.3.0",
+        "lucide-react@^1.61.0",
         "motion@^14.6.0",
         "radix-ui@^1.8.1",
         "react-dropzone@^20.1.4",
+        "shadcn@^4.22.1",
         "sharp@^0.35.5",
         "thumbhash@^0.1.1",
         "tippy.js@^6.3.7",
@@ -413,6 +417,1085 @@
           "path": "apps/vercel/proxy.ts",
           "type": "registry:file",
           "target": "proxy.ts"
+        }
+      ]
+    },
+    {
+      "name": "headcode-cloudflare",
+      "type": "registry:component",
+      "title": "Headcode CMS (Cloudflare)",
+      "description": "An agent-ready CMS for Next.js on vinext and Cloudflare Workers with D1, R2, Images, WorkOS AuthKit, admin editing, Markdown output, and MCP tools",
+      "registryDependencies": [
+        "alert",
+        "button",
+        "card",
+        "command",
+        "dialog",
+        "dropdown-menu",
+        "empty",
+        "field",
+        "input",
+        "input-group",
+        "item",
+        "label",
+        "popover",
+        "select",
+        "separator",
+        "sheet",
+        "switch",
+        "tabs",
+        "textarea",
+        "tooltip"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.9.0",
+        "@modelcontextprotocol/server@^2.4.0",
+        "@radix-ui/react-use-controllable-state@^1.3.0",
+        "@tiptap/core@^3.32.0",
+        "@tiptap/extension-code-block-lowlight@^3.32.0",
+        "@tiptap/extension-list@^3.32.0",
+        "@tiptap/extension-subscript@^3.32.0",
+        "@tiptap/extension-superscript@^3.32.0",
+        "@tiptap/extension-table@^3.32.0",
+        "@tiptap/extension-text-style@^3.32.0",
+        "@tiptap/extension-typography@^3.32.0",
+        "@tiptap/extensions@^3.32.0",
+        "@tiptap/markdown@^3.32.0",
+        "@tiptap/pm@^3.32.0",
+        "@tiptap/react@^3.32.0",
+        "@tiptap/starter-kit@^3.32.0",
+        "@tiptap/suggestion@^3.32.0",
+        "@vinext/cloudflare@^1.3.3",
+        "@workos-inc/authkit-nextjs@^4.6.0",
+        "@workos-inc/node@^12.0.0",
+        "class-variance-authority@^0.7.1",
+        "cmdk@^1.1.1",
+        "drizzle-orm@^0.45.4",
+        "fuse.js@^7.5.0",
+        "jose@^6.2.13",
+        "lowlight@^3.3.0",
+        "lucide-react@^1.61.0",
+        "motion@^14.6.0",
+        "radix-ui@^1.8.1",
+        "react-dropzone@^20.1.4",
+        "react-server-dom-webpack@^19.3.1",
+        "shadcn@^4.22.1",
+        "sharp@^0.35.5",
+        "thumbhash@^0.1.1",
+        "tippy.js@^6.3.7",
+        "tw-animate-css@^1.4.0",
+        "vinext@^1.4.4",
+        "zod@^4.6.7"
+      ],
+      "devDependencies": [
+        "@cloudflare/vite-plugin@2.0.0-beta.v.12",
+        "@libsql/client@^0.18.0",
+        "@tailwindcss/postcss@^4.3.3",
+        "@vitejs/plugin-react@^6.2.1",
+        "@vitejs/plugin-rsc@^0.5.39",
+        "cf@1.0.0-beta.28",
+        "drizzle-kit@^0.31.11",
+        "vite@8.3.0"
+      ],
+      "files": [
+        {
+          "path": "apps/cloudflare/app/(admin)/_components/admin-ui.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/admin-ui.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/_components/chrome.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/chrome.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/_components/container.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/container.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/_components/richtext-editor.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/richtext-editor.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/_fields/image-field.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_fields/image-field.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/_fields/richtext-field.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_fields/richtext-field.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/_lib/headcode.ts",
+          "type": "registry:file",
+          "target": "app/(admin)/_lib/headcode.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/_lib/use-actions.ts",
+          "type": "registry:file",
+          "target": "app/(admin)/_lib/use-actions.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/admin.css",
+          "type": "registry:file",
+          "target": "app/(admin)/admin.css"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/admin/entries/[id]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/entries/[id]/page.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/admin/images/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/images/page.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/admin/login/route.ts",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/login/route.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/admin/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/page.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/admin/versions/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/versions/page.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/layout.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/layout.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/[version]/blog/[slug]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/blog/[slug]/page.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/[version]/blog/md.ts",
+          "type": "registry:file",
+          "target": "app/(site)/[version]/blog/md.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/[version]/blog/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/blog/page.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/[version]/docs/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/docs/page.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/[version]/headcode-markdown.txt/[[...path]]/route.ts",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/headcode-markdown.txt/[[...path]]/route.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/[version]/layout.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/layout.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/[version]/llms.txt/route.ts",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/llms.txt/route.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/[version]/loading.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/loading.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/[version]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/page.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/[version]/pages/[slug]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/pages/[slug]/page.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/[version]/pricing/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/pricing/page.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_components/chrome.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/chrome.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_components/code-tabs.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/code-tabs.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_components/container.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/container.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_components/entries-dialog.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/entries-dialog.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_components/icons.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/icons.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_components/markdown.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/markdown.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_lib/headcode.ts",
+          "type": "registry:file",
+          "target": "app/(site)/_lib/headcode.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_lib/version.ts",
+          "type": "registry:file",
+          "target": "app/(site)/_lib/version.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_sections/docs.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/docs.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_sections/hero.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/hero.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_sections/image.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/image.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_sections/index.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/index.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_sections/logos.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/logos.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_sections/plans.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/plans.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_sections/shared.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/shared.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/.well-known/[...path]/route.ts",
+          "type": "registry:page",
+          "target": "app/.well-known/[...path]/route.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/callback/route.ts",
+          "type": "registry:page",
+          "target": "app/callback/route.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/mcp/auth.ts",
+          "type": "registry:file",
+          "target": "app/mcp/auth.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/mcp/route.ts",
+          "type": "registry:page",
+          "target": "app/mcp/route.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/robots.ts",
+          "type": "registry:file",
+          "target": "app/robots.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_lib/seo.tsx",
+          "type": "registry:file",
+          "target": "app/(site)/_lib/seo.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/sitemap.ts",
+          "type": "registry:file",
+          "target": "app/sitemap.ts"
+        },
+        {
+          "path": "apps/cloudflare/components/kibo-ui/dialog-stack/index.tsx",
+          "type": "registry:component",
+          "target": "components/kibo-ui/dialog-stack/index.tsx"
+        },
+        {
+          "path": "apps/cloudflare/components/kibo-ui/dropzone/index.tsx",
+          "type": "registry:component",
+          "target": "components/kibo-ui/dropzone/index.tsx"
+        },
+        {
+          "path": "apps/cloudflare/components/kibo-ui/editor/index.tsx",
+          "type": "registry:component",
+          "target": "components/kibo-ui/editor/index.tsx"
+        },
+        {
+          "path": "apps/cloudflare/headcode/config.ts",
+          "type": "registry:file",
+          "target": "headcode/config.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/defaults.ts",
+          "type": "registry:file",
+          "target": "headcode/defaults.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/fields.ts",
+          "type": "registry:file",
+          "target": "headcode/fields.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/sections.ts",
+          "type": "registry:file",
+          "target": "headcode/sections.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/types.ts",
+          "type": "registry:file",
+          "target": "headcode/types.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/utils.ts",
+          "type": "registry:file",
+          "target": "headcode/utils.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/versions.ts",
+          "type": "registry:file",
+          "target": "headcode/versions.ts"
+        },
+        {
+          "path": "apps/cloudflare/next.config.ts",
+          "type": "registry:file",
+          "target": "next.config.ts"
+        },
+        {
+          "path": "apps/cloudflare/proxy.ts",
+          "type": "registry:file",
+          "target": "proxy.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/_components/admin-provider.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/admin-provider.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(site)/_components/site-styles.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/site-styles.tsx"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/admin/services/route.ts",
+          "type": "registry:file",
+          "target": "app/(admin)/admin/services/route.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/mcp/seed/route.ts",
+          "type": "registry:file",
+          "target": "app/mcp/seed/route.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/media/[key]/route.ts",
+          "type": "registry:file",
+          "target": "app/media/[key]/route.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/media/upload/[ticket]/route.ts",
+          "type": "registry:file",
+          "target": "app/media/upload/[ticket]/route.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/api.ts",
+          "type": "registry:file",
+          "target": "headcode/api.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/auth-client.tsx",
+          "type": "registry:file",
+          "target": "headcode/auth-client.tsx"
+        },
+        {
+          "path": "apps/cloudflare/headcode/auth.ts",
+          "type": "registry:file",
+          "target": "headcode/auth.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/authorization.ts",
+          "type": "registry:file",
+          "target": "headcode/authorization.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/client.tsx",
+          "type": "registry:file",
+          "target": "headcode/client.tsx"
+        },
+        {
+          "path": "apps/cloudflare/headcode/data-model.ts",
+          "type": "registry:file",
+          "target": "headcode/data-model.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/db.ts",
+          "type": "registry:file",
+          "target": "headcode/db.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/images.ts",
+          "type": "registry:file",
+          "target": "headcode/images.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/migrate.ts",
+          "type": "registry:file",
+          "target": "headcode/migrate.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/schema.ts",
+          "type": "registry:file",
+          "target": "headcode/schema.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/section_validations.ts",
+          "type": "registry:file",
+          "target": "headcode/section_validations.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/server.ts",
+          "type": "registry:file",
+          "target": "headcode/server.ts"
+        },
+        {
+          "path": "apps/cloudflare/headcode/services.ts",
+          "type": "registry:file",
+          "target": "headcode/services.ts"
+        },
+        {
+          "path": "apps/cloudflare/drizzle.config.ts",
+          "type": "registry:file",
+          "target": "drizzle.config.ts"
+        },
+        {
+          "path": "apps/cloudflare/drizzle/0000_init.sql",
+          "type": "registry:file",
+          "target": "drizzle/0000_init.sql"
+        },
+        {
+          "path": "apps/cloudflare/drizzle/meta/0000_snapshot.json",
+          "type": "registry:file",
+          "target": "drizzle/meta/0000_snapshot.json"
+        },
+        {
+          "path": "apps/cloudflare/drizzle/meta/_journal.json",
+          "type": "registry:file",
+          "target": "drizzle/meta/_journal.json"
+        },
+        {
+          "path": "apps/cloudflare/vite.config.ts",
+          "type": "registry:file",
+          "target": "vite.config.ts"
+        },
+        {
+          "path": "apps/cloudflare/postcss.config.mjs",
+          "type": "registry:file",
+          "target": "postcss.config.mjs"
+        },
+        {
+          "path": "apps/cloudflare/scripts/seed.mts",
+          "type": "registry:file",
+          "target": "scripts/seed.mts"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/admin/logout/route.ts",
+          "type": "registry:file",
+          "target": "app/(admin)/admin/logout/route.ts"
+        },
+        {
+          "path": "apps/cloudflare/app/(admin)/admin/session/route.ts",
+          "type": "registry:file",
+          "target": "app/(admin)/admin/session/route.ts"
+        },
+        {
+          "path": "apps/cloudflare/cloudflare.config.ts",
+          "type": "registry:file",
+          "target": "cloudflare.config.ts"
+        },
+        {
+          "path": "apps/cloudflare/scripts/release.mts",
+          "type": "registry:file",
+          "target": "scripts/release.mts"
+        }
+      ]
+    },
+    {
+      "name": "headcode-local",
+      "type": "registry:component",
+      "title": "Headcode CMS (Local)",
+      "description": "An agent-ready CMS for Next.js on vinext and Node with SQLite, image files, Better Auth, admin editing, Markdown output, and MCP tools; runs on your laptop",
+      "registryDependencies": [
+        "alert",
+        "button",
+        "card",
+        "command",
+        "dialog",
+        "dropdown-menu",
+        "empty",
+        "field",
+        "input",
+        "input-group",
+        "item",
+        "label",
+        "popover",
+        "select",
+        "separator",
+        "sheet",
+        "switch",
+        "tabs",
+        "textarea",
+        "tooltip"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.9.0",
+        "@better-auth/cimd@^1.7.18",
+        "@better-auth/mcp@^1.7.18",
+        "@better-auth/oauth-provider@^1.7.18",
+        "@libsql/client@^0.18.0",
+        "@modelcontextprotocol/server@^2.4.0",
+        "@radix-ui/react-use-controllable-state@^1.3.0",
+        "@tiptap/core@^3.32.0",
+        "@tiptap/extension-code-block-lowlight@^3.32.0",
+        "@tiptap/extension-list@^3.32.0",
+        "@tiptap/extension-subscript@^3.32.0",
+        "@tiptap/extension-superscript@^3.32.0",
+        "@tiptap/extension-table@^3.32.0",
+        "@tiptap/extension-text-style@^3.32.0",
+        "@tiptap/extension-typography@^3.32.0",
+        "@tiptap/extensions@^3.32.0",
+        "@tiptap/markdown@^3.32.0",
+        "@tiptap/pm@^3.32.0",
+        "@tiptap/react@^3.32.0",
+        "@tiptap/starter-kit@^3.32.0",
+        "@tiptap/suggestion@^3.32.0",
+        "better-auth@^1.7.18",
+        "class-variance-authority@^0.7.1",
+        "cmdk@^1.1.1",
+        "drizzle-orm@^0.45.4",
+        "fuse.js@^7.5.0",
+        "jose@^6.2.13",
+        "lowlight@^3.3.0",
+        "lucide-react@^1.61.0",
+        "motion@^14.6.0",
+        "radix-ui@^1.8.1",
+        "react-dropzone@^20.1.4",
+        "react-server-dom-webpack@^19.3.1",
+        "shadcn@^4.22.1",
+        "sharp@^0.35.5",
+        "thumbhash@^0.1.1",
+        "tippy.js@^6.3.7",
+        "tw-animate-css@^1.4.0",
+        "vinext@^1.4.4",
+        "zod@^4.6.7"
+      ],
+      "devDependencies": [
+        "@tailwindcss/postcss@^4.3.3",
+        "@vitejs/plugin-react@^6.2.1",
+        "@vitejs/plugin-rsc@^0.5.39",
+        "drizzle-kit@^0.31.11",
+        "vite@8.3.0"
+      ],
+      "files": [
+        {
+          "path": "apps/local/app/(admin)/_components/admin-ui.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/admin-ui.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/_components/chrome.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/chrome.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/_components/container.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/container.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/_components/richtext-editor.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/richtext-editor.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/_fields/image-field.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_fields/image-field.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/_fields/richtext-field.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_fields/richtext-field.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/_lib/headcode.ts",
+          "type": "registry:file",
+          "target": "app/(admin)/_lib/headcode.ts"
+        },
+        {
+          "path": "apps/local/app/(admin)/_lib/use-actions.ts",
+          "type": "registry:file",
+          "target": "app/(admin)/_lib/use-actions.ts"
+        },
+        {
+          "path": "apps/local/app/(admin)/admin.css",
+          "type": "registry:file",
+          "target": "app/(admin)/admin.css"
+        },
+        {
+          "path": "apps/local/app/(admin)/admin/entries/[id]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/entries/[id]/page.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/admin/images/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/images/page.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/admin/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/page.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/admin/versions/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/versions/page.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/layout.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/layout.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/[version]/blog/[slug]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/blog/[slug]/page.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/[version]/blog/md.ts",
+          "type": "registry:file",
+          "target": "app/(site)/[version]/blog/md.ts"
+        },
+        {
+          "path": "apps/local/app/(site)/[version]/blog/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/blog/page.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/[version]/docs/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/docs/page.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/[version]/headcode-markdown.txt/[[...path]]/route.ts",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/headcode-markdown.txt/[[...path]]/route.ts"
+        },
+        {
+          "path": "apps/local/app/(site)/[version]/layout.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/layout.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/[version]/llms.txt/route.ts",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/llms.txt/route.ts"
+        },
+        {
+          "path": "apps/local/app/(site)/[version]/loading.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/loading.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/[version]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/page.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/[version]/pages/[slug]/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/pages/[slug]/page.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/[version]/pricing/page.tsx",
+          "type": "registry:page",
+          "target": "app/(site)/[version]/pricing/page.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_components/chrome.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/chrome.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_components/code-tabs.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/code-tabs.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_components/container.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/container.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_components/entries-dialog.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/entries-dialog.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_components/icons.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/icons.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_components/markdown.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/markdown.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_lib/headcode.ts",
+          "type": "registry:file",
+          "target": "app/(site)/_lib/headcode.ts"
+        },
+        {
+          "path": "apps/local/app/(site)/_lib/version.ts",
+          "type": "registry:file",
+          "target": "app/(site)/_lib/version.ts"
+        },
+        {
+          "path": "apps/local/app/(site)/_sections/docs.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/docs.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_sections/hero.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/hero.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_sections/image.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/image.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_sections/index.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/index.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_sections/logos.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/logos.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_sections/plans.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/plans.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_sections/shared.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_sections/shared.tsx"
+        },
+        {
+          "path": "apps/local/app/.well-known/[...path]/route.ts",
+          "type": "registry:page",
+          "target": "app/.well-known/[...path]/route.ts"
+        },
+        {
+          "path": "apps/local/app/mcp/auth.ts",
+          "type": "registry:file",
+          "target": "app/mcp/auth.ts"
+        },
+        {
+          "path": "apps/local/app/mcp/route.ts",
+          "type": "registry:page",
+          "target": "app/mcp/route.ts"
+        },
+        {
+          "path": "apps/local/app/robots.ts",
+          "type": "registry:file",
+          "target": "app/robots.ts"
+        },
+        {
+          "path": "apps/local/app/(site)/_lib/seo.tsx",
+          "type": "registry:file",
+          "target": "app/(site)/_lib/seo.tsx"
+        },
+        {
+          "path": "apps/local/app/sitemap.ts",
+          "type": "registry:file",
+          "target": "app/sitemap.ts"
+        },
+        {
+          "path": "apps/local/components/kibo-ui/dialog-stack/index.tsx",
+          "type": "registry:component",
+          "target": "components/kibo-ui/dialog-stack/index.tsx"
+        },
+        {
+          "path": "apps/local/components/kibo-ui/dropzone/index.tsx",
+          "type": "registry:component",
+          "target": "components/kibo-ui/dropzone/index.tsx"
+        },
+        {
+          "path": "apps/local/components/kibo-ui/editor/index.tsx",
+          "type": "registry:component",
+          "target": "components/kibo-ui/editor/index.tsx"
+        },
+        {
+          "path": "apps/local/headcode/config.ts",
+          "type": "registry:file",
+          "target": "headcode/config.ts"
+        },
+        {
+          "path": "apps/local/headcode/defaults.ts",
+          "type": "registry:file",
+          "target": "headcode/defaults.ts"
+        },
+        {
+          "path": "apps/local/headcode/fields.ts",
+          "type": "registry:file",
+          "target": "headcode/fields.ts"
+        },
+        {
+          "path": "apps/local/headcode/sections.ts",
+          "type": "registry:file",
+          "target": "headcode/sections.ts"
+        },
+        {
+          "path": "apps/local/headcode/types.ts",
+          "type": "registry:file",
+          "target": "headcode/types.ts"
+        },
+        {
+          "path": "apps/local/headcode/utils.ts",
+          "type": "registry:file",
+          "target": "headcode/utils.ts"
+        },
+        {
+          "path": "apps/local/headcode/versions.ts",
+          "type": "registry:file",
+          "target": "headcode/versions.ts"
+        },
+        {
+          "path": "apps/local/next.config.ts",
+          "type": "registry:file",
+          "target": "next.config.ts"
+        },
+        {
+          "path": "apps/local/proxy.ts",
+          "type": "registry:file",
+          "target": "proxy.ts"
+        },
+        {
+          "path": "apps/local/app/(admin)/_components/admin-provider.tsx",
+          "type": "registry:component",
+          "target": "app/(admin)/_components/admin-provider.tsx"
+        },
+        {
+          "path": "apps/local/app/(site)/_components/site-styles.tsx",
+          "type": "registry:component",
+          "target": "app/(site)/_components/site-styles.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/admin/services/route.ts",
+          "type": "registry:file",
+          "target": "app/(admin)/admin/services/route.ts"
+        },
+        {
+          "path": "apps/local/app/mcp/seed/route.ts",
+          "type": "registry:file",
+          "target": "app/mcp/seed/route.ts"
+        },
+        {
+          "path": "apps/local/app/media/[key]/route.ts",
+          "type": "registry:file",
+          "target": "app/media/[key]/route.ts"
+        },
+        {
+          "path": "apps/local/app/media/upload/[ticket]/route.ts",
+          "type": "registry:file",
+          "target": "app/media/upload/[ticket]/route.ts"
+        },
+        {
+          "path": "apps/local/headcode/api.ts",
+          "type": "registry:file",
+          "target": "headcode/api.ts"
+        },
+        {
+          "path": "apps/local/headcode/auth-client.tsx",
+          "type": "registry:file",
+          "target": "headcode/auth-client.tsx"
+        },
+        {
+          "path": "apps/local/headcode/auth.ts",
+          "type": "registry:file",
+          "target": "headcode/auth.ts"
+        },
+        {
+          "path": "apps/local/headcode/authorization.ts",
+          "type": "registry:file",
+          "target": "headcode/authorization.ts"
+        },
+        {
+          "path": "apps/local/headcode/client.tsx",
+          "type": "registry:file",
+          "target": "headcode/client.tsx"
+        },
+        {
+          "path": "apps/local/headcode/data-model.ts",
+          "type": "registry:file",
+          "target": "headcode/data-model.ts"
+        },
+        {
+          "path": "apps/local/headcode/db.ts",
+          "type": "registry:file",
+          "target": "headcode/db.ts"
+        },
+        {
+          "path": "apps/local/headcode/images.ts",
+          "type": "registry:file",
+          "target": "headcode/images.ts"
+        },
+        {
+          "path": "apps/local/headcode/migrate.ts",
+          "type": "registry:file",
+          "target": "headcode/migrate.ts"
+        },
+        {
+          "path": "apps/local/headcode/schema.ts",
+          "type": "registry:file",
+          "target": "headcode/schema.ts"
+        },
+        {
+          "path": "apps/local/headcode/section_validations.ts",
+          "type": "registry:file",
+          "target": "headcode/section_validations.ts"
+        },
+        {
+          "path": "apps/local/headcode/server.ts",
+          "type": "registry:file",
+          "target": "headcode/server.ts"
+        },
+        {
+          "path": "apps/local/headcode/services.ts",
+          "type": "registry:file",
+          "target": "headcode/services.ts"
+        },
+        {
+          "path": "apps/local/drizzle.config.ts",
+          "type": "registry:file",
+          "target": "drizzle.config.ts"
+        },
+        {
+          "path": "apps/local/drizzle/0000_init.sql",
+          "type": "registry:file",
+          "target": "drizzle/0000_init.sql"
+        },
+        {
+          "path": "apps/local/drizzle/meta/0000_snapshot.json",
+          "type": "registry:file",
+          "target": "drizzle/meta/0000_snapshot.json"
+        },
+        {
+          "path": "apps/local/drizzle/meta/_journal.json",
+          "type": "registry:file",
+          "target": "drizzle/meta/_journal.json"
+        },
+        {
+          "path": "apps/local/vite.config.ts",
+          "type": "registry:file",
+          "target": "vite.config.ts"
+        },
+        {
+          "path": "apps/local/postcss.config.mjs",
+          "type": "registry:file",
+          "target": "postcss.config.mjs"
+        },
+        {
+          "path": "apps/local/scripts/seed.mts",
+          "type": "registry:file",
+          "target": "scripts/seed.mts"
+        },
+        {
+          "path": "apps/local/app/(admin)/admin/consent/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/consent/page.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/admin/login/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/login/page.tsx"
+        },
+        {
+          "path": "apps/local/app/(admin)/admin/reset-password/page.tsx",
+          "type": "registry:page",
+          "target": "app/(admin)/admin/reset-password/page.tsx"
+        },
+        {
+          "path": "apps/local/app/api/auth/[...all]/route.ts",
+          "type": "registry:file",
+          "target": "app/api/auth/[...all]/route.ts"
+        },
+        {
+          "path": "apps/local/headcode/auth-schema.ts",
+          "type": "registry:file",
+          "target": "headcode/auth-schema.ts"
+        },
+        {
+          "path": "apps/local/headcode/better-auth.ts",
+          "type": "registry:file",
+          "target": "headcode/better-auth.ts"
+        },
+        {
+          "path": "apps/local/drizzle/0001_auth.sql",
+          "type": "registry:file",
+          "target": "drizzle/0001_auth.sql"
+        },
+        {
+          "path": "apps/local/drizzle/meta/0001_snapshot.json",
+          "type": "registry:file",
+          "target": "drizzle/meta/0001_snapshot.json"
+        },
+        {
+          "path": "apps/local/scripts/start.mts",
+          "type": "registry:file",
+          "target": "scripts/start.mts"
+        },
+        {
+          "path": "apps/local/scripts/user.mts",
+          "type": "registry:file",
+          "target": "scripts/user.mts"
         }
       ]
     }

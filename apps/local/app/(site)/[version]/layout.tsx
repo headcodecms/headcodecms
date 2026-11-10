@@ -7,9 +7,9 @@ import { Inter } from 'next/font/google'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 
-import '../../globals.css'
 import { SiteFooter, SiteHeader } from '@/app/(site)/_components/chrome'
 import { EntriesDialog } from '@/app/(site)/_components/entries-dialog'
+import { SiteStyles } from '@/app/(site)/_components/site-styles'
 import {
   type EntryBundle,
   getDataHeadcodeAttribute,
@@ -77,6 +77,7 @@ export default async function RootLayout({
       )}
     >
       <body className="flex min-h-full flex-col">
+        <SiteStyles />
         {headerProps ? <SiteHeader {...headerProps} /> : null}
         <main className="flex-1">{children}</main>
         {footerProps ? <SiteFooter {...footerProps} /> : null}

@@ -4,6 +4,8 @@ Core changes that variants based on `vercel` should follow.
 
 ## Unreleased
 
+- Registry: `headcode` lists the style's base packages (`shadcn` for `admin.css`, `@base-ui/react`, `class-variance-authority`, `lucide-react`), so it installs into a site without `shadcn init`. The root `registry.json` also has `headcode-cloudflare` and `headcode-local` (paths into those apps); convert.md asks for the platform.
+
 - Default local port is 3072 (`next dev --port 3072`), so the app does not collide with other Next.js projects on 3000 and can run next to `cloudflare` (3073) and `local` (3074). WorkOS redirect, sign-out, and MCP resource URIs for localhost use 3072.
 - `scripts/parity.mts` is the same file in every app again: `/admin` without a session may redirect to a hosted sign-in (callback on this host, AuthKit) or to `/admin/login` on this host (Better Auth); `--login` waits for an admin page other than `/admin/login`. `parity`, `mcp`, and `seed` default to the app's dev server (port from `--port` in the `dev` script, else 3000).
 - `pnpm parity` loads `.parity/<host>.env` (gitignored), so each deployed host keeps its own `MCP_TOKEN`. README and convert.md explain the shared token: scripts only, created by the agent, people and MCP clients use OAuth.

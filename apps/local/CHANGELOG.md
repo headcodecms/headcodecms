@@ -4,6 +4,9 @@ Based on `apps/cloudflare` (same core, checked with `pnpm drift ../cloudflare`).
 
 ## Unreleased
 
+- Fix: the admin no longer loads the site's global CSS in production. vinext attaches CSS imported by a server layout to the RSC entry, which the admin layout imports, so a site with its own `globals.css` (colors, fonts) changed the admin look. The site layout now renders `app/(site)/_components/site-styles.tsx`, a client component that imports `globals.css`; client CSS loads only where it renders. Found by converting a fresh `create-next-app` site (`body { font-family: Arial }` showed in the admin). The reference apps did not show it, because their `globals.css` has the same theme as the admin.
+- Registry item `headcode-local` in the root `registry.json` (installed by convert.md for this platform), with the style's base packages (`shadcn`, `@base-ui/react`, `class-variance-authority`, `lucide-react`) and `postcss.config.mjs`, so it installs into a site without `shadcn init`.
+
 - Data folder is `storage/` (database and media), not `data/`.
 - Laptop only: no Dockerfile or hosting setup. The README lists what an own server needs; build it from this app.
 - Production build: `pnpm start` runs the server and then migrations + seed (`scripts/start.mts`).

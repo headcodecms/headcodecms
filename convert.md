@@ -9,8 +9,26 @@ Work in the user's repo, on a new branch `headcode`. Follow the steps in order. 
 - **Same site.** Every page keeps its URL, its text, and its look. Change no design, no copy, no class names.
 - **Content in the database, design in code.** Text, links, images, lists, and on/off choices are content. Layout, illustrations, animations, and colors are code; content picks them with a select.
 - **Editors don't read code.** Every section and field has a label and a description a non-developer understands.
-- **Ask the user only about the section model** (step 2) and accounts (step 3). Decide everything else with these rules.
+- **Ask the user only about the section model and the platform** (step 2) and accounts (step 3). Decide everything else with these rules.
 - **Done means all checks in step 6 pass**, including the admin. Never report done with a failing check.
+
+## Platforms
+
+Headcode has three reference apps with the same admin, MCP server, and checks. They differ in where the site runs:
+
+| | Vercel (default) | Cloudflare | Local |
+|---|---|---|---|
+| Runs on | Next.js on Vercel | Next.js on [vinext](https://github.com/cloudflare/vinext), Cloudflare Workers | Next.js on vinext, Node, your laptop |
+| Content, images | Convex | D1, R2, Cloudflare Images | SQLite file, image files in `storage/` |
+| Sign-in | WorkOS AuthKit | WorkOS AuthKit | Better Auth (email and password) |
+| Accounts | Convex, WorkOS, Vercel | Cloudflare, WorkOS | none |
+| Registry item | `headcode` | `headcode-cloudflare` | `headcode-local` |
+| Reference app (`<app>`) | `apps/vercel` | `apps/cloudflare` | `apps/local` |
+| Dev port (`<port>`) | 3072 | 3073 | 3074 |
+
+Local is not a hosting setup. It runs on the user's laptop; whoever wants it on an own server builds that from `apps/local` (its README lists what a server needs).
+
+The reference app's `README.md` and `AGENTS.md` (`https://github.com/headcodecms/headcodecms/tree/main/<app>`) are the source for setup, environment, and commands. Read both before step 3.
 
 ## 1. Inventory
 
@@ -226,27 +244,39 @@ Before you write content or the seed, check the model against this list and fix 
 - [ ] Every page can have `meta`; no other section has SEO fields.
 - [ ] Every editor change you noted in step 1 is possible, and every list can be reordered.
 
-Then show the user the model as a short table (entry, sections, the decisions you were unsure about) and ask for a go.
+Then show the user the model as a short table (entry, sections, the decisions you were unsure about) and ask for a go. In the same message, ask where the site should run: Vercel, Cloudflare, or Local (only on the laptop, no accounts). Without a preference, use Vercel.
 
 ## 3. Install
 
 ```bash
-pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode -y --overwrite
+pnpm dlx shadcn@latest add headcodecms/headcodecms/<registry item> -y --overwrite
 ```
 
 Before:
 
 - Move the site's routes out of `app/`, including `app/layout.tsx` and `app/page.tsx`. Headcode brings its own root layouts (`app/(site)/[version]/layout.tsx`, `app/(admin)/layout.tsx`); the routes come back as Headcode routes in step 4. Keep `app/globals.css`, components, and `public/`.
-- With pnpm, allow builds in `pnpm-workspace.yaml` (`allowBuilds`): `esbuild`, `sharp`, `unrs-resolver`.
+- With pnpm, allow builds in `pnpm-workspace.yaml` (`allowBuilds`): `esbuild`, `sharp`, `unrs-resolver`, and on Cloudflare `workerd`.
+- Without `components.json` (shadcn not set up): copy `components.json` and `lib/utils.ts` from the reference app, set `tailwind.css` in `components.json` to `app/(admin)/admin.css` (so shadcn never writes into the site's `globals.css`). Headcode imports `cn` from `@/lib/utils`; the reference file re-exports it from the `cn` package, which the install adds. Do not run `shadcn init`: it rewrites `globals.css`.
 
 After:
 
 - Without `--overwrite` the command waits for a prompt.
 - Merge `next.config.ts` with the site's own config (React Compiler, Turbopack rules).
-- Add `convex/_generated/**` to the ESLint `globalIgnores`.
 - The admin has its own theme in `app/(admin)/admin.css`. Never import the site's `globals.css` there, and never change the admin theme to match the site.
+- Vercel: add `convex/_generated/**` to the ESLint `globalIgnores`.
+- Cloudflare and Local run on vinext (Vite) instead of `next`. Copy the scripts from the reference app's `package.json` (`dev`, `build`, `seed`, `db:generate`, `typecheck`; Cloudflare also `preview`, `release`; Local also `start`, `user`, `db:studio`) and set `"type": "module"`. Use the site's other scripts only if they do not call `next dev`, `next build`, or `next start`.
+- vinext needs `react` and `react-dom` 19.3.1 or later (`pnpm add react@latest react-dom@latest`); `vite build` fails otherwise, while `vite dev` still works.
+- vinext runs Tailwind through PostCSS (`postcss.config.mjs` comes with the install). Remove the `turbopack` rules from `next.config.ts`.
+- vinext loads CSS that a server layout imports on every page, the admin included. The site's global CSS is therefore imported in `app/(site)/_components/site-styles.tsx` (a client component the site layout renders), not in the layout. Point its import at the site's CSS file, and import other global CSS there too.
+- vinext: import one font per `next/font/google` import statement (`import { Inter } from ...` and `import { Lora } from ...`, not both in one), otherwise the build breaks.
+- Cloudflare: add `".cloudflare/types/**/*.ts"` to `include` in `tsconfig.json`. In `cloudflare.config.ts`, rename the Worker, the D1 database, and the buckets (`headcode-cloudflare...`) after the site, and set `domains` to the user's live and draft hosts, or remove `domains` until they exist.
+- Local: add `/storage/` to `.gitignore` (database and images).
 
-Accounts: follow the Headcode `README.md` setup (Convex, WorkOS, `.env.local`). Without accounts, run Convex locally: `CONVEX_AGENT_MODE=anonymous pnpm convex dev`. It generates `convex/_generated`; typecheck and build need it.
+Accounts: follow the reference app's `README.md` setup and write `.env.local` from it.
+
+- Vercel: Convex, WorkOS. Without accounts, run Convex locally: `CONVEX_AGENT_MODE=anonymous pnpm convex dev`. It generates `convex/_generated`; typecheck and build need it.
+- Cloudflare: WorkOS for the admin. The dev server emulates D1 and R2 locally; the Cloudflare account (`npx cf auth login`) is needed only for the deploy (`pnpm release`).
+- Local: none. Set `BETTER_AUTH_SECRET` (`openssl rand -base64 32`).
 
 ## 4. Convert
 
@@ -255,17 +285,17 @@ Accounts: follow the Headcode `README.md` setup (Convex, WorkOS, `.env.local`). 
 3. Renderers in `app/(site)/_sections`: reuse the site's markup and classes 1:1; only replace literals with field values. Keep illustrations as components, picked by the select value.
 4. Markdown output (`?md`) for every section, from the same data.
 5. Routes under `app/(site)/[version]/...`, same URLs as before. Read params inside `<Suspense>`.
-6. `pnpm seed`. A seed with invalid values fails with the field path; fix the content, not the validator.
+6. `pnpm seed` (Cloudflare and Local: with the dev server running). A seed with invalid values fails with the field path; fix the content, not the validator.
 
 ## 5. Copy the checks
 
-Copy `scripts/parity.mts` and `scripts/mcp-smoke.mts` from Headcode `apps/vercel`, then:
+Copy `scripts/parity.mts` and `scripts/mcp-smoke.mts` from the reference app (the same files in every app), then:
 
 ```bash
 pnpm add -D playwright-core @modelcontextprotocol/client
 npm pkg set scripts.parity="node --env-file-if-exists=.env.local scripts/parity.mts" \
   scripts.mcp="node --env-file=.env.local scripts/mcp-smoke.mts" \
-  scripts.seed="convex run seed:init"
+  scripts.seed="convex run seed:init"   # Vercel; Cloudflare and Local keep the seed script from step 3
 echo /.parity/ >> .gitignore
 ```
 
@@ -273,26 +303,29 @@ The browser checks use the installed Google Chrome (`playwright-core`, channel `
 
 Run the original site on another port for the compare: `git worktree add ../original vibe-original`, install, and start it, for example on port 3456.
 
-The checks need a shared MCP token, because scripts cannot sign in in a browser. Create it yourself, do not ask the user: `openssl rand -hex 32`, set it as `ALLOWED_MCP_TOKENS` in `.env.local` and in Convex (`pnpm convex env set ALLOWED_MCP_TOKENS <token>`). On a deployed host, also set it in the host's environment (sensitive) and save it in `.parity/<host>.env` as `MCP_TOKEN=<token>`. Never print it.
+The checks need a shared MCP token, because scripts cannot sign in in a browser. Create it yourself, do not ask the user: `openssl rand -hex 32`, set it as `ALLOWED_MCP_TOKENS` in `.env.local` (Vercel: also in Convex, `pnpm convex env set ALLOWED_MCP_TOKENS <token>`). On a deployed host, also set it in the host's environment (sensitive; Cloudflare: a secret) and save it in `.parity/<host>.env` as `MCP_TOKEN=<token>`. Never print it.
 
 Tell the user in one sentence, so a token does not confuse them: "For the automatic checks I created a token for scripts; you and your AI tools (Claude, Cursor) sign in through the browser as usual. You don't need to do anything with it."
 
 ## 6. Checks
 
-All must pass. Run them on the live host (`localhost:3072`) and the draft host (`draft.localhost:3072`).
+All must pass. Run them on the live host (`localhost:<port>`) and the draft host (`draft.localhost:<port>`).
 
 | Check | How | Pass |
 |---|---|---|
 | Same site | `pnpm parity <url> --compare=http://localhost:3456`: text, title, and description of every page in the sitemap, and screenshots at 1440px and 390px | all pass (pixel diff < 0.1%) |
 | CMS contract | `pnpm parity <url> --write` | all pass |
-| Admin | `pnpm parity <url> --login` once (the user signs in), then `pnpm parity <url> --admin --write` | all pass |
+| Admin | `pnpm parity <url> --login` once (the user signs in; on Local the user creates the first account, which becomes the editor), then `pnpm parity <url> --admin --write` | all pass |
 | Code | `pnpm lint && pnpm typecheck && pnpm build` | pass |
+| Production (Cloudflare, Local) | Cloudflare: `pnpm build && pnpm preview`; Local: `pnpm build && pnpm start`. Then `pnpm parity <url> --admin --write` on that server (vinext bundles CSS differently than the dev server) | all pass |
 
 A page missing in the sitemap is not compared: check that the sitemap lists every URL from step 1. Failed screenshots are saved in `.parity/compare/`; look at them before you change code. A difference the user asked for (a fixed link, a corrected typo) is fine; list it in the report.
 
 The admin check is not optional. It proves the admin looks like stock Headcode (same theme, font, colors), lists all entries, and saves an edit that shows on the draft site. A user who installs Headcode and gets an ugly or broken admin never tries again.
 
 When a check fails, fix the cause and run all checks again.
+
+Never create test accounts in the user's database (Local): the first account becomes the editor. Leave the first sign-in to the user.
 
 ## 7. Retrospective
 
@@ -324,4 +357,8 @@ Tell the user, in short:
 - the section model (entries and sections),
 - the check results from step 6,
 - what an editor can change now, with the admin and MCP URLs,
+- the platform and its next step:
+  - Vercel: deploy as in the `apps/vercel` README.
+  - Cloudflare: `pnpm release` deploys to the domains in `cloudflare.config.ts`.
+  - Local: "Your site runs on your laptop (`pnpm dev`, or `pnpm build && pnpm start`); all content and images are in `storage/`, so back up that folder. Local is not a hosting setup: to run it on your own server, build that from `apps/local`. Its README lists what a server needs (secret, persistent `storage/`, one process, HTTPS)."
 - the retro file.

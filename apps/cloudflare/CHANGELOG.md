@@ -4,6 +4,9 @@ Based on `apps/vercel` (see its CHANGELOG for core changes). This file lists wha
 
 ## Unreleased
 
+- Fix: the admin no longer loads the site's global CSS in production. vinext attaches CSS imported by a server layout to the RSC entry, which the admin layout imports, so a site with its own `globals.css` (colors, fonts) changed the admin look. The site layout now renders `app/(site)/_components/site-styles.tsx`, a client component that imports `globals.css`; client CSS loads only where it renders. Found by converting a fresh `create-next-app` site (`body { font-family: Arial }` showed in the admin). The reference apps did not show it, because their `globals.css` has the same theme as the admin.
+- Registry item `headcode-cloudflare` in the root `registry.json` (installed by convert.md for this platform), with the style's base packages (`shadcn`, `@base-ui/react`, `class-variance-authority`, `lucide-react`) and `postcss.config.mjs`, so it installs into a site without `shadcn init`.
+
 - Atomic writes: publish, new draft, restore, delete version, add/delete entry, add/update/duplicate/reorder/delete section run as one `db.batch` (D1 and libSQL execute a batch as one transaction). IDs are generated up front.
 - Fix: inserts are chunked by the table's column count (defaults like `_id` and `_creationTime` are bound too). Before, cloning a version with many sections exceeded D1's 100 bound parameters, so new draft and publish failed on Cloudflare (parity never publishes, so it did not show).
 - Missing pages stay soft 404s (200 + `noindex`): vinext 1.4 answers 200 even for unmatched routes and ignores a 404 status set by the proxy.
