@@ -44,4 +44,4 @@ next-env.d.ts
 .vinext/
 
 # local database and uploaded images
-/data/
+/storage/

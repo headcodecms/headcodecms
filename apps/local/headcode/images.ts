@@ -1,5 +1,5 @@
 // Seam: image storage and metadata. apps/local stores files under
-// MEDIA_DIR (default data/media) and uses sharp; apps/cloudflare uses R2 and
+// MEDIA_DIR (default storage/media) and uses sharp; apps/cloudflare uses R2 and
 // the Images binding with the same functions.
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -7,7 +7,7 @@ import { Readable } from 'node:stream'
 import sharp from 'sharp'
 import { rgbaToThumbHash, thumbHashToDataURL } from 'thumbhash'
 
-const mediaDir = process.env.MEDIA_DIR ?? 'data/media'
+const mediaDir = process.env.MEDIA_DIR ?? 'storage/media'
 const types: Record<string, string> = {
   jpeg: 'image/jpeg',
   jpg: 'image/jpeg',

@@ -8,5 +8,5 @@ export default defineConfig({
   schema: ['./headcode/schema.ts', './headcode/auth-schema.ts'],
   out: './drizzle',
   // `pnpm db:studio` opens the local database in Drizzle Studio.
-  dbCredentials: { url: process.env.DATABASE_URL ?? 'file:data/headcode.db' },
+  dbCredentials: { url: process.env.DATABASE_URL ?? 'file:storage/headcode.db' },
 })

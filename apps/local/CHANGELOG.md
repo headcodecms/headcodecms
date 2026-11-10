@@ -4,8 +4,10 @@ Based on `apps/cloudflare` (same core, checked with `pnpm drift ../cloudflare`).
 
 ## Unreleased
 
-- Production: `pnpm start` runs the server and then migrations + seed (`scripts/start.mts`); `Dockerfile` (one container, `/app/data` volume, `NEXT_PUBLIC_*` as build args).
-- Accounts: `pnpm user list | role <email> <editor|viewer> | password <email>` (works in the container, no `sqlite3` needed).
+- Data folder is `storage/` (database and media), not `data/`.
+- Laptop only: no Dockerfile or hosting setup. The README lists what an own server needs; build it from this app.
+- Production build: `pnpm start` runs the server and then migrations + seed (`scripts/start.mts`).
+- Accounts: `pnpm user list | role <email> <editor|viewer> | password <email>` (no `sqlite3` needed).
 - Forgot password on `/admin/login`: the reset link goes to the server log (no mail server); `/admin/reset-password` sets the new password.
 - Rate limiting reads the client IP from `IP_ADDRESS_HEADERS` (default `x-forwarded-for`, `cf-connecting-ip` behind Cloudflare).
 - Atomic writes: publish, new draft, restore, delete version, add/delete entry, add/update/duplicate/reorder/delete section run as one `db.batch` (D1 and libSQL execute a batch as one transaction). IDs are generated up front.

@@ -1,4 +1,4 @@
-// Production start (`pnpm start`, Docker): runs the vinext server and, once it
+// Production start (`pnpm start`): runs the vinext server and, once it
 // answers, applies pending migrations and seeds (scripts/seed.mts).
 import { spawn } from 'node:child_process'
 

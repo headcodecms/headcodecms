@@ -1,9 +1,0 @@
-node_modules
-dist
-.next
-.vinext
-.parity
-.env*
-data
-coverage
-*.tsbuildinfo

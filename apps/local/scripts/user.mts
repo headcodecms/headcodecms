@@ -2,13 +2,13 @@
 //   pnpm user list
 //   pnpm user role <email> <editor|viewer>
 //   pnpm user password <email>      sets and prints a new random password
-// Works in a container too (DATABASE_URL, default file:data/headcode.db).
+// DATABASE_URL, default file:storage/headcode.db.
 import { randomBytes } from 'node:crypto'
 import { createClient } from '@libsql/client'
 import { hashPassword } from 'better-auth/crypto'
 
 const db = createClient({
-  url: process.env.DATABASE_URL ?? 'file:data/headcode.db',
+  url: process.env.DATABASE_URL ?? 'file:storage/headcode.db',
 })
 const [command, email, value] = process.argv.slice(2)
 

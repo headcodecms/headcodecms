@@ -7,7 +7,7 @@ import { drizzle } from 'drizzle-orm/libsql'
 import * as authSchema from './auth-schema'
 import * as schema from './schema'
 
-const url = process.env.DATABASE_URL ?? 'file:data/headcode.db'
+const url = process.env.DATABASE_URL ?? 'file:storage/headcode.db'
 if (url.startsWith('file:'))
   mkdirSync(url.slice('file:'.length).replace(/\/[^/]*$/, '') || '.', {
     recursive: true,

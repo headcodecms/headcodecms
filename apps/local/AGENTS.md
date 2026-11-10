@@ -8,7 +8,7 @@ Setup and production steps are in `README.md`. This file contains the rules.
 - Ask before you add dependencies. Make the smallest change, with arrow functions, single quotes, and no semicolons.
 - `components/` and `lib/` hold generated shadcn/kibo code. Do not put app code there. Local patches: the TipTap `signal` pass-through in `components/kibo-ui/editor`, and `render` on `DialogStackNext`/`DialogStackPrevious` in `components/kibo-ui/dialog-stack` (shadcn turns `asChild` into `render`). Keep `headcode/utils.ts` the only registry file named `utils` (with two, shadcn rewrites `utils` imports to the first one).
 - Do not start `pnpm dev` if it is already running (http://localhost:3074).
-- Data lives in `data/` (gitignored): `headcode.db` (`DATABASE_URL`) and `media/` (`MEDIA_DIR`). `pnpm db:studio` opens the database in Drizzle Studio; direct edits there show on the site after the cache expires (up to an hour) or the next save in the admin or MCP.
+- Data lives in `storage/` (gitignored): `headcode.db` (`DATABASE_URL`) and `media/` (`MEDIA_DIR`). `pnpm db:studio` opens the database in Drizzle Studio; direct edits there show on the site after the cache expires (up to an hour) or the next save in the admin or MCP.
 
 ## Seams
 
@@ -18,12 +18,12 @@ Auth seam exports: `getAdminIdentity`, `protectAdmin` (proxy.ts), `verifyMcpAcce
 
 | File                                                                                                       | Here                                                                                             |
 | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `headcode/db.ts`                                                                                           | libSQL file (`DATABASE_URL`, default `file:data/headcode.db`); `authDb` for Better Auth          |
+| `headcode/db.ts`                                                                                           | libSQL file (`DATABASE_URL`, default `file:storage/headcode.db`); `authDb` for Better Auth       |
 | `headcode/images.ts`                                                                                       | files in `MEDIA_DIR`, sharp for dimensions, ThumbHash, and resizing (cached under `resized/`)    |
 | `headcode/auth.ts`, `headcode/better-auth.ts`, `headcode/auth-schema.ts`                                   | Better Auth: sessions, admin redirect to `/admin/login`, OAuth 2.1 server for MCP                |
 | `headcode/auth-client.tsx`                                                                                 | Better Auth client (`oauthProviderClient`), admin user, auth gates                               |
 | `app/api/auth`, `app/(admin)/admin/login`, `app/(admin)/admin/consent`, `app/(admin)/admin/reset-password` | Better Auth handler, sign-in/sign-up/forgot-password page, OAuth consent page, new-password page |
-| `scripts/start.mts`, `scripts/user.mts`, `Dockerfile`                                                      | production start (server, then migrate + seed), account management, container                    |
+| `scripts/start.mts`, `scripts/user.mts`                                                                    | production start (server, then migrate + seed), account management                               |
 | `vite.config.ts`                                                                                           | vinext for Node                                                                                  |
 
 ## Architecture
@@ -68,8 +68,8 @@ Auth seam exports: `getAdminIdentity`, `protectAdmin` (proxy.ts), `verifyMcpAcce
 ```bash
 pnpm test && pnpm lint && pnpm typecheck && pnpm build
 pnpm drift ../cloudflare                             # no core drift to apps/cloudflare
-pnpm seed http://localhost:3074                      # migrations + seed of data/headcode.db
-pnpm db:studio                                       # Drizzle Studio on data/headcode.db
+pnpm seed http://localhost:3074                      # migrations + seed of storage/headcode.db
+pnpm db:studio                                       # Drizzle Studio on storage/headcode.db
 pnpm mcp http://draft.localhost:3074/mcp headcode_get_version
 pnpm parity http://draft.localhost:3074 --write
 pnpm parity http://localhost:3074 --login            # once per host: sign in or create an account

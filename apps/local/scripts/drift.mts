@@ -22,13 +22,12 @@ const allowed = [
   /^drizzle\/(meta\/|0001_)/,
   /^test\//,
   /^scripts\/(release|user|start)\.mts$/,
-  /^(Dockerfile|\.dockerignore)$/,
   // docs and demo content
   /^(README|AGENTS|CHANGELOG)\.md$/,
   /^headcode\/defaults\.ts$/,
 ]
 const ignored =
-  /^(node_modules|\.next|\.turbo|\.cloudflare|\.vinext|\.parity|dist|data|coverage)(\/|$)|^\.env|^next-env\.d\.ts$|\.tsbuildinfo$|\.DS_Store$/
+  /^(node_modules|\.next|\.turbo|\.cloudflare|\.vinext|\.parity|dist|storage|coverage)(\/|$)|^\.env|^next-env\.d\.ts$|\.tsbuildinfo$|\.DS_Store$/
 
 const other = process.argv[2]
 if (!other) throw new Error('Usage: pnpm drift <path to the other app>')

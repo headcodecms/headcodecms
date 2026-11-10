@@ -450,9 +450,9 @@ NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS=draft.localhost
 
 Start the app with \`pnpm dev\`, run \`pnpm seed\` once to create the tables and sample content, then open \`http://localhost:3074/admin\` and create an account. The first account becomes the editor; later accounts can read until an editor activates them.
 
-### Production
+### Production build
 
-Set \`NEXT_PUBLIC_SITE_URL\` and \`NEXT_PUBLIC_HEADCODE_DRAFT_HOSTS\` to your hosts, then \`pnpm build && pnpm start\` and \`pnpm seed <url>\`. Keep the \`data/\` folder (database and images) on a persistent volume.
+This app runs on your laptop: \`pnpm build && pnpm start\` is the production build. All data is in \`storage/\` (database and images). To host it on your own server, build the setup from this app; the README lists what it needs (secret, persistent \`storage/\`, one process, HTTPS).
 
 MCP clients sign in with OAuth: Better Auth is the authorization server and supports Client ID Metadata Documents and Dynamic Client Registration. Clients without OAuth can send a bearer token from \`ALLOWED_MCP_TOKENS\`. Use separate MCP client names for draft and live hosts, for example \`headcode-draft\` and \`headcode-live\`.`,
     },

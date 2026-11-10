@@ -6,13 +6,13 @@ Turn a vibe-coded website into a real CMS: agents edit content through a statele
 
 Every app is a complete, standalone project. Nothing is shared between apps, so you can copy one out and own it.
 
-| App | Stack | Status |
-| --- | --- | --- |
-| [`apps/vercel`](apps/vercel) | Next.js, Convex, WorkOS AuthKit, Vercel | ready |
-| `apps/www` | headcodecms.com, based on `vercel` | planned |
-| [`apps/cloudflare`](apps/cloudflare) | Next.js on vinext, Cloudflare Workers, D1, R2, Images, WorkOS AuthKit | beta (vinext) |
-| [`apps/local`](apps/local) | Next.js on vinext, Node, SQLite, files, Better Auth, no cloud services | beta (vinext) |
-| `apps/blog`, `apps/docs`, `apps/shopify` | templates based on `vercel` | planned |
+| App                                      | Stack                                                                                       | Status        |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------- | ------------- |
+| [`apps/vercel`](apps/vercel)             | Next.js, Convex, WorkOS AuthKit, Vercel                                                     | ready         |
+| `apps/www`                               | headcodecms.com, based on `vercel`                                                          | planned       |
+| [`apps/cloudflare`](apps/cloudflare)     | Next.js on vinext, Cloudflare Workers, D1, R2, Images, WorkOS AuthKit                       | beta (vinext) |
+| [`apps/local`](apps/local)               | Next.js on vinext, Node, SQLite, files, Better Auth; runs on your laptop, no cloud services | beta (vinext) |
+| `apps/blog`, `apps/docs`, `apps/shopify` | templates based on `vercel`                                                                 | planned       |
 
 ## Start your own
 
