@@ -20,7 +20,7 @@ const ALGORITHMS: [Algorithm; 3] = [Algorithm::EdDSA, Algorithm::ES256, Algorith
 const JWKS_REFRESH: Duration = Duration::from_secs(30);
 
 /// Verifies OAuth access tokens (RFC 9068) from one issuer against its JWKS.
-/// Only `sub` from the token reaches the rest of the backend.
+/// Only `iss` and `sub` from the token reach the rest of the backend.
 #[derive(Clone)]
 pub struct Auth(Arc<Inner>);
 
@@ -28,13 +28,25 @@ struct Inner {
     base_url: String,
     issuer: String,
     jwks_url: String,
+    userinfo_url: String,
     http: reqwest::Client,
     keys: RwLock<(JwkSet, Option<Instant>)>,
 }
 
 #[derive(Clone, Debug)]
 pub struct Caller {
+    pub iss: String,
     pub sub: String,
+    /// The access token, to ask the auth server for the caller's email.
+    pub token: String,
+}
+
+/// OIDC userinfo (scope `email`), used to redeem invitations.
+#[derive(Deserialize)]
+pub struct UserInfo {
+    pub email: Option<String>,
+    #[serde(default)]
+    pub email_verified: bool,
 }
 
 /// The project slug from the MCP URL `/p/{project}/mcp`.
@@ -55,6 +67,7 @@ impl Auth {
             base_url: base_url.trim_end_matches('/').into(),
             issuer: issuer.into(),
             jwks_url: format!("{}/jwks", issuer.trim_end_matches('/')),
+            userinfo_url: format!("{}/oauth2/userinfo", issuer.trim_end_matches('/')),
             http: reqwest::Client::new(),
             keys: RwLock::new((JwkSet { keys: vec![] }, None)),
         }))
@@ -86,7 +99,24 @@ impl Auth {
         validation.set_audience(&[self.resource(project)]);
         validation.set_required_spec_claims(&["exp", "iss", "aud", "sub"]);
         let claims = decode::<Claims>(token, &key, &validation)?.claims;
-        Ok(Caller { sub: claims.sub })
+        Ok(Caller {
+            iss: self.0.issuer.clone(),
+            sub: claims.sub,
+            token: token.into(),
+        })
+    }
+
+    pub async fn userinfo(&self, token: &str) -> Result<UserInfo> {
+        Ok(self
+            .0
+            .http
+            .get(&self.0.userinfo_url)
+            .bearer_auth(token)
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await?)
     }
 
     async fn key(&self, kid: &str) -> Result<DecodingKey> {
@@ -171,6 +201,8 @@ pub async fn metadata(State(auth): State<Auth>, Path(project): Path<String>) -> 
         "resource": auth.resource(&project),
         "authorization_servers": [auth.0.issuer],
         "bearer_methods_supported": ["header"],
+        // `email` lets the backend redeem invitations by email address.
+        "scopes_supported": ["openid", "profile", "email", "offline_access"],
         "resource_name": format!("Headcode {project}"),
     }))
     .into_response()

@@ -11,25 +11,28 @@ use rmcp::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use uuid::Uuid;
 
 use crate::kit::{
-    auth::{Caller, Project},
+    auth::{Auth, Caller, Project},
     db::Db,
+    members::{self, Member, Role},
 };
 
 /// The MCP tools for one request. Stateless: a new value per request, sharing the pool.
 #[derive(Clone)]
 pub struct Cms {
     db: Db,
+    auth: Auth,
 }
 
 impl Cms {
-    pub fn new(db: Db) -> Self {
-        Self { db }
+    pub fn new(db: Db, auth: Auth) -> Self {
+        Self { db, auth }
     }
 }
 
-#[derive(Clone, Copy, Default, Deserialize, Serialize, JsonSchema)]
+#[derive(Clone, Copy, Default, PartialEq, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum Version {
     Draft,
@@ -72,6 +75,20 @@ pub struct UpdateParams {
     data: serde_json::Map<String, Value>,
 }
 
+#[derive(Deserialize, JsonSchema)]
+pub struct GrantParams {
+    /// The member's email address. The invitation is redeemed when they first use this project with that verified address.
+    email: String,
+    /// "editor" (draft, publish) or "admin" (also manages members).
+    role: Role,
+}
+
+#[derive(Deserialize, JsonSchema)]
+pub struct RevokeParams {
+    /// The member's email address.
+    email: String,
+}
+
 #[derive(Serialize, JsonSchema, sqlx::FromRow)]
 pub struct Entry {
     path: String,
@@ -86,9 +103,47 @@ pub struct Entries {
     entries: Vec<Entry>,
 }
 
+#[derive(Serialize, JsonSchema)]
+pub struct Members {
+    members: Vec<Member>,
+}
+
+/// Who is calling which project, and with which role.
+struct Access<'a> {
+    project_id: Uuid,
+    caller: &'a Caller,
+    role: Option<Role>,
+}
+
+impl Access<'_> {
+    fn require(&self, role: Role, action: &str) -> Result<(), ErrorData> {
+        if self.role >= Some(role) {
+            return Ok(());
+        }
+        let who = match role {
+            Role::Editor => "members",
+            Role::Admin => "admins",
+        };
+        Err(ErrorData::invalid_request(
+            format!(
+                "Only {who} of this project can {action}. A project admin can add you with member_grant."
+            ),
+            None,
+        ))
+    }
+
+    /// Everyone signed in reads live; draft is for members.
+    fn read(&self, version: Version) -> Result<(), ErrorData> {
+        match version {
+            Version::Live => Ok(()),
+            Version::Draft => self.require(Role::Editor, "read the draft"),
+        }
+    }
+}
+
 #[tool_handler(
     name = "headcode",
-    instructions = "Headcode CMS. Pages exist in draft and live. Write to draft unless the user asks for live; a live write changes only live, so ask whether to apply it to draft too."
+    instructions = "Headcode CMS. Pages exist in draft and live. Write to draft unless the user asks for live; a live write changes only live, so ask whether to apply it to draft too. Everyone signed in can read live; draft and writes are for project members, managed by admins with member_grant and member_revoke."
 )]
 impl ServerHandler for Cms {}
 
@@ -103,13 +158,13 @@ impl Cms {
         Extension(parts): Extension<Parts>,
         Parameters(params): Parameters<ListParams>,
     ) -> Result<Json<Entries>, ErrorData> {
-        let project = project(&parts)?;
+        let access = self.access(&parts).await?;
+        access.read(params.version)?;
         let entries = sqlx::query_as::<_, Entry>(
-            "select e.path, e.data, e.updated_at, e.updated_by from entries e \
-             join projects p on p.id = e.project_id \
-             where p.slug = $1 and e.version = $2 order by e.path",
+            "select path, data, updated_at, updated_by from entries \
+             where project_id = $1 and version = $2 order by path",
         )
-        .bind(&project.0)
+        .bind(access.project_id)
         .bind(params.version.as_str())
         .fetch_all(&self.db)
         .await
@@ -126,13 +181,13 @@ impl Cms {
         Extension(parts): Extension<Parts>,
         Parameters(params): Parameters<GetParams>,
     ) -> Result<Json<Entry>, ErrorData> {
-        let project = project(&parts)?;
+        let access = self.access(&parts).await?;
+        access.read(params.version)?;
         sqlx::query_as::<_, Entry>(
-            "select e.path, e.data, e.updated_at, e.updated_by from entries e \
-             join projects p on p.id = e.project_id \
-             where p.slug = $1 and e.version = $2 and e.path = $3",
+            "select path, data, updated_at, updated_by from entries \
+             where project_id = $1 and version = $2 and path = $3",
         )
-        .bind(&project.0)
+        .bind(access.project_id)
         .bind(params.version.as_str())
         .bind(&params.path)
         .fetch_optional(&self.db)
@@ -151,39 +206,139 @@ impl Cms {
         Extension(parts): Extension<Parts>,
         Parameters(params): Parameters<UpdateParams>,
     ) -> Result<Json<Entry>, ErrorData> {
-        let project = project(&parts)?;
-        let caller = parts
-            .extensions
-            .get::<Caller>()
-            .ok_or_else(|| ErrorData::internal_error("missing caller", None))?;
-        sqlx::query_as::<_, Entry>(
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "change pages")?;
+        let entry = sqlx::query_as::<_, Entry>(
             "insert into entries (project_id, version, path, data, updated_by) \
-             select id, $2, $3, $4, $5 from projects where slug = $1 \
+             values ($1, $2, $3, $4, $5) \
              on conflict (project_id, version, path) do update \
              set data = excluded.data, updated_at = now(), updated_by = excluded.updated_by \
              returning path, data, updated_at, updated_by",
         )
-        .bind(&project.0)
+        .bind(access.project_id)
         .bind(params.version.as_str())
         .bind(&params.path)
         .bind(Value::Object(params.data))
-        .bind(&caller.sub)
-        .fetch_optional(&self.db)
+        .bind(&access.caller.sub)
+        .fetch_one(&self.db)
         .await
-        .map_err(internal)?
-        .map(Json)
-        .ok_or_else(|| ErrorData::invalid_params("Unknown project.", None))
+        .map_err(internal)?;
+        Ok(Json(entry))
+    }
+
+    #[tool(
+        description = "List the members of this project and open invitations.",
+        annotations(read_only_hint = true)
+    )]
+    async fn members_list(
+        &self,
+        Extension(parts): Extension<Parts>,
+    ) -> Result<Json<Members>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "see the members")?;
+        let members = members::list(&self.db, access.project_id)
+            .await
+            .map_err(internal)?;
+        Ok(Json(Members { members }))
+    }
+
+    #[tool(
+        description = "Add a member to this project by email, or change their role. Admins only.",
+        annotations(destructive_hint = true, idempotent_hint = true)
+    )]
+    async fn member_grant(
+        &self,
+        Extension(parts): Extension<Parts>,
+        Parameters(params): Parameters<GrantParams>,
+    ) -> Result<Json<Members>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Admin, "manage members")?;
+        let email = params.email.trim();
+        let mut tx = self.db.begin().await.map_err(internal)?;
+        members::lock(&mut tx, access.project_id)
+            .await
+            .map_err(internal)?;
+        members::grant(
+            &mut tx,
+            access.project_id,
+            email,
+            params.role,
+            &access.caller.sub,
+        )
+        .await
+        .map_err(internal)?;
+        members::check_admin(&mut tx, access.project_id)
+            .await
+            .map_err(refused)?;
+        tx.commit().await.map_err(internal)?;
+        self.members_list(Extension(parts)).await
+    }
+
+    #[tool(
+        description = "Remove a member or an open invitation from this project. Admins only.",
+        annotations(destructive_hint = true, idempotent_hint = true)
+    )]
+    async fn member_revoke(
+        &self,
+        Extension(parts): Extension<Parts>,
+        Parameters(params): Parameters<RevokeParams>,
+    ) -> Result<Json<Members>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Admin, "manage members")?;
+        let mut tx = self.db.begin().await.map_err(internal)?;
+        members::lock(&mut tx, access.project_id)
+            .await
+            .map_err(internal)?;
+        members::revoke(
+            &mut tx,
+            access.project_id,
+            params.email.trim(),
+            &access.caller.sub,
+        )
+        .await
+        .map_err(refused)?;
+        members::check_admin(&mut tx, access.project_id)
+            .await
+            .map_err(refused)?;
+        tx.commit().await.map_err(internal)?;
+        self.members_list(Extension(parts)).await
     }
 }
 
-fn project(parts: &Parts) -> Result<&Project, ErrorData> {
-    parts
-        .extensions
-        .get::<Project>()
-        .ok_or_else(|| ErrorData::internal_error("missing project", None))
+impl Cms {
+    async fn access<'a>(&self, parts: &'a Parts) -> Result<Access<'a>, ErrorData> {
+        let missing = |what| ErrorData::internal_error(format!("missing {what}"), None);
+        let project = parts
+            .extensions
+            .get::<Project>()
+            .ok_or_else(|| missing("project"))?;
+        let caller = parts
+            .extensions
+            .get::<Caller>()
+            .ok_or_else(|| missing("caller"))?;
+        let project_id: Uuid = sqlx::query_scalar("select id from projects where slug = $1")
+            .bind(&project.0)
+            .fetch_optional(&self.db)
+            .await
+            .map_err(internal)?
+            .ok_or_else(|| ErrorData::invalid_params("Unknown project.", None))?;
+        let role = members::role(&self.db, &self.auth, project_id, caller)
+            .await
+            .map_err(internal)?;
+        Ok(Access {
+            project_id,
+            caller,
+            role,
+        })
+    }
 }
 
 fn internal(error: impl std::fmt::Display) -> ErrorData {
-    tracing::error!(%error, "database error");
-    ErrorData::internal_error("database error", None)
+    tracing::error!(%error, "internal error");
+    ErrorData::internal_error("internal error", None)
+}
+
+/// A rule said no; the message is for the user.
+fn refused(error: anyhow::Error) -> ErrorData {
+    ErrorData::invalid_request(error.to_string(), None)
 }

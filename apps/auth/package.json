@@ -2,8 +2,9 @@
   "name": "auth",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev --port 3081",
+    "dev": "node --env-file-if-exists=.env.local scripts/wait-for-db.mjs && pnpm migrate && next dev --port 3081",
     "build": "next build",
     "start": "next start --port 3081",
     "migrate": "node --env-file-if-exists=.env.local node_modules/auth/dist/index.mjs migrate --config lib/auth.ts --yes",

@@ -6,8 +6,10 @@ use sqlx::{
     PgPool,
     postgres::{PgConnectOptions, PgPoolOptions},
 };
+use tokio::net::TcpStream;
 
 const EMBEDDED_PORT: u16 = 54329;
+const EMBEDDED_PASSWORD: &str = "headcode";
 const DATABASE: &str = "headcode";
 
 pub type Db = PgPool;
@@ -17,6 +19,19 @@ pub type Db = PgPool;
 pub async fn connect() -> Result<(Db, Option<PostgreSQL>)> {
     let (url, embedded) = match std::env::var("DATABASE_URL") {
         Ok(url) => (url, None),
+        // Already started by `headcode serve`, for example when the CLI runs next to it.
+        Err(_)
+            if TcpStream::connect(("127.0.0.1", EMBEDDED_PORT))
+                .await
+                .is_ok() =>
+        {
+            (
+                format!(
+                    "postgresql://postgres:{EMBEDDED_PASSWORD}@localhost:{EMBEDDED_PORT}/{DATABASE}"
+                ),
+                None,
+            )
+        }
         Err(_) => {
             let postgres = start_embedded().await?;
             (postgres.settings().url(DATABASE), Some(postgres))
@@ -47,7 +62,7 @@ async fn start_embedded() -> Result<PostgreSQL> {
         data_dir: storage.join("postgres"),
         password_file: storage.join(".pgpass"),
         port: EMBEDDED_PORT,
-        password: "headcode".into(),
+        password: EMBEDDED_PASSWORD.into(),
         temporary: false,
         ..Settings::default()
     };

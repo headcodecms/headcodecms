@@ -51,6 +51,20 @@ export const auth = betterAuth({
   },
   // Serverless instances share no memory, so count requests in the database.
   rateLimit: { storage: 'database' },
+  // The backend redeems project invitations only for verified addresses.
+  // Locally there is no mail server, so new addresses count as verified.
+  databaseHooks:
+    process.env.NODE_ENV === 'production'
+      ? undefined
+      : {
+          user: {
+            create: {
+              before: async (user) => ({
+                data: { ...user, emailVerified: true },
+              }),
+            },
+          },
+        },
   plugins: [
     jwt({ disableSettingJwtHeader: true }),
     mcp({

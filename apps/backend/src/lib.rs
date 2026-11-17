@@ -26,12 +26,13 @@ pub fn router(db: Db, base_url: &str, issuer: &str) -> Result<Router> {
         .with_legacy_session_mode(false)
         .with_json_response(true)
         .with_allowed_hosts([authority.host(), authority.as_str()]);
+    let auth = Auth::new(base_url, issuer);
+    let tools_auth = auth.clone();
     let mcp = StreamableHttpService::new(
-        move || Ok(Cms::new(db.clone())),
+        move || Ok(Cms::new(db.clone(), tools_auth.clone())),
         Arc::new(NeverSessionManager::default()),
         config,
     );
-    let auth = Auth::new(base_url, issuer);
     Ok(Router::new()
         .route_service("/p/{project}/mcp", mcp)
         .route_layer(middleware::from_fn_with_state(
