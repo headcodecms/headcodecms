@@ -1,0 +1,8 @@
+target
+storage
+.smoke
+.env*
+.neon
+# Vercel builds api/*.rs with its Rust runtime; package.json is only for Turborepo.
+package.json
+pnpm-workspace.yaml

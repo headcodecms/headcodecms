@@ -1,0 +1,14 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "cargo run -- serve",
+    "build": "cargo build --release",
+    "migrate": "cargo run -- migrate",
+    "lint": "cargo clippy -- -D warnings",
+    "typecheck": "cargo check",
+    "test": "cargo test",
+    "smoke": "node scripts/smoke.mjs"
+  }
+}

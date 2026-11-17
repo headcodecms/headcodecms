@@ -1,0 +1,32 @@
+{
+  "name": "auth",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3081",
+    "build": "next build",
+    "start": "next start --port 3081",
+    "migrate": "node --env-file-if-exists=.env.local node_modules/auth/dist/index.mjs migrate --config lib/auth.ts --yes",
+    "typecheck": "next typegen && tsc --noEmit"
+  },
+  "dependencies": {
+    "@better-auth/cimd": "1.7.25",
+    "@better-auth/mcp": "1.7.25",
+    "@better-auth/oauth-provider": "1.7.25",
+    "@vercel/functions": "^3.11.3",
+    "better-auth": "1.7.25",
+    "next": "16.4.6",
+    "pg": "^8.23.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "auth": "1.7.25",
+    "prettier": "^3.10.1",
+    "typescript": "^6.0.3"
+  }
+}
