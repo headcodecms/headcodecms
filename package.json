@@ -1,11 +1,11 @@
 {
   "name": "headcodecms",
-  "version": "2.0.0-alpha.0",
+  "version": "3.0.0-alpha.0",
   "private": true,
   "license": "MIT",
   "packageManager": "pnpm@11.10.0",
   "scripts": {
-    "dev": "turbo run dev --filter=backend --filter=auth",
+    "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",

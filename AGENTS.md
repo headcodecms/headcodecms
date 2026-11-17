@@ -1,24 +1,23 @@
 # Headcode CMS monorepo – Agent Guide
 
-Turborepo with independent apps in `apps/*`. Each app has its own `AGENTS.md` with the app rules; read it before you change an app.
+Version 3, in development on the `v3` branch. Turborepo with apps in `apps/*`. Version 2 is the `2.1.0` tag.
+
+- `apps/backend`: Rust crate `headcode` (axum, rmcp, sqlx). One router for `headcode serve` and the Vercel Function (`api/mcp.rs`). Migrations in `migrations/`.
+- `apps/auth`: Next.js with Better Auth, the OAuth 2.1 server for MCP clients, shared by all sites.
+- Site apps (`base`, then `www`, `blog`, `docs`, `shopify`) are named by purpose, without prefixes.
 
 ## Rules
 
-- Apps share nothing: no `workspace:` dependencies, no `packages/`, no imports or config outside the app folder. Each app keeps its own `package.json`, lockfile, `pnpm-workspace.yaml`, tsconfig, ESLint, Prettier and `components.json` (shadcn/ui).
-- An app must work after `npx degit headcodecms/headcodecms/apps/<app>`. Check that before you finish.
-- `apps/vercel` is the reference app. Variants (`www`, `blog`, `docs`, `shopify`) start as a copy of it and should differ mainly in `headcode/config.ts`, sections, and content. When you fix something in the core (`convex/`, `app/mcp`, admin), note it in `apps/vercel/CHANGELOG.md` so variants can follow.
-- Platform apps (`vercel`, `cloudflare`, `local`) are reference builds, not a matrix. Themes run on one platform only. Other combinations (for example Cloudflare with BetterAuth) are built by the user's agent from these sources, like shadcn/ui components.
-- Every app passes `pnpm parity <url> --write` (copied from `apps/vercel/scripts/parity.mts`), locally and after each deploy.
-- `apps/cloudflare` and `apps/local` are copies with the same core; platform code lives only in seam files. `pnpm drift ../<other app>` must pass in both before you finish (see their AGENTS.md).
-- Root `registry.json` is the shadcn registry: `headcode` (paths into `apps/vercel`), `headcode-cloudflare`, and `headcode-local` (paths into those apps). `target` values are paths in the user's app. When you add, move, or delete a core file, update all three items, and run `pnpm dlx shadcn@latest registry validate` after you change files listed there. `convert.md` installs the item for the platform the user picks.
-- The root only holds Turborepo, the workspace list, the registry and docs. Ask before you add anything else to the root.
+- Prefer the simplest solution; avoid complexity.
+- Each app keeps its own `package.json`, lockfile and `pnpm-workspace.yaml`, so it can be copied out. Shared code may move to `packages/` once a second user needs it.
+- The backend decides permissions (project members); the token only carries `iss` and `sub`.
+- `node apps/backend/scripts/smoke.mjs [mcp-url]` must pass, locally and after each deploy.
+- The root only holds Turborepo, the workspace list and docs. Ask before you add anything else to the root.
 
 ## Commands
 
 ```bash
 pnpm install
-pnpm dev --filter <package-name>
+pnpm dev                 # backend :3080 (embedded Postgres), auth :3081
 pnpm lint && pnpm typecheck && pnpm test && pnpm build
 ```
-
-Run Convex commands (`pnpm convex dev`, `pnpm convex env set`) inside the app folder.

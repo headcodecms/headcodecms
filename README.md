@@ -1,53 +1,26 @@
 # Headcode CMS
 
-Turn a vibe-coded website into a real CMS: agents edit content through a stateless MCP server, people use a simple admin UI, and changes go through draft and publish. A text change is no longer a deployment.
+Turn a vibe-coded website into a real CMS: agents edit content through MCP, people use a simple admin UI, and changes go through draft and publish. A text change is no longer a deployment.
+
+**Version 3 is in development on this branch.** The released version 2 is the [`2.1.0`](https://github.com/headcodecms/headcodecms/tree/2.1.0) tag; version 1 is on the [`v1`](https://github.com/headcodecms/headcodecms/tree/v1) branch.
 
 ## Apps
 
-Every app is a complete, standalone project. Nothing is shared between apps, so you can copy one out and own it.
+| App                            | What it is                                                                                      |
+| ------------------------------ | ----------------------------------------------------------------------------------------------- |
+| [`apps/backend`](apps/backend) | Rust (axum, rmcp, sqlx): the MCP server per project, Postgres; embedded Postgres locally        |
+| [`apps/auth`](apps/auth)       | Next.js with Better Auth: sign-in and the OAuth 2.1 server for MCP clients, shared by all sites |
+| `apps/base`                    | planned: the first site with admin (Next.js on vinext); `www`, `blog`, `docs`, `shopify` follow |
 
-| App                                      | Stack                                                                                       | Status        |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------- | ------------- |
-| [`apps/vercel`](apps/vercel)             | Next.js, Convex, WorkOS AuthKit, Vercel                                                     | ready         |
-| `apps/www`                               | headcodecms.com, based on `vercel`                                                          | planned       |
-| [`apps/cloudflare`](apps/cloudflare)     | Next.js on vinext, Cloudflare Workers, D1, R2, Images, WorkOS AuthKit                       | beta (vinext) |
-| [`apps/local`](apps/local)               | Next.js on vinext, Node, SQLite, files, Better Auth; runs on your laptop, no cloud services | beta (vinext) |
-| `apps/blog`, `apps/docs`, `apps/shopify` | templates based on `vercel`                                                                 | planned       |
-
-## Start your own
+## Run it locally
 
 ```bash
-npx degit headcodecms/headcodecms/apps/vercel my-site
-cd my-site && pnpm install
+pnpm install
+pnpm dev                                    # backend on :3080, auth on :3081
+node apps/backend/scripts/smoke.mjs         # MCP client flow end to end
 ```
 
-Then follow the app's README (Convex, WorkOS, environment, run). Use `apps/cloudflare` or `apps/local` the same way for the other platforms.
-
-Convert an existing (vibe-coded) website: tell your coding agent
-
-```text
-Convert this website into a Headcode CMS site. Follow https://headcodecms.com/convert.md
-```
-
-The steps are in [`convert.md`](convert.md).
-
-Or add Headcode to an existing Next.js + shadcn/ui app:
-
-```bash
-pnpm dlx shadcn@latest add headcodecms/headcodecms/headcode
-```
-
-## Working in this repo
-
-```bash
-pnpm install                         # installs every app (one lockfile per app)
-pnpm dev --filter headcode-vercel    # run one app (headcode-cloudflare, headcode-local)
-pnpm lint && pnpm typecheck && pnpm test && pnpm build   # all apps through Turborepo
-```
-
-`apps/cloudflare` and `apps/local` share their core and differ only in a few seam files (database, images, auth, platform config). Check that with `pnpm drift ../local` in `apps/cloudflare`.
-
-Version 1 is on the [`v1`](https://github.com/headcodecms/headcodecms/tree/v1) branch.
+Locally `dev@headcode.local` is admin of the `demo` project; sign up with that address in the auth app.
 
 ## License
 

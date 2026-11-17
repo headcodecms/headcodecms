@@ -2,21 +2,8 @@
   "$schema": "https://turborepo.dev/schema.json",
   "tasks": {
     "build": {
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        ".cloudflare/output/**",
-        "dist/**"
-      ],
-      "env": [
-        "NEXT_PUBLIC_*",
-        "CONVEX_*",
-        "WORKOS_*",
-        "ALLOWED_MCP_TOKENS",
-        "BETTER_AUTH_SECRET",
-        "DATABASE_URL",
-        "MEDIA_DIR"
-      ]
+      "outputs": [".next/**", "!.next/cache/**", "target/release/**"],
+      "env": ["NEXT_PUBLIC_*", "BETTER_AUTH_SECRET", "DATABASE_URL"]
     },
     "lint": {},
     "typecheck": {},
