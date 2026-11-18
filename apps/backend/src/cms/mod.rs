@@ -100,6 +100,28 @@ pub struct RollbackParams {
 }
 
 #[derive(Deserialize, JsonSchema)]
+pub struct MediaAddParams {
+    /// Where the file is served, e.g. a Vercel Blob URL or /media/<file>.
+    src: String,
+    /// The storage key, to delete the file later.
+    pathname: String,
+    content_type: String,
+    size: i64,
+    width: Option<i32>,
+    height: Option<i32>,
+    blur_data_url: Option<String>,
+    #[serde(default)]
+    alt: String,
+}
+
+#[derive(Deserialize, JsonSchema)]
+pub struct MediaDeleteParams {
+    /// A media id from media_list.
+    #[schemars(with = "String")]
+    id: Uuid,
+}
+
+#[derive(Deserialize, JsonSchema)]
 pub struct PushParams {
     /// The schema, as written by the site's `pnpm schema`.
     schema: Schema,
@@ -186,6 +208,36 @@ pub struct Snapshot {
 #[derive(Serialize, JsonSchema)]
 pub struct Snapshots {
     snapshots: Vec<Snapshot>,
+}
+
+/// An uploaded file. To use an image in an image field, copy src, alt,
+/// width, height and blurDataURL into the field's value.
+#[derive(Serialize, JsonSchema, sqlx::FromRow)]
+pub struct Media {
+    #[schemars(with = "String")]
+    id: Uuid,
+    src: String,
+    pathname: String,
+    content_type: String,
+    size: i64,
+    width: Option<i32>,
+    height: Option<i32>,
+    #[serde(rename = "blurDataURL")]
+    blur_data_url: Option<String>,
+    alt: String,
+    #[schemars(with = "String")]
+    created_at: DateTime<Utc>,
+}
+
+#[derive(Serialize, JsonSchema)]
+pub struct MediaList {
+    media: Vec<Media>,
+}
+
+#[derive(Serialize, JsonSchema, sqlx::FromRow)]
+pub struct MediaDeleted {
+    /// The storage key; the caller deletes the file.
+    pathname: String,
 }
 
 #[derive(Serialize, JsonSchema, sqlx::FromRow)]
@@ -711,6 +763,82 @@ impl Cms {
         .map_err(internal)?;
         tx.commit().await.map_err(internal)?;
         Ok(Json(Preview { token }))
+    }
+
+    #[tool(
+        description = "List the uploaded files (images) of this project, newest first. An image field takes { src, alt, width, height, blurDataURL } from one of them.",
+        annotations(read_only_hint = true)
+    )]
+    async fn media_list(
+        &self,
+        Extension(parts): Extension<Parts>,
+    ) -> Result<Json<MediaList>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "see the media")?;
+        let media = sqlx::query_as::<_, Media>(
+            "select id, src, pathname, content_type, size, width, height, blur_data_url, alt, created_at \
+             from media where project_id = $1 order by created_at desc",
+        )
+        .bind(access.project_id)
+        .fetch_all(&self.db)
+        .await
+        .map_err(internal)?;
+        Ok(Json(MediaList { media }))
+    }
+
+    #[tool(
+        description = "Register a file the site has stored (the admin's upload does this).",
+        annotations(destructive_hint = false)
+    )]
+    async fn media_add(
+        &self,
+        Extension(parts): Extension<Parts>,
+        Parameters(params): Parameters<MediaAddParams>,
+    ) -> Result<Json<Media>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "upload media")?;
+        let media = sqlx::query_as::<_, Media>(
+            "insert into media (project_id, src, pathname, content_type, size, width, height, blur_data_url, alt, created_by) \
+             values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) \
+             returning id, src, pathname, content_type, size, width, height, blur_data_url, alt, created_at",
+        )
+        .bind(access.project_id)
+        .bind(&params.src)
+        .bind(&params.pathname)
+        .bind(&params.content_type)
+        .bind(params.size)
+        .bind(params.width)
+        .bind(params.height)
+        .bind(&params.blur_data_url)
+        .bind(&params.alt)
+        .bind(&access.caller.sub)
+        .fetch_one(&self.db)
+        .await
+        .map_err(internal)?;
+        Ok(Json(media))
+    }
+
+    #[tool(
+        description = "Remove a file from the media list. Entries that use it keep their copy of src until changed.",
+        annotations(destructive_hint = true)
+    )]
+    async fn media_delete(
+        &self,
+        Extension(parts): Extension<Parts>,
+        Parameters(params): Parameters<MediaDeleteParams>,
+    ) -> Result<Json<MediaDeleted>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "delete media")?;
+        sqlx::query_as::<_, MediaDeleted>(
+            "delete from media where project_id = $1 and id = $2 returning pathname",
+        )
+        .bind(access.project_id)
+        .bind(params.id)
+        .fetch_optional(&self.db)
+        .await
+        .map_err(internal)?
+        .map(Json)
+        .ok_or_else(|| refused(format!("No media {} in this project.", params.id)))
     }
 
     #[tool(

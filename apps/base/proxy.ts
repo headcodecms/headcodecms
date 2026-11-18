@@ -29,7 +29,8 @@ const admin = async (req: NextRequest) => {
     setTokens(res, tokens)
     return res
   }
-  if (pathname === '/admin/api')
+  // Data requests get a 401, pages the sign-in.
+  if (pathname === '/admin/api' || pathname === '/admin/media')
     return Response.json({ error: 'Not signed in.' }, { status: 401 })
   const login = new URL('/admin/login', origin)
   login.searchParams.set('returnTo', pathname)

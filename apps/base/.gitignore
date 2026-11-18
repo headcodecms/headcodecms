@@ -41,3 +41,6 @@ next-env.d.ts
 # written by `pnpm schema` from headcode/config.ts
 /headcode.schema.json
 /headcode.seed.json
+
+# uploaded media when not on Vercel Blob (MEDIA_DIR)
+/storage/

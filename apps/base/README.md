@@ -1,6 +1,6 @@
 # base
 
-The first Headcode site, ported from version 2 (`apps/local` at tag `2.1.0`). Plain Next.js, with the admin at `/admin` (content, publish, preview link, snapshots; images follow).
+The first Headcode site, ported from version 2 (`apps/local` at tag `2.1.0`). Plain Next.js, with the admin at `/admin` (content, images, publish, preview link, snapshots).
 
 - `headcode/sections.ts`: the sections, written with the Zod field helpers in `headcode/fields.ts`.
 - `headcode/config.ts`: globals (single entries such as `home`) and collections (`blog`, `pages`) with their sections and default content (`headcode/defaults.ts`).

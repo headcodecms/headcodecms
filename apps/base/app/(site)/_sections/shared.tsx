@@ -1,5 +1,5 @@
 import { ImageIcon } from 'lucide-react'
-import { mediaSrcSet } from '@/headcode/utils'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { Container } from '../_components/container'
 
@@ -35,31 +35,20 @@ export const Visual = ({
     aria-hidden={image?.src ? undefined : 'true'}
   >
     {image?.src ? (
-      // Uploaded images are resized by /media/<key>?w=<width>; the blur
-      // shows until load.
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      // next/image resizes uploads (Vercel Blob or /media); the blur shows
+      // until load.
+      <Image
         src={image.src}
-        srcSet={
-          image.src.startsWith('/media/') ? mediaSrcSet(image.src) : undefined
-        }
         alt={image.alt ?? ''}
+        fill
         sizes={
           wide
             ? '(min-width: 1280px) 80rem, 100vw'
             : '(min-width: 768px) 50vw, 100vw'
         }
-        loading="lazy"
-        decoding="async"
-        className="absolute inset-0 size-full object-cover"
-        style={
-          image.blurDataURL
-            ? {
-                backgroundImage: `url(${image.blurDataURL})`,
-                backgroundSize: 'cover',
-              }
-            : undefined
-        }
+        placeholder={image.blurDataURL ? 'blur' : 'empty'}
+        blurDataURL={image.blurDataURL ?? undefined}
+        className="object-cover"
       />
     ) : (
       <>

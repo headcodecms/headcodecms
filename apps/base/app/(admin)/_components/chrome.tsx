@@ -5,6 +5,7 @@ import {
   CircleUser,
   Eye,
   FileText,
+  ImageIcon,
   LogOut,
   Menu,
   Moon,
@@ -40,6 +41,7 @@ const getInitialTheme = () => {
 
 const navItems = [
   { href: '/admin', label: 'Content', icon: FileText },
+  { href: '/admin/images', label: 'Images', icon: ImageIcon },
   { href: '/admin/publish', label: 'Publish', icon: Rocket },
 ]
 

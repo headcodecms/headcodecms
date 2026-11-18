@@ -48,10 +48,17 @@ export const LinkField = (params: FieldParams = {}) =>
     .default({ title: 'Link', url: '', openInNewWindow: false })
     .meta(meta('link', params))
 
-// An uploaded image (media follows in a later step).
+// An image from the media list (media_list): the field keeps a copy of its
+// src, alt, size and blur placeholder, so the site renders it directly.
 export const ImageField = (params: FieldParams = {}) =>
   z
-    .object({ imageId: z.string() })
+    .object({
+      src: z.string(),
+      alt: z.string().default(''),
+      width: z.number(),
+      height: z.number(),
+      blurDataURL: z.string().optional(),
+    })
     .nullable()
     .default(null)
     .meta(meta('image', params))

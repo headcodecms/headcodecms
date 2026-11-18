@@ -207,7 +207,7 @@ const tools = await step("tools/list", () =>
   rpc(admin, mcpUrl, "tools/list", {}).then((r) => r.json()),
 );
 check(
-  tools.result?.tools?.length === 16,
+  tools.result?.tools?.length === 19,
   `tools: ${tools.result?.tools?.map((t) => t.name).join(", ")}`,
 );
 // 5. Schema and entries. The smoke test brings its own schema and restores
@@ -264,6 +264,21 @@ try {
   check(
     draft.sections?.[0]?.data?.stamp === stamp,
     "draft write and read back",
+  );
+  const media = await call(admin, "media_add", {
+    src: "/media/smoke.png",
+    pathname: "smoke.png",
+    content_type: "image/png",
+    size: 1,
+    width: 1,
+    height: 1,
+  });
+  const listed = await call(admin, "media_list");
+  const deleted = await call(admin, "media_delete", { id: media.id });
+  check(
+    listed.media?.some((m) => m.id === media.id) &&
+      deleted.pathname === "smoke.png",
+    "media add, list and delete",
   );
   const changes = await call(admin, "changes_list");
   check(
@@ -407,6 +422,18 @@ try {
         "Only members of this project can reset the draft",
       ),
     "guest cannot see the preview link or reset the draft",
+  );
+  check(
+    refused(
+      await call(guest, "media_add", {
+        src: "/media/x.png",
+        pathname: "x.png",
+        content_type: "image/png",
+        size: 1,
+      }),
+      "Only members of this project can upload media",
+    ),
+    "guest cannot upload media",
   );
   check(
     refused(

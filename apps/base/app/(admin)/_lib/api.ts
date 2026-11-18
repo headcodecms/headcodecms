@@ -32,25 +32,55 @@ export type Snapshot = {
   entries: number
 }
 
+// An upload (POST /admin/media), newest first in media_list.
+export type Media = {
+  id: string
+  src: string
+  pathname: string
+  content_type: string
+  size: number
+  width: number | null
+  height: number | null
+  blurDataURL: string | null
+  alt: string
+  created_at: string
+}
+
 const invalidated = new EventTarget()
 
-export const call = async <T>(name: string, args: object = {}) => {
-  const res = await fetch('/admin/api', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name, args }),
-  })
+const result = async <T>(res: Response) => {
   const body = (await res.json().catch(() => ({}))) as {
     result?: T
     error?: string
   }
-  if (res.status === 401) {
+  // Signed out: 401, or the proxy's redirect to the login page.
+  if (res.status === 401 || res.redirected) {
     const login = new URL('/admin/login', window.location.origin)
     login.searchParams.set('returnTo', window.location.pathname)
     window.location.assign(login)
+    throw new Error('Please sign in again.')
   }
   if (!res.ok) throw new Error(body.error ?? `Request failed (${res.status}).`)
   return body.result as T
+}
+
+export const call = async <T>(name: string, args: object = {}) =>
+  result<T>(
+    await fetch('/admin/api', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name, args }),
+    }),
+  )
+
+export const upload = async (file: File) => {
+  const form = new FormData()
+  form.set('file', file)
+  const media = await result<Media>(
+    await fetch('/admin/media', { method: 'POST', body: form }),
+  )
+  invalidated.dispatchEvent(new Event('invalidate'))
+  return media
 }
 
 export const mutate = async <T>(name: string, args: object = {}) => {

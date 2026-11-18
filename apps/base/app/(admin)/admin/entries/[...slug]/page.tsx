@@ -82,6 +82,7 @@ import {
 } from '../../../_components/admin-ui'
 import { AdminShell } from '../../../_components/chrome'
 import { AdminRichtextEditor as RichtextField } from '../../../_components/richtext-editor'
+import { ImageField, type ImageValue } from '../../../_fields/image-field'
 import { mutate, useQuery, type Entry } from '../../../_lib/api'
 import { entryConfig, parseSlug } from '../../../_lib/entries'
 import { useActions } from '../../../_lib/use-actions'
@@ -1170,13 +1171,18 @@ const FieldEditor = ({ name, field, value, path, ops }: FieldEditorProps) => {
       break
     }
     case 'image':
-      return (
-        <UnsupportedField
-          label={label}
-          name={name}
-          description="Images follow in a later step"
+      htmlFor = undefined
+      control = (
+        <ImageField
+          value={
+            isRecord(value) && typeof value.src === 'string'
+              ? (value as ImageValue)
+              : null
+          }
+          onChange={onChange}
         />
       )
+      break
     default:
       return (
         <UnsupportedField
