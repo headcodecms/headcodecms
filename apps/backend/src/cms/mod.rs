@@ -10,15 +10,18 @@ use rmcp::{
     tool, tool_handler, tool_router,
 };
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Value, json};
 use sqlx::{Postgres, Transaction};
 use uuid::Uuid;
 
+use crate::cms::schema::{Compiled, Schema, Section};
 use crate::kit::{
     auth::{Auth, Caller, Project},
     db::Db,
     members::{self, Member, Role},
 };
+
+mod schema;
 
 /// The MCP tools for one request. Stateless: a new value per request, sharing the pool.
 #[derive(Clone)]
@@ -59,8 +62,8 @@ pub struct ListParams {
 
 #[derive(Deserialize, JsonSchema)]
 pub struct GetParams {
-    /// Page path, for example "/".
-    path: String,
+    /// A global's slug, for example "home", or a collection item as "<collection>/<name>", for example "blog/hello".
+    slug: String,
     /// "live" (default) or "draft".
     #[serde(default)]
     version: Version,
@@ -68,12 +71,26 @@ pub struct GetParams {
 
 #[derive(Deserialize, JsonSchema)]
 pub struct UpdateParams {
-    /// Page path, for example "/".
-    path: String,
+    /// A global's slug, for example "home", or a collection item as "<collection>/<name>", for example "blog/hello".
+    slug: String,
     /// "draft" or "live". A live write changes only live; ask the user whether to apply it to draft too.
     version: Version,
-    /// The page data as a JSON object; replaces the existing data.
-    data: serde_json::Map<String, Value>,
+    /// The entry's sections in page order; replaces the existing ones. Each must match its JSON Schema from schema_get.
+    sections: Vec<Section>,
+}
+
+#[derive(Deserialize, JsonSchema)]
+pub struct DeleteParams {
+    /// The entry's slug.
+    slug: String,
+    /// "draft" or "live". Deletes only this version.
+    version: Version,
+}
+
+#[derive(Deserialize, JsonSchema)]
+pub struct PushParams {
+    /// The schema, as written by the site's `pnpm schema`.
+    schema: Schema,
 }
 
 #[derive(Deserialize, JsonSchema)]
@@ -92,8 +109,17 @@ pub struct RevokeParams {
 
 #[derive(Serialize, JsonSchema, sqlx::FromRow)]
 pub struct Entry {
-    path: String,
-    data: Value,
+    slug: String,
+    sections: Value,
+    #[schemars(with = "String")]
+    updated_at: DateTime<Utc>,
+    updated_by: Option<String>,
+}
+
+/// An entry without its sections.
+#[derive(Serialize, JsonSchema, sqlx::FromRow)]
+pub struct Listed {
+    slug: String,
     #[schemars(with = "String")]
     updated_at: DateTime<Utc>,
     updated_by: Option<String>,
@@ -101,7 +127,23 @@ pub struct Entry {
 
 #[derive(Serialize, JsonSchema)]
 pub struct Entries {
-    entries: Vec<Entry>,
+    entries: Vec<Listed>,
+}
+
+#[derive(Serialize, JsonSchema)]
+pub struct Pushed {
+    sections: usize,
+    globals: usize,
+    collections: usize,
+    /// Entries that do not match the new schema; each must be fixed on its next save.
+    invalid: Vec<Invalid>,
+}
+
+#[derive(Serialize, JsonSchema)]
+pub struct Invalid {
+    slug: String,
+    version: String,
+    problems: Vec<String>,
 }
 
 #[derive(Serialize, JsonSchema)]
@@ -141,14 +183,93 @@ impl Access<'_> {
 
 #[tool_handler(
     name = "headcode",
-    instructions = "Headcode CMS. Pages exist in draft and live. Write to draft unless the user asks for live; a live write changes only live, so ask whether to apply it to draft too. Everyone signed in can read live; draft and writes are for project members, managed by admins with member_grant and member_revoke."
+    instructions = "Headcode CMS. Call schema_get first: it lists the globals (single entries like \"home\"), the collections (items like \"blog/hello\") and the JSON Schema of each section. An entry is an ordered list of sections. Entries exist in draft and live. Write to draft unless the user asks for live; a live write changes only live, so ask whether to apply it to draft too. Everyone signed in can read live; draft and writes are for project members, managed by admins with member_grant and member_revoke."
 )]
 impl ServerHandler for Cms {}
 
 #[tool_router]
 impl Cms {
     #[tool(
-        description = "List the pages of this project with their data.",
+        description = "Get this project's schema: globals, collections and the JSON Schema of each section.",
+        annotations(read_only_hint = true)
+    )]
+    async fn schema_get(
+        &self,
+        Extension(parts): Extension<Parts>,
+    ) -> Result<Json<Schema>, ErrorData> {
+        let access = self.access(&parts).await?;
+        let schema = self.schema(access.project_id).await?;
+        Ok(Json(schema.schema().clone()))
+    }
+
+    #[tool(
+        description = "Replace this project's schema. Admins only. It is saved even if existing entries do not match; they are listed and must be fixed on their next save.",
+        annotations(destructive_hint = true, idempotent_hint = true)
+    )]
+    async fn schema_push(
+        &self,
+        Extension(parts): Extension<Parts>,
+        Parameters(params): Parameters<PushParams>,
+    ) -> Result<Json<Pushed>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Admin, "push the schema")?;
+        let schema = params.schema.compile().map_err(|problems| {
+            refused(format!("The schema is invalid:\n{}", problems.join("\n")))
+        })?;
+        let mut tx = self.db.begin().await.map_err(internal)?;
+        sqlx::query("update projects set schema = $2 where id = $1")
+            .bind(access.project_id)
+            .bind(sqlx::types::Json(schema.schema()))
+            .execute(&mut *tx)
+            .await
+            .map_err(internal)?;
+        let pushed = schema.schema();
+        members::audit(
+            &mut tx,
+            access.project_id,
+            &access.caller.sub,
+            "schema_push",
+            json!({
+                "sections": pushed.sections.keys().collect::<Vec<_>>(),
+                "globals": pushed.globals.iter().map(|g| &g.slug).collect::<Vec<_>>(),
+                "collections": pushed.collections.iter().map(|c| &c.slug).collect::<Vec<_>>(),
+            }),
+        )
+        .await
+        .map_err(internal)?;
+        tx.commit().await.map_err(internal)?;
+
+        let entries: Vec<(String, String, Value)> = sqlx::query_as(
+            "select slug, version, sections from entries where project_id = $1 order by slug, version",
+        )
+        .bind(access.project_id)
+        .fetch_all(&self.db)
+        .await
+        .map_err(internal)?;
+        let invalid = entries
+            .into_iter()
+            .filter_map(|(slug, version, sections)| {
+                let problems = match serde_json::from_value::<Vec<Section>>(sections) {
+                    Ok(sections) => schema.check(&slug, &sections),
+                    Err(error) => vec![error.to_string()],
+                };
+                (!problems.is_empty()).then_some(Invalid {
+                    slug,
+                    version,
+                    problems,
+                })
+            })
+            .collect();
+        Ok(Json(Pushed {
+            sections: pushed.sections.len(),
+            globals: pushed.globals.len(),
+            collections: pushed.collections.len(),
+            invalid,
+        }))
+    }
+
+    #[tool(
+        description = "List the entries of this project, without their sections; get one with entry_get.",
         annotations(read_only_hint = true)
     )]
     async fn entries_list(
@@ -158,9 +279,9 @@ impl Cms {
     ) -> Result<Json<Entries>, ErrorData> {
         let access = self.access(&parts).await?;
         access.read(params.version)?;
-        let entries = sqlx::query_as::<_, Entry>(
-            "select path, data, updated_at, updated_by from entries \
-             where project_id = $1 and version = $2 order by path",
+        let entries = sqlx::query_as::<_, Listed>(
+            "select slug, updated_at, updated_by from entries \
+             where project_id = $1 and version = $2 order by slug",
         )
         .bind(access.project_id)
         .bind(params.version.as_str())
@@ -171,7 +292,7 @@ impl Cms {
     }
 
     #[tool(
-        description = "Get one page of this project by path.",
+        description = "Get one entry of this project with its sections.",
         annotations(read_only_hint = true)
     )]
     async fn entry_get(
@@ -182,21 +303,26 @@ impl Cms {
         let access = self.access(&parts).await?;
         access.read(params.version)?;
         sqlx::query_as::<_, Entry>(
-            "select path, data, updated_at, updated_by from entries \
-             where project_id = $1 and version = $2 and path = $3",
+            "select slug, sections, updated_at, updated_by from entries \
+             where project_id = $1 and version = $2 and slug = $3",
         )
         .bind(access.project_id)
         .bind(params.version.as_str())
-        .bind(&params.path)
+        .bind(&params.slug)
         .fetch_optional(&self.db)
         .await
         .map_err(internal)?
         .map(Json)
-        .ok_or_else(|| ErrorData::invalid_params(format!("No page at {}.", params.path), None))
+        .ok_or_else(|| {
+            ErrorData::invalid_params(
+                format!("No entry {} in {}.", params.slug, params.version.as_str()),
+                None,
+            )
+        })
     }
 
     #[tool(
-        description = "Create or replace a page in draft or live. Writes only the given version.",
+        description = "Create or replace an entry in draft or live. Writes only the given version. The sections must match the schema.",
         annotations(destructive_hint = true, idempotent_hint = true)
     )]
     async fn entry_update(
@@ -205,23 +331,66 @@ impl Cms {
         Parameters(params): Parameters<UpdateParams>,
     ) -> Result<Json<Entry>, ErrorData> {
         let access = self.access(&parts).await?;
-        access.require(Role::Editor, "change pages")?;
+        access.require(Role::Editor, "change entries")?;
+        let schema = self.schema(access.project_id).await?;
+        let problems = schema.check(&params.slug, &params.sections);
+        if !problems.is_empty() {
+            return Err(refused(format!(
+                "The entry does not match the schema:\n{}",
+                problems.join("\n")
+            )));
+        }
         let entry = sqlx::query_as::<_, Entry>(
-            "insert into entries (project_id, version, path, data, updated_by) \
+            "insert into entries (project_id, version, slug, sections, updated_by) \
              values ($1, $2, $3, $4, $5) \
-             on conflict (project_id, version, path) do update \
-             set data = excluded.data, updated_at = now(), updated_by = excluded.updated_by \
-             returning path, data, updated_at, updated_by",
+             on conflict (project_id, version, slug) do update \
+             set sections = excluded.sections, updated_at = now(), updated_by = excluded.updated_by \
+             returning slug, sections, updated_at, updated_by",
         )
         .bind(access.project_id)
         .bind(params.version.as_str())
-        .bind(&params.path)
-        .bind(Value::Object(params.data))
+        .bind(&params.slug)
+        .bind(sqlx::types::Json(&params.sections))
         .bind(&access.caller.sub)
         .fetch_one(&self.db)
         .await
         .map_err(internal)?;
         Ok(Json(entry))
+    }
+
+    #[tool(
+        description = "Delete an entry from draft or live. Deletes only the given version.",
+        annotations(destructive_hint = true, idempotent_hint = true)
+    )]
+    async fn entry_delete(
+        &self,
+        Extension(parts): Extension<Parts>,
+        Parameters(params): Parameters<DeleteParams>,
+    ) -> Result<Json<Entries>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "change entries")?;
+        let deleted =
+            sqlx::query("delete from entries where project_id = $1 and version = $2 and slug = $3")
+                .bind(access.project_id)
+                .bind(params.version.as_str())
+                .bind(&params.slug)
+                .execute(&self.db)
+                .await
+                .map_err(internal)?;
+        if deleted.rows_affected() == 0 {
+            return Err(refused(format!(
+                "No entry {} in {}.",
+                params.slug,
+                params.version.as_str()
+            )));
+        }
+        self.entries_list(
+            Extension(parts),
+            Parameters(ListParams {
+                version: params.version,
+            }),
+        )
+        .await
     }
 
     #[tool(
@@ -310,6 +479,26 @@ impl Cms {
             caller,
             role,
         })
+    }
+
+    /// The project's schema, compiled; writes need one.
+    async fn schema(&self, project_id: Uuid) -> Result<Compiled, ErrorData> {
+        let schema: Option<sqlx::types::Json<Schema>> =
+            sqlx::query_scalar("select schema from projects where id = $1")
+                .bind(project_id)
+                .fetch_one(&self.db)
+                .await
+                .map_err(internal)?;
+        let Some(schema) = schema else {
+            return Err(refused(
+                "This project has no schema yet; an admin pushes one with schema_push.".into(),
+            ));
+        };
+        // The stored schema compiled once; a failure here is a bug, not the user's.
+        schema
+            .0
+            .compile()
+            .map_err(|problems| internal(problems.join("; ")))
     }
 
     /// Locks the project's members and checks under the lock that the caller is

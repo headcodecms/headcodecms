@@ -1,8 +1,10 @@
 // End-to-end check of an MCP URL, the way an MCP client connects:
 // 401 challenge -> resource metadata -> auth server metadata -> client
 // registration (DCR) -> sign-in -> authorize -> consent -> token -> tools.
-// Then a second user checks the member rules: live for everyone signed in,
-// draft and writes for members, member changes for admins.
+// Then the schema and entries, with the smoke test's own schema (the
+// project's schema is restored at the end), and a second user checks the
+// member rules: live for everyone signed in, draft and writes for members,
+// schema and member changes for admins.
 //
 //   node scripts/smoke.mjs [mcp-url]
 //
@@ -205,101 +207,211 @@ const tools = await step("tools/list", () =>
   rpc(admin, mcpUrl, "tools/list", {}).then((r) => r.json()),
 );
 check(
-  tools.result?.tools?.length === 6,
+  tools.result?.tools?.length === 9,
   `tools: ${tools.result?.tools?.map((t) => t.name).join(", ")}`,
 );
-const live = await call(admin, "entries_list", { version: "live" });
-check(live.entries?.length > 0, `live has ${live.entries?.length} page(s)`);
-const stamp = new Date().toISOString();
-await call(admin, "entry_update", {
-  path: "/smoke",
-  version: "draft",
-  data: { title: "Smoke", stamp },
+// 5. Schema and entries. The smoke test brings its own schema and restores
+// the project's schema at the end.
+const saved = await call(admin, "schema_get");
+const smokeSection = {
+  type: "object",
+  properties: {
+    title: { type: "string", field: "text" },
+    stamp: { type: "string", field: "text" },
+  },
+  required: ["title", "stamp"],
+  additionalProperties: false,
+};
+const smokeSchema = {
+  sections: { smoke: smokeSection },
+  globals: [{ slug: "smoke", description: "Smoke test", sections: ["smoke"] }],
+  collections: [],
+};
+const smokeEntry = (data) => ({
+  slug: "smoke",
+  sections: [{ name: "smoke", data }],
 });
-const draft = await call(admin, "entry_get", {
-  path: "/smoke",
-  version: "draft",
-});
-check(draft.data?.stamp === stamp, "draft write and read back");
-const liveSmoke = await call(admin, "entry_get", {
-  path: "/smoke",
-  version: "live",
-});
-check(
-  refused(liveSmoke, "No page at /smoke"),
-  "draft write did not touch live",
-);
+try {
+  check(
+    refused(
+      await call(admin, "schema_push", {
+        schema: { sections: {}, globals: [{ slug: "x", sections: ["nope"] }] },
+      }),
+      'uses the unknown section "nope"',
+    ),
+    "invalid schema refused",
+  );
+  const pushed = await call(admin, "schema_push", { schema: smokeSchema });
+  check(
+    pushed.globals === 1,
+    `schema pushed (${pushed.invalid?.length} invalid)`,
+  );
 
-// 5. Member rules with a second account.
-await call(admin, "member_revoke", { email: guestEmail }); // left over from a failed run
-const guest = await signIn(guestEmail, "guest");
-const guestLive = await call(guest, "entries_list", { version: "live" });
-check(guestLive.entries?.length > 0, "guest reads live");
-check(
-  refused(
-    await call(guest, "entry_get", { path: "/smoke", version: "draft" }),
-    "Only members of this project can read the draft",
-  ),
-  "guest cannot read draft",
-);
-check(
-  refused(
-    await call(guest, "entry_update", {
-      path: "/smoke",
-      version: "draft",
-      data: {},
-    }),
-    "Only members of this project can change pages",
-  ),
-  "guest cannot write",
-);
-check(
-  refused(
-    await call(guest, "member_grant", { email: guestEmail, role: "admin" }),
-    "Only admins of this project can manage members",
-  ),
-  "guest cannot grant",
-);
-await call(admin, "member_grant", { email: guestEmail, role: "editor" });
-const invited = await call(guest, "entry_get", {
-  path: "/smoke",
-  version: "draft",
-});
-check(invited.data?.stamp === stamp, "invited editor reads draft");
-const members = await call(admin, "members_list");
-check(
-  members.members?.some((m) => m.email === guestEmail && m.joined),
-  `members: ${members.members?.map((m) => `${m.email} (${m.role})`).join(", ")}`,
-);
-check(
-  refused(
-    await call(guest, "member_revoke", { email }),
-    "Only admins of this project can manage members",
-  ),
-  "editor cannot revoke",
-);
-await call(admin, "member_grant", { email: guestEmail, role: "admin" });
-const left = await call(guest, "member_revoke", { email: guestEmail });
-check(
-  left.members && !left.members.some((m) => m.email === guestEmail),
-  "second admin removes themselves",
-);
-check(
-  refused(
-    await call(guest, "entry_get", { path: "/smoke", version: "draft" }),
-    "Only members of this project can read the draft",
-  ),
-  "revoked guest cannot read draft",
-);
-check(
-  refused(
-    await call(admin, "member_revoke", { email }),
-    "A project needs at least one admin",
-  ),
-  "last admin cannot be removed",
-);
+  const stamp = new Date().toISOString();
+  await call(admin, "entry_update", {
+    ...smokeEntry({ title: "Smoke", stamp }),
+    version: "draft",
+  });
+  const draft = await call(admin, "entry_get", {
+    slug: "smoke",
+    version: "draft",
+  });
+  check(
+    draft.sections?.[0]?.data?.stamp === stamp,
+    "draft write and read back",
+  );
+  check(
+    refused(
+      await call(admin, "entry_update", {
+        ...smokeEntry({ title: 1 }),
+        version: "draft",
+      }),
+      "does not match the schema",
+    ),
+    "entry that does not match its section is refused",
+  );
+  check(
+    refused(
+      await call(admin, "entry_update", {
+        slug: "pricing",
+        sections: [],
+        version: "draft",
+      }),
+      '"pricing" is not in the schema',
+    ),
+    "entry outside the schema is refused",
+  );
+  check(
+    refused(
+      await call(admin, "entry_get", { slug: "smoke", version: "live" }),
+      "No entry smoke in live",
+    ),
+    "draft write did not touch live",
+  );
+  await call(admin, "entry_update", {
+    ...smokeEntry({ title: "Smoke live", stamp }),
+    version: "live",
+  });
+  const live = await call(admin, "entries_list", { version: "live" });
+  check(
+    live.entries?.some((e) => e.slug === "smoke" && !("sections" in e)),
+    `live lists ${live.entries?.length} entries without sections`,
+  );
+  const stricter = await call(admin, "schema_push", {
+    schema: {
+      ...smokeSchema,
+      sections: {
+        smoke: {
+          ...smokeSection,
+          properties: { ...smokeSection.properties, lead: { type: "string" } },
+          required: [...smokeSection.required, "lead"],
+        },
+      },
+    },
+  });
+  check(
+    stricter.invalid?.filter((i) => i.slug === "smoke").length === 2,
+    "stricter schema is saved and reports the entries to fix",
+  );
+  await call(admin, "schema_push", { schema: smokeSchema });
 
-// 6. The token is bound to this project's URL.
+  // 6. Member rules with a second account.
+  await call(admin, "member_revoke", { email: guestEmail }); // left over from a failed run
+  const guest = await signIn(guestEmail, "guest");
+  const guestLive = await call(guest, "entry_get", {
+    slug: "smoke",
+    version: "live",
+  });
+  check(
+    guestLive.sections?.[0]?.data?.title === "Smoke live",
+    "guest reads live",
+  );
+  check(
+    refused(
+      await call(guest, "entry_get", { slug: "smoke", version: "draft" }),
+      "Only members of this project can read the draft",
+    ),
+    "guest cannot read draft",
+  );
+  check(
+    refused(
+      await call(guest, "entry_update", {
+        ...smokeEntry({ title: "Guest", stamp }),
+        version: "draft",
+      }),
+      "Only members of this project can change entries",
+    ),
+    "guest cannot write",
+  );
+  check(
+    refused(
+      await call(guest, "schema_push", { schema: smokeSchema }),
+      "Only admins of this project can push the schema",
+    ),
+    "guest cannot push the schema",
+  );
+  check(
+    refused(
+      await call(guest, "member_grant", { email: guestEmail, role: "admin" }),
+      "Only admins of this project can manage members",
+    ),
+    "guest cannot grant",
+  );
+  await call(admin, "member_grant", { email: guestEmail, role: "editor" });
+  const invited = await call(guest, "entry_get", {
+    slug: "smoke",
+    version: "draft",
+  });
+  check(
+    invited.sections?.[0]?.data?.stamp === stamp,
+    "invited editor reads draft",
+  );
+  const members = await call(admin, "members_list");
+  check(
+    members.members?.some((m) => m.email === guestEmail && m.joined),
+    `members: ${members.members?.map((m) => `${m.email} (${m.role})`).join(", ")}`,
+  );
+  check(
+    refused(
+      await call(guest, "member_revoke", { email }),
+      "Only admins of this project can manage members",
+    ),
+    "editor cannot revoke",
+  );
+  await call(admin, "member_grant", { email: guestEmail, role: "admin" });
+  const left = await call(guest, "member_revoke", { email: guestEmail });
+  check(
+    left.members && !left.members.some((m) => m.email === guestEmail),
+    "second admin removes themselves",
+  );
+  check(
+    refused(
+      await call(guest, "entry_get", { slug: "smoke", version: "draft" }),
+      "Only members of this project can read the draft",
+    ),
+    "revoked guest cannot read draft",
+  );
+  check(
+    refused(
+      await call(admin, "member_revoke", { email }),
+      "A project needs at least one admin",
+    ),
+    "last admin cannot be removed",
+  );
+} finally {
+  await call(admin, "entry_delete", { slug: "smoke", version: "draft" });
+  const after = await call(admin, "entry_delete", {
+    slug: "smoke",
+    version: "live",
+  });
+  if (saved.sections) await call(admin, "schema_push", { schema: saved });
+  check(
+    after.entries && !after.entries.some((e) => e.slug === "smoke"),
+    `smoke entries deleted${saved.sections ? ", schema restored" : ""}`,
+  );
+}
+
+// 7. The token is bound to this project's URL.
 const other = mcpUrl.replace(/\/p\/[^/]+\/mcp$/, "/p/other/mcp");
 const wrongAudience = await rpc(admin, other, "tools/list", {});
 check(wrongAudience.status === 401, "token rejected for another project");

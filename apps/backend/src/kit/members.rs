@@ -185,7 +185,7 @@ pub async fn admins(tx: &mut PgConnection, project_id: Uuid) -> Result<i64> {
     .await?)
 }
 
-async fn audit(
+pub async fn audit(
     tx: &mut PgConnection,
     project_id: Uuid,
     actor: &str,
