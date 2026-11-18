@@ -11,6 +11,7 @@ use rmcp::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use sqlx::{Postgres, Transaction};
 use uuid::Uuid;
 
 use crate::kit::{
@@ -124,12 +125,9 @@ impl Access<'_> {
             Role::Editor => "members",
             Role::Admin => "admins",
         };
-        Err(ErrorData::invalid_request(
-            format!(
-                "Only {who} of this project can {action}. A project admin can add you with member_grant."
-            ),
-            None,
-        ))
+        Err(refused(format!(
+            "Only {who} of this project can {action}. A project admin can add you with member_grant."
+        )))
     }
 
     /// Everyone signed in reads live; draft is for members.
@@ -252,26 +250,17 @@ impl Cms {
         Parameters(params): Parameters<GrantParams>,
     ) -> Result<Json<Members>, ErrorData> {
         let access = self.access(&parts).await?;
-        access.require(Role::Admin, "manage members")?;
-        let email = params.email.trim();
-        let mut tx = self.db.begin().await.map_err(internal)?;
-        members::lock(&mut tx, access.project_id)
-            .await
-            .map_err(internal)?;
+        let mut tx = self.begin_member_change(&access).await?;
         members::grant(
             &mut tx,
             access.project_id,
-            email,
+            params.email.trim(),
             params.role,
             &access.caller.sub,
         )
         .await
         .map_err(internal)?;
-        members::check_admin(&mut tx, access.project_id)
-            .await
-            .map_err(refused)?;
-        tx.commit().await.map_err(internal)?;
-        self.members_list(Extension(parts)).await
+        self.commit_member_change(tx, access.project_id).await
     }
 
     #[tool(
@@ -284,24 +273,15 @@ impl Cms {
         Parameters(params): Parameters<RevokeParams>,
     ) -> Result<Json<Members>, ErrorData> {
         let access = self.access(&parts).await?;
-        access.require(Role::Admin, "manage members")?;
-        let mut tx = self.db.begin().await.map_err(internal)?;
-        members::lock(&mut tx, access.project_id)
+        let mut tx = self.begin_member_change(&access).await?;
+        let email = params.email.trim();
+        let removed = members::revoke(&mut tx, access.project_id, email, &access.caller.sub)
             .await
             .map_err(internal)?;
-        members::revoke(
-            &mut tx,
-            access.project_id,
-            params.email.trim(),
-            &access.caller.sub,
-        )
-        .await
-        .map_err(refused)?;
-        members::check_admin(&mut tx, access.project_id)
-            .await
-            .map_err(refused)?;
-        tx.commit().await.map_err(internal)?;
-        self.members_list(Extension(parts)).await
+        if !removed {
+            return Err(refused(format!("{email} is not a member of this project.")));
+        }
+        self.commit_member_change(tx, access.project_id).await
     }
 }
 
@@ -331,6 +311,45 @@ impl Cms {
             role,
         })
     }
+
+    /// Locks the project's members and checks under the lock that the caller is
+    /// still admin, so a role changed meanwhile counts.
+    async fn begin_member_change(
+        &self,
+        access: &Access<'_>,
+    ) -> Result<Transaction<'static, Postgres>, ErrorData> {
+        let mut tx = self.db.begin().await.map_err(internal)?;
+        members::lock(&mut tx, access.project_id)
+            .await
+            .map_err(internal)?;
+        let role = members::joined_role(&mut *tx, access.project_id, access.caller)
+            .await
+            .map_err(internal)?;
+        Access { role, ..*access }.require(Role::Admin, "manage members")?;
+        Ok(tx)
+    }
+
+    /// Commits a member change if an admin is left, and returns the members.
+    /// The list is read directly: after a self-revoke the caller is no member.
+    async fn commit_member_change(
+        &self,
+        mut tx: Transaction<'static, Postgres>,
+        project_id: Uuid,
+    ) -> Result<Json<Members>, ErrorData> {
+        let admins = members::admins(&mut tx, project_id)
+            .await
+            .map_err(internal)?;
+        if admins == 0 {
+            return Err(refused(
+                "A project needs at least one admin; grant admin to someone else first.".into(),
+            ));
+        }
+        tx.commit().await.map_err(internal)?;
+        let members = members::list(&self.db, project_id)
+            .await
+            .map_err(internal)?;
+        Ok(Json(Members { members }))
+    }
 }
 
 fn internal(error: impl std::fmt::Display) -> ErrorData {
@@ -339,6 +358,6 @@ fn internal(error: impl std::fmt::Display) -> ErrorData {
 }
 
 /// A rule said no; the message is for the user.
-fn refused(error: anyhow::Error) -> ErrorData {
-    ErrorData::invalid_request(error.to_string(), None)
+fn refused(message: String) -> ErrorData {
+    ErrorData::invalid_request(message, None)
 }

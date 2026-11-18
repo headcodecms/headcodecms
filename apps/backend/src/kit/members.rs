@@ -1,11 +1,11 @@
 //! Project members. `editor` reads and writes draft and publishes, `admin` also
 //! manages members. Roles live only here, never in the token.
 
-use anyhow::{Result, bail};
+use anyhow::Result;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use sqlx::PgConnection;
+use sqlx::{PgConnection, PgExecutor};
 use uuid::Uuid;
 
 use crate::kit::{
@@ -53,14 +53,7 @@ pub struct Member {
 /// The caller's role in a project. An invitation for the caller's email is
 /// redeemed on their first request, if the auth server reports the email as verified.
 pub async fn role(db: &Db, auth: &Auth, project_id: Uuid, caller: &Caller) -> Result<Option<Role>> {
-    let role = sqlx::query_scalar(
-        "select role from members where project_id = $1 and iss = $2 and sub = $3",
-    )
-    .bind(project_id)
-    .bind(&caller.iss)
-    .bind(&caller.sub)
-    .fetch_optional(db)
-    .await?;
+    let role = joined_role(db, project_id, caller).await?;
     if role.is_some() {
         return Ok(role);
     }
@@ -85,6 +78,23 @@ pub async fn role(db: &Db, auth: &Auth, project_id: Uuid, caller: &Caller) -> Re
     .bind(&caller.iss)
     .bind(&caller.sub)
     .bind(email)
+    .fetch_optional(db)
+    .await?)
+}
+
+/// The caller's role, without redeeming invitations. Inside a member change it
+/// runs after `lock`, so a role changed meanwhile counts.
+pub async fn joined_role(
+    db: impl PgExecutor<'_>,
+    project_id: Uuid,
+    caller: &Caller,
+) -> Result<Option<Role>> {
+    Ok(sqlx::query_scalar(
+        "select role from members where project_id = $1 and iss = $2 and sub = $3",
+    )
+    .bind(project_id)
+    .bind(&caller.iss)
+    .bind(&caller.sub)
     .fetch_optional(db)
     .await?)
 }
@@ -127,13 +137,14 @@ pub async fn grant(
     .await
 }
 
-/// Removes a member or an open invitation. Run it in a transaction that starts with `lock`.
+/// Removes a member or an open invitation; false if there was none.
+/// Run it in a transaction that starts with `lock`.
 pub async fn revoke(
     tx: &mut PgConnection,
     project_id: Uuid,
     email: &str,
     actor: &str,
-) -> Result<()> {
+) -> Result<bool> {
     let removed =
         sqlx::query("delete from members where project_id = $1 and lower(email) = lower($2)")
             .bind(project_id)
@@ -141,7 +152,7 @@ pub async fn revoke(
             .execute(&mut *tx)
             .await?;
     if removed.rows_affected() == 0 {
-        bail!("{email} is not a member of this project.");
+        return Ok(false);
     }
     audit(
         tx,
@@ -150,7 +161,8 @@ pub async fn revoke(
         "member_revoke",
         json!({ "email": email }),
     )
-    .await
+    .await?;
+    Ok(true)
 }
 
 /// Serializes member changes per project, so two admins cannot remove each other at once.
@@ -162,18 +174,15 @@ pub async fn lock(tx: &mut PgConnection, project_id: Uuid) -> Result<()> {
     Ok(())
 }
 
-/// Fails if the project has no admin who has signed in, so it cannot lock itself out.
-pub async fn check_admin(tx: &mut PgConnection, project_id: Uuid) -> Result<()> {
-    let admins: i64 = sqlx::query_scalar(
+/// The admins who have signed in. A member change must leave at least one,
+/// so the project cannot lock itself out.
+pub async fn admins(tx: &mut PgConnection, project_id: Uuid) -> Result<i64> {
+    Ok(sqlx::query_scalar(
         "select count(*) from members where project_id = $1 and role = 'admin' and sub is not null",
     )
     .bind(project_id)
     .fetch_one(tx)
-    .await?;
-    if admins == 0 {
-        bail!("A project needs at least one admin; grant admin to someone else first.");
-    }
-    Ok(())
+    .await?)
 }
 
 async fn audit(

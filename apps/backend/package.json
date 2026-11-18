@@ -6,7 +6,7 @@
     "dev": "cargo run -- serve",
     "build": "cargo build --release",
     "migrate": "cargo run -- migrate",
-    "lint": "cargo clippy -- -D warnings",
+    "lint": "cargo clippy --all-targets -- -D warnings",
     "typecheck": "cargo check",
     "test": "cargo test",
     "smoke": "node scripts/smoke.mjs"

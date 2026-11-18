@@ -189,6 +189,8 @@ const call = async (token, name, args = {}) => {
     return { refused: JSON.stringify(response.result.content) };
   return response.result.structuredContent;
 };
+// True only for the expected "no", so an internal error does not pass as one.
+const refused = (result, text) => result.refused?.includes(text) ?? false;
 
 const admin = await signIn(email, "admin");
 const init = await step("initialize", () =>
@@ -223,7 +225,10 @@ const liveSmoke = await call(admin, "entry_get", {
   path: "/smoke",
   version: "live",
 });
-check(liveSmoke.refused, "draft write did not touch live");
+check(
+  refused(liveSmoke, "No page at /smoke"),
+  "draft write did not touch live",
+);
 
 // 5. Member rules with a second account.
 await call(admin, "member_revoke", { email: guestEmail }); // left over from a failed run
@@ -231,23 +236,28 @@ const guest = await signIn(guestEmail, "guest");
 const guestLive = await call(guest, "entries_list", { version: "live" });
 check(guestLive.entries?.length > 0, "guest reads live");
 check(
-  (await call(guest, "entry_get", { path: "/smoke", version: "draft" }))
-    .refused,
+  refused(
+    await call(guest, "entry_get", { path: "/smoke", version: "draft" }),
+    "Only members of this project can read the draft",
+  ),
   "guest cannot read draft",
 );
 check(
-  (
+  refused(
     await call(guest, "entry_update", {
       path: "/smoke",
       version: "draft",
       data: {},
-    })
-  ).refused,
+    }),
+    "Only members of this project can change pages",
+  ),
   "guest cannot write",
 );
 check(
-  (await call(guest, "member_grant", { email: guestEmail, role: "admin" }))
-    .refused,
+  refused(
+    await call(guest, "member_grant", { email: guestEmail, role: "admin" }),
+    "Only admins of this project can manage members",
+  ),
   "guest cannot grant",
 );
 await call(admin, "member_grant", { email: guestEmail, role: "editor" });
@@ -262,17 +272,30 @@ check(
   `members: ${members.members?.map((m) => `${m.email} (${m.role})`).join(", ")}`,
 );
 check(
-  (await call(guest, "member_revoke", { email })).refused,
+  refused(
+    await call(guest, "member_revoke", { email }),
+    "Only admins of this project can manage members",
+  ),
   "editor cannot revoke",
 );
-await call(admin, "member_revoke", { email: guestEmail });
+await call(admin, "member_grant", { email: guestEmail, role: "admin" });
+const left = await call(guest, "member_revoke", { email: guestEmail });
 check(
-  (await call(guest, "entry_get", { path: "/smoke", version: "draft" }))
-    .refused,
+  left.members && !left.members.some((m) => m.email === guestEmail),
+  "second admin removes themselves",
+);
+check(
+  refused(
+    await call(guest, "entry_get", { path: "/smoke", version: "draft" }),
+    "Only members of this project can read the draft",
+  ),
   "revoked guest cannot read draft",
 );
 check(
-  (await call(admin, "member_revoke", { email })).refused,
+  refused(
+    await call(admin, "member_revoke", { email }),
+    "A project needs at least one admin",
+  ),
   "last admin cannot be removed",
 );
 
