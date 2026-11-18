@@ -14,10 +14,13 @@ const DATABASE: &str = "headcode";
 
 pub type Db = PgPool;
 
-/// Connects to `DATABASE_URL`, or starts embedded Postgres in `storage/postgres` when it is unset.
+/// Connects to `DATABASE_URL_UNPOOLED` or `DATABASE_URL`, or starts embedded Postgres in
+/// `storage/postgres` when neither is set. Neon on Vercel sets both; its pooler does not
+/// accept the `idle_session_timeout` startup option, so the direct URL comes first.
 /// The returned `PostgreSQL` keeps the embedded server alive; drop it to stop the server.
 pub async fn connect() -> Result<(Db, Option<PostgreSQL>)> {
-    let (url, embedded) = match std::env::var("DATABASE_URL") {
+    let url = std::env::var("DATABASE_URL_UNPOOLED").or_else(|_| std::env::var("DATABASE_URL"));
+    let (url, embedded) = match url {
         Ok(url) => (url, None),
         // Already started by `headcode serve`, for example when the CLI runs next to it.
         Err(_)

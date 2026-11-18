@@ -22,10 +22,12 @@ const resources = (
   .map((resource) => resource.trim())
   .filter(Boolean)
 
-// Local default: the backend's embedded Postgres (apps/backend).
+// Local default: the backend's embedded Postgres (apps/backend). Neon on
+// Vercel sets both URLs; its pooler rejects the startup option below.
 function pool() {
   const pool = new Pool({
     connectionString:
+      process.env.DATABASE_URL_UNPOOLED ??
       process.env.DATABASE_URL ??
       'postgresql://postgres:headcode@localhost:54329/headcode',
     max: 3,

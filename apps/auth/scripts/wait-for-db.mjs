@@ -4,6 +4,7 @@
 import pg from 'pg'
 
 const url =
+  process.env.DATABASE_URL_UNPOOLED ??
   process.env.DATABASE_URL ??
   'postgresql://postgres:headcode@localhost:54329/headcode'
 const deadline = Date.now() + 5 * 60_000
