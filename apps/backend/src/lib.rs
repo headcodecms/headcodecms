@@ -26,6 +26,10 @@ pub fn router(db: Db, base_url: &str, issuer: &str) -> Result<Router> {
         .with_legacy_session_mode(false)
         .with_json_response(true)
         .with_allowed_hosts([authority.host(), authority.as_str()]);
+    let live = Router::new()
+        .route("/p/{project}/live", get(cms::live_list))
+        .route("/p/{project}/live/{*slug}", get(cms::live_get))
+        .with_state(db.clone());
     let auth = Auth::new(base_url, issuer);
     let tools_auth = auth.clone();
     let mcp = StreamableHttpService::new(
@@ -44,7 +48,8 @@ pub fn router(db: Db, base_url: &str, issuer: &str) -> Result<Router> {
             get(kit::auth::metadata),
         )
         .route("/health", get(|| async { "ok" }))
-        .with_state(auth))
+        .with_state(auth)
+        .merge(live))
 }
 
 pub fn env(name: &str, default: &str) -> String {

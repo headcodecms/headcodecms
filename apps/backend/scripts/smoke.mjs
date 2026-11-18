@@ -278,11 +278,12 @@ try {
   check(
     refused(
       await call(admin, "entry_update", {
-        slug: "pricing",
+        // "smoke" is a global, so the collection "smoke" is not in the schema.
+        slug: "smoke/missing",
         sections: [],
         version: "draft",
       }),
-      '"pricing" is not in the schema',
+      '"smoke/missing" is not in the schema',
     ),
     "entry outside the schema is refused",
   );
@@ -437,17 +438,16 @@ try {
     "last admin cannot be removed",
   );
 } finally {
+  // Cleanup also after a failed check, which then stays the reported error.
   await call(admin, "entry_delete", { slug: "smoke", version: "draft" });
-  const after = await call(admin, "entry_delete", {
-    slug: "smoke",
-    version: "live",
-  });
+  await call(admin, "entry_delete", { slug: "smoke", version: "live" });
   if (saved.sections) await call(admin, "schema_push", { schema: saved });
-  check(
-    after.entries && !after.entries.some((e) => e.slug === "smoke"),
-    `smoke entries deleted${saved.sections ? ", schema restored" : ""}`,
-  );
 }
+const after = await call(admin, "entries_list", { version: "live" });
+check(
+  after.entries && !after.entries.some((e) => e.slug === "smoke"),
+  `smoke entries deleted${saved.sections ? ", schema restored" : ""}`,
+);
 
 // 7. The token is bound to this project's URL.
 const other = mcpUrl.replace(/\/p\/[^/]+\/mcp$/, "/p/other/mcp");

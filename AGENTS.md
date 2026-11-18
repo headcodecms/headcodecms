@@ -4,7 +4,7 @@ Version 3, in development on the `v3` branch. Turborepo with apps in `apps/*`. V
 
 - `apps/backend`: Rust crate `headcode` (axum, rmcp, sqlx). One router for `headcode serve` and the Vercel Function (`api/mcp.rs`). Migrations in `migrations/`.
 - `apps/auth`: Next.js with Better Auth, the OAuth 2.1 server for MCP clients, shared by all sites.
-- Site apps (`base`, then `www`, `blog`, `docs`, `shopify`) are named by purpose, without prefixes.
+- Site apps (`base`, then `www`, `blog`, `docs`, `shopify`) are named by purpose, without prefixes. Plain Next.js. Sections are Zod schemas (`headcode/sections.ts`, field helpers in `headcode/fields.ts`); `pnpm schema` turns them into the JSON Schema the backend validates against. Sites read live content from the backend's open `/p/{project}/live` endpoints.
 
 ## Rules
 
@@ -28,6 +28,6 @@ Version 3, in development on the `v3` branch. Turborepo with apps in `apps/*`. V
 
 ```bash
 pnpm install
-pnpm dev                 # backend :3080 (embedded Postgres), auth :3081
+pnpm dev                 # backend :3080 (embedded Postgres), auth :3081, base :3082
 pnpm lint && pnpm typecheck && pnpm test && pnpm build
 ```

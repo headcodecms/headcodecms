@@ -1,0 +1,12 @@
+dist/
+node_modules/
+.next/
+.turbo/
+coverage/
+pnpm-lock.yaml
+.pnpm-store/
+dist
+data
+components/ui/
+headcode.schema.json
+headcode.seed.json

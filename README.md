@@ -6,19 +6,30 @@ Turn a vibe-coded website into a real CMS: agents edit content through MCP, peop
 
 ## Apps
 
-| App                            | What it is                                                                                      |
-| ------------------------------ | ----------------------------------------------------------------------------------------------- |
-| [`apps/backend`](apps/backend) | Rust (axum, rmcp, sqlx): the MCP server per project, Postgres; embedded Postgres locally        |
-| [`apps/auth`](apps/auth)       | Next.js with Better Auth: sign-in and the OAuth 2.1 server for MCP clients, shared by all sites |
-| `apps/base`                    | planned: the first site with admin (Next.js); `www`, `blog`, `docs`, `shopify` follow |
+| App                            | What it is                                                                                            |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| [`apps/backend`](apps/backend) | Rust (axum, rmcp, sqlx): the MCP server per project, Postgres; embedded Postgres locally              |
+| [`apps/auth`](apps/auth)       | Next.js with Better Auth: sign-in and the OAuth 2.1 server for MCP clients, shared by all sites       |
+| [`apps/base`](apps/base)       | Next.js: the first site, its sections in Zod (admin follows); `www`, `blog`, `docs`, `shopify` follow |
 
 ## Run it locally
 
 ```bash
 pnpm install
-pnpm dev                                    # backend on :3080, auth on :3081
+pnpm dev                                    # backend :3080, auth :3081, base :3082
 node apps/backend/scripts/smoke.mjs         # MCP client flow end to end
 ```
+
+A fresh database has no content. Push the site's schema and its default content to the `demo` project once:
+
+```bash
+pnpm --dir apps/base schema                 # writes headcode.schema.json and headcode.seed.json
+cd apps/backend
+cargo run -- schema demo ../base/headcode.schema.json
+cargo run -- seed demo ../base/headcode.seed.json
+```
+
+Agents push a schema with the MCP tool `schema_push`.
 
 Locally `dev@headcode.local` is admin of the `demo` project; sign up with that address in the auth app.
 

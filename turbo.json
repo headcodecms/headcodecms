@@ -3,7 +3,13 @@
   "tasks": {
     "build": {
       "outputs": [".next/**", "!.next/cache/**", "target/release/**"],
-      "env": ["NEXT_PUBLIC_*", "BETTER_AUTH_SECRET", "DATABASE_URL"]
+      "env": [
+        "NEXT_PUBLIC_*",
+        "BETTER_AUTH_SECRET",
+        "DATABASE_URL",
+        "HEADCODE_URL",
+        "HEADCODE_PROJECT"
+      ]
     },
     "lint": {},
     "typecheck": {},

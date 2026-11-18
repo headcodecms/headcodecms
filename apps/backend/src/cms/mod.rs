@@ -1,4 +1,9 @@
+use axum::{
+    extract::{Path, Query, State},
+    response::{IntoResponse, Response},
+};
 use chrono::{DateTime, Utc};
+use http::StatusCode;
 use http::request::Parts;
 use rmcp::{
     ErrorData, ServerHandler,
@@ -21,7 +26,7 @@ use crate::kit::{
     members::{self, Member, Role},
 };
 
-mod schema;
+pub mod schema;
 
 /// The MCP tools for one request. Stateless: a new value per request, sharing the pool.
 #[derive(Clone)]
@@ -179,9 +184,9 @@ pub struct Snapshots {
 
 #[derive(Serialize, JsonSchema)]
 pub struct Invalid {
-    slug: String,
-    version: String,
-    problems: Vec<String>,
+    pub slug: String,
+    pub version: String,
+    pub problems: Vec<String>,
 }
 
 #[derive(Serialize, JsonSchema)]
@@ -254,37 +259,10 @@ impl Cms {
         let schema = params.schema.compile().map_err(|problems| {
             refused(format!("The schema is invalid:\n{}", problems.join("\n")))
         })?;
-        let mut tx = self.db.begin().await.map_err(internal)?;
-        sqlx::query("update projects set schema = $2 where id = $1")
-            .bind(access.project_id)
-            .bind(sqlx::types::Json(schema.schema()))
-            .execute(&mut *tx)
+        let invalid = push_schema(&self.db, access.project_id, &schema, &access.caller.sub)
             .await
             .map_err(internal)?;
         let pushed = schema.schema();
-        members::audit(
-            &mut tx,
-            access.project_id,
-            &access.caller.sub,
-            "schema_push",
-            json!({
-                "sections": pushed.sections.keys().collect::<Vec<_>>(),
-                "globals": pushed.globals.iter().map(|g| &g.slug).collect::<Vec<_>>(),
-                "collections": pushed.collections.iter().map(|c| &c.slug).collect::<Vec<_>>(),
-            }),
-        )
-        .await
-        .map_err(internal)?;
-        tx.commit().await.map_err(internal)?;
-
-        let entries: Vec<(String, String, Value)> = sqlx::query_as(
-            "select slug, version, sections from entries where project_id = $1 order by slug, version",
-        )
-        .bind(access.project_id)
-        .fetch_all(&self.db)
-        .await
-        .map_err(internal)?;
-        let invalid = invalid(&schema, entries);
         Ok(Json(Pushed {
             sections: pushed.sections.len(),
             globals: pushed.globals.len(),
@@ -710,6 +688,97 @@ impl Cms {
             .map_err(internal)?;
         Ok(Json(Members { members }))
     }
+}
+
+#[derive(Deserialize)]
+pub struct LiveQuery {
+    prefix: Option<String>,
+}
+
+/// `GET /p/{project}/live?prefix=blog/`: the live entries with their sections,
+/// open to everyone, for sites. Draft needs a token and goes through MCP.
+pub async fn live_list(
+    State(db): State<Db>,
+    Path(project): Path<String>,
+    Query(query): Query<LiveQuery>,
+) -> Response {
+    let prefix = query.prefix.unwrap_or_default();
+    let entries = sqlx::query_as::<_, Entry>(
+        "select e.slug, e.sections, e.updated_at, e.updated_by \
+         from entries e join projects p on p.id = e.project_id \
+         where p.slug = $1 and e.version = 'live' and starts_with(e.slug, $2) order by e.slug",
+    )
+    .bind(&project)
+    .bind(&prefix)
+    .fetch_all(&db)
+    .await;
+    match entries {
+        Ok(entries) => axum::Json(json!({ "entries": entries })).into_response(),
+        Err(error) => server_error(error),
+    }
+}
+
+/// `GET /p/{project}/live/{slug}`: one live entry, or 404.
+pub async fn live_get(
+    State(db): State<Db>,
+    Path((project, slug)): Path<(String, String)>,
+) -> Response {
+    let entry = sqlx::query_as::<_, Entry>(
+        "select e.slug, e.sections, e.updated_at, e.updated_by \
+         from entries e join projects p on p.id = e.project_id \
+         where p.slug = $1 and e.version = 'live' and e.slug = $2",
+    )
+    .bind(&project)
+    .bind(&slug)
+    .fetch_optional(&db)
+    .await;
+    match entry {
+        Ok(Some(entry)) => axum::Json(entry).into_response(),
+        Ok(None) => StatusCode::NOT_FOUND.into_response(),
+        Err(error) => server_error(error),
+    }
+}
+
+fn server_error(error: sqlx::Error) -> Response {
+    tracing::error!(%error, "internal error");
+    StatusCode::INTERNAL_SERVER_ERROR.into_response()
+}
+
+/// Saves the schema and returns the entries that do not match it (they must
+/// be fixed on their next save). For `schema_push` and `headcode schema`.
+pub async fn push_schema(
+    db: &Db,
+    project_id: Uuid,
+    schema: &Compiled,
+    actor: &str,
+) -> anyhow::Result<Vec<Invalid>> {
+    let pushed = schema.schema();
+    let mut tx = db.begin().await?;
+    sqlx::query("update projects set schema = $2 where id = $1")
+        .bind(project_id)
+        .bind(sqlx::types::Json(pushed))
+        .execute(&mut *tx)
+        .await?;
+    members::audit(
+        &mut tx,
+        project_id,
+        actor,
+        "schema_push",
+        json!({
+            "sections": pushed.sections.keys().collect::<Vec<_>>(),
+            "globals": pushed.globals.iter().map(|g| &g.slug).collect::<Vec<_>>(),
+            "collections": pushed.collections.iter().map(|c| &c.slug).collect::<Vec<_>>(),
+        }),
+    )
+    .await?;
+    tx.commit().await?;
+    let entries: Vec<(String, String, Value)> = sqlx::query_as(
+        "select slug, version, sections from entries where project_id = $1 order by slug, version",
+    )
+    .bind(project_id)
+    .fetch_all(db)
+    .await?;
+    Ok(invalid(schema, entries))
 }
 
 /// Saves live as a snapshot and empties it, for publish and rollback.
