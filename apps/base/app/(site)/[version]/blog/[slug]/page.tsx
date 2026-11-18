@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { siteVersion } from '@/app/(site)/_lib/version'
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 
 import type { ImageData } from '@/headcode/sections'
 import {
@@ -10,6 +11,8 @@ import {
   getHeadcodeCollectionEntry,
   getSection,
   titleCase,
+  getEntrySlug,
+  getHeadcodeCollectionEntries,
 } from '@/app/(site)/_lib/headcode'
 import {
   firstImage,
@@ -21,6 +24,18 @@ import { entryPath } from '@/headcode/utils'
 import { Hero, ImageSection, RenderSections } from '@/app/(site)/_sections'
 
 type Props = { params: Promise<{ slug: string }> }
+
+// Known entries are prerendered; new ones render on first visit (ISR).
+// Cache Components needs at least one param, so an empty collection gets '-' (404).
+export const generateStaticParams = async () => {
+  const entries = await getHeadcodeCollectionEntries(
+    await siteVersion(),
+    'blog',
+  )
+  return entries.length
+    ? entries.map((entry) => ({ slug: getEntrySlug(entry) }))
+    : [{ slug: '-' }]
+}
 
 const getPost = async (params: Props['params']) =>
   getHeadcodeCollectionEntry(await siteVersion(), 'blog', (await params).slug)
@@ -43,8 +58,16 @@ export const generateMetadata = async ({
     : {}
 }
 
-// Not streamed, so a missing post answers with status 404.
-export default async function BlogPost({ params }: Props) {
+// params are read inside Suspense, so the shared shell of this route stays URL-independent.
+export default function BlogPostPage({ params }: Props) {
+  return (
+    <Suspense>
+      <BlogPost params={params} />
+    </Suspense>
+  )
+}
+
+async function BlogPost({ params }: Props) {
   const post = await getPost(params)
   const metaSection = post && getBlogMetaSection(post)
   if (!post || !metaSection) notFound()

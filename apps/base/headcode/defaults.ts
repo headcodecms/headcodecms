@@ -656,7 +656,7 @@ export const defaultBlogMeta = {
       'Engineering posts, product thinking, and the occasional opinion piece from the team building the agentic content platform.',
     category: 'engineering',
     author: 'Headcode Team',
-    publishedAt: Date.now(),
+    publishedAt: Date.parse('2026-11-01T00:00:00Z'),
     featured: false,
     icon: 'newspaper',
   },

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { siteVersion } from '@/app/(site)/_lib/version'
 import { notFound } from 'next/navigation'
 
@@ -21,7 +22,16 @@ export const generateMetadata = async (): Promise<Metadata> => {
   })
 }
 
-export default async function LandingPage() {
+// Preview links read the draft per request; it streams in, as on navigation.
+export default function Page() {
+  return (
+    <Suspense>
+      <LandingPage />
+    </Suspense>
+  )
+}
+
+async function LandingPage() {
   const home = await getHeadcodeGlobal(await siteVersion(), 'home')
   if (!home) notFound()
   const meta = getMeta(home)

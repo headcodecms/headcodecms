@@ -3,8 +3,8 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use chrono::{DateTime, Utc};
-use http::StatusCode;
 use http::request::Parts;
+use http::{HeaderMap, StatusCode};
 use rmcp::{
     ErrorData, ServerHandler,
     handler::server::{
@@ -182,6 +182,36 @@ pub struct Snapshots {
     snapshots: Vec<Snapshot>,
 }
 
+#[derive(Serialize, JsonSchema, sqlx::FromRow)]
+pub struct Change {
+    slug: String,
+    /// "new" (only in draft), "deleted" (only in live), "changed" (draft
+    /// differs), or "live_newer" (live was changed after draft: publish would
+    /// overwrite that change unless draft gets it too).
+    status: String,
+    #[schemars(with = "Option<String>")]
+    draft_updated_at: Option<DateTime<Utc>>,
+    #[schemars(with = "Option<String>")]
+    live_updated_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Serialize, JsonSchema)]
+pub struct Changes {
+    changes: Vec<Change>,
+}
+
+#[derive(Serialize, JsonSchema)]
+pub struct Preview {
+    /// The site shows the draft at /preview/<token>/<path> to everyone with the link.
+    token: String,
+}
+
+#[derive(Serialize, JsonSchema)]
+pub struct Reset {
+    /// Entries now in draft.
+    entries: u64,
+}
+
 #[derive(Serialize, JsonSchema)]
 pub struct Invalid {
     pub slug: String,
@@ -226,7 +256,7 @@ impl Access<'_> {
 
 #[tool_handler(
     name = "headcode",
-    instructions = "Headcode CMS. Call schema_get first: it lists the globals (single entries like \"home\"), the collections (items like \"blog/hello\") and the JSON Schema of each section. An entry is an ordered list of sections. Entries exist in draft and live. Write to draft unless the user asks for live; a live write changes only live, so ask whether to apply it to draft too. Everyone signed in can read live; draft and writes are for project members, managed by admins with member_grant and member_revoke. publish replaces live with the whole draft; live is saved as a snapshot first, and rollback brings a snapshot back."
+    instructions = "Headcode CMS. Call schema_get first: it lists the globals (single entries like \"home\"), the collections (items like \"blog/hello\") and the JSON Schema of each section. An entry is an ordered list of sections. Entries exist in draft and live. Write to draft unless the user asks for live; a live write changes only live, so ask whether to apply it to draft too. Everyone signed in can read live; draft and writes are for project members, managed by admins with member_grant and member_revoke. publish replaces live with the whole draft (changes_list shows what it would change; warn about live_newer entries); live is saved as a snapshot first, and rollback brings one of the 10 latest back. draft_reset discards the draft. preview_link gives the link that shows the draft on the site."
 )]
 impl ServerHandler for Cms {}
 
@@ -336,13 +366,15 @@ impl Cms {
         let access = self.access(&parts).await?;
         access.require(Role::Editor, "change entries")?;
         let schema = self.schema(access.project_id).await?;
-        let problems = schema.check(&params.slug, &params.sections);
+        let mut sections = params.sections;
+        let problems = schema.check(&params.slug, &sections);
         if !problems.is_empty() {
             return Err(refused(format!(
                 "The entry does not match the schema:\n{}",
                 problems.join("\n")
             )));
         }
+        schema::assign_ids(&mut sections);
         let entry = sqlx::query_as::<_, Entry>(
             "insert into entries (project_id, version, slug, sections, updated_by) \
              values ($1, $2, $3, $4, $5) \
@@ -353,7 +385,7 @@ impl Cms {
         .bind(access.project_id)
         .bind(params.version.as_str())
         .bind(&params.slug)
-        .bind(sqlx::types::Json(&params.sections))
+        .bind(sqlx::types::Json(&sections))
         .bind(&access.caller.sub)
         .fetch_one(&self.db)
         .await
@@ -462,7 +494,7 @@ impl Cms {
     }
 
     #[tool(
-        description = "List the 50 latest snapshots of live, newest first.",
+        description = "List the snapshots of live (the 10 latest), newest first.",
         annotations(read_only_hint = true)
     )]
     async fn snapshots_list(
@@ -473,7 +505,7 @@ impl Cms {
         access.require(Role::Editor, "see the snapshots")?;
         let snapshots = sqlx::query_as::<_, Snapshot>(
             "select id, reason, created_at, created_by, jsonb_array_length(entries) as entries \
-             from snapshots where project_id = $1 order by id desc limit 50",
+             from snapshots where project_id = $1 order by id desc",
         )
         .bind(access.project_id)
         .fetch_all(&self.db)
@@ -540,6 +572,132 @@ impl Cms {
             entries: restored.rows_affected(),
             snapshot,
         }))
+    }
+
+    #[tool(
+        description = "What publish would change: entries that differ between draft and live.",
+        annotations(read_only_hint = true)
+    )]
+    async fn changes_list(
+        &self,
+        Extension(parts): Extension<Parts>,
+    ) -> Result<Json<Changes>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "see the changes")?;
+        let changes = sqlx::query_as::<_, Change>(
+            "select coalesce(d.slug, l.slug) as slug, \
+               case when l.slug is null then 'new' when d.slug is null then 'deleted' \
+                    when l.updated_at > d.updated_at then 'live_newer' else 'changed' end as status, \
+               d.updated_at as draft_updated_at, l.updated_at as live_updated_at \
+             from (select * from entries where project_id = $1 and version = 'draft') d \
+             full join (select * from entries where project_id = $1 and version = 'live') l \
+               on l.slug = d.slug \
+             where section_content(d.sections) is distinct from section_content(l.sections) \
+             order by 1",
+        )
+        .bind(access.project_id)
+        .fetch_all(&self.db)
+        .await
+        .map_err(internal)?;
+        Ok(Json(Changes { changes }))
+    }
+
+    #[tool(
+        description = "Discard the draft: replace it with live. Live is not changed.",
+        annotations(destructive_hint = true)
+    )]
+    async fn draft_reset(
+        &self,
+        Extension(parts): Extension<Parts>,
+    ) -> Result<Json<Reset>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "reset the draft")?;
+        let mut tx = self.db.begin().await.map_err(internal)?;
+        members::lock(&mut tx, access.project_id)
+            .await
+            .map_err(internal)?;
+        sqlx::query("delete from entries where project_id = $1 and version = 'draft'")
+            .bind(access.project_id)
+            .execute(&mut *tx)
+            .await
+            .map_err(internal)?;
+        let copied = sqlx::query(
+            "insert into entries (project_id, version, slug, sections, updated_at, updated_by) \
+             select project_id, 'draft', slug, sections, updated_at, updated_by from entries \
+             where project_id = $1 and version = 'live'",
+        )
+        .bind(access.project_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(internal)?;
+        members::audit(
+            &mut tx,
+            access.project_id,
+            &access.caller.sub,
+            "draft_reset",
+            json!({ "entries": copied.rows_affected() }),
+        )
+        .await
+        .map_err(internal)?;
+        tx.commit().await.map_err(internal)?;
+        Ok(Json(Reset {
+            entries: copied.rows_affected(),
+        }))
+    }
+
+    #[tool(
+        description = "Get the preview token: the site shows the draft at /preview/<token>/<path> to everyone with the link.",
+        annotations(read_only_hint = true)
+    )]
+    async fn preview_link(
+        &self,
+        Extension(parts): Extension<Parts>,
+    ) -> Result<Json<Preview>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "see the preview link")?;
+        let token = sqlx::query_scalar(
+            "update projects set preview_token = coalesce(preview_token, \
+               replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')) \
+             where id = $1 returning preview_token",
+        )
+        .bind(access.project_id)
+        .fetch_one(&self.db)
+        .await
+        .map_err(internal)?;
+        Ok(Json(Preview { token }))
+    }
+
+    #[tool(
+        description = "Rotate the preview token: links with the old token stop working.",
+        annotations(destructive_hint = true)
+    )]
+    async fn preview_rotate(
+        &self,
+        Extension(parts): Extension<Parts>,
+    ) -> Result<Json<Preview>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "rotate the preview link")?;
+        let mut tx = self.db.begin().await.map_err(internal)?;
+        let token = sqlx::query_scalar(
+            "update projects set preview_token = \
+               replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '') \
+             where id = $1 returning preview_token",
+        )
+        .bind(access.project_id)
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(internal)?;
+        members::audit(
+            &mut tx,
+            access.project_id,
+            &access.caller.sub,
+            "preview_rotate",
+            json!({}),
+        )
+        .await
+        .map_err(internal)?;
+        tx.commit().await.map_err(internal)?;
+        Ok(Json(Preview { token }))
     }
 
     #[tool(
@@ -723,14 +881,75 @@ pub async fn live_get(
     State(db): State<Db>,
     Path((project, slug)): Path<(String, String)>,
 ) -> Response {
+    get_entry(&db, &project, "live", &slug).await
+}
+
+/// `GET /p/{project}/draft?prefix=` with the header `x-headcode-preview:
+/// <token>`: the draft entries, for the site's preview. 401 without the
+/// project's preview token.
+pub async fn draft_list(
+    State(db): State<Db>,
+    Path(project): Path<String>,
+    headers: HeaderMap,
+    Query(query): Query<LiveQuery>,
+) -> Response {
+    if !preview_allowed(&db, &project, &headers).await {
+        return StatusCode::UNAUTHORIZED.into_response();
+    }
+    let entries = sqlx::query_as::<_, Entry>(
+        "select e.slug, e.sections, e.updated_at, e.updated_by \
+         from entries e join projects p on p.id = e.project_id \
+         where p.slug = $1 and e.version = 'draft' and starts_with(e.slug, $2) order by e.slug",
+    )
+    .bind(&project)
+    .bind(query.prefix.unwrap_or_default())
+    .fetch_all(&db)
+    .await;
+    match entries {
+        Ok(entries) => axum::Json(json!({ "entries": entries })).into_response(),
+        Err(error) => server_error(error),
+    }
+}
+
+/// `GET /p/{project}/draft/{slug}` with the preview token: one draft entry.
+pub async fn draft_get(
+    State(db): State<Db>,
+    Path((project, slug)): Path<(String, String)>,
+    headers: HeaderMap,
+) -> Response {
+    if !preview_allowed(&db, &project, &headers).await {
+        return StatusCode::UNAUTHORIZED.into_response();
+    }
+    get_entry(&db, &project, "draft", &slug).await
+}
+
+async fn preview_allowed(db: &Db, project: &str, headers: &HeaderMap) -> bool {
+    let Some(token) = headers
+        .get("x-headcode-preview")
+        .and_then(|value| value.to_str().ok())
+    else {
+        return false;
+    };
+    sqlx::query_scalar(
+        "select exists (select 1 from projects where slug = $1 and preview_token = $2)",
+    )
+    .bind(project)
+    .bind(token)
+    .fetch_one(db)
+    .await
+    .unwrap_or(false)
+}
+
+async fn get_entry(db: &Db, project: &str, version: &str, slug: &str) -> Response {
     let entry = sqlx::query_as::<_, Entry>(
         "select e.slug, e.sections, e.updated_at, e.updated_by \
          from entries e join projects p on p.id = e.project_id \
-         where p.slug = $1 and e.version = 'live' and e.slug = $2",
+         where p.slug = $1 and e.version = $2 and e.slug = $3",
     )
-    .bind(&project)
-    .bind(&slug)
-    .fetch_optional(&db)
+    .bind(project)
+    .bind(version)
+    .bind(slug)
+    .fetch_optional(db)
     .await;
     match entry {
         Ok(Some(entry)) => axum::Json(entry).into_response(),
@@ -781,7 +1000,8 @@ pub async fn push_schema(
     Ok(invalid(schema, entries))
 }
 
-/// Saves live as a snapshot and empties it, for publish and rollback.
+/// Saves live as a snapshot and empties it, for publish and rollback. Only the
+/// 10 latest snapshots are kept.
 /// Run it in a transaction that starts with `members::lock`.
 async fn take_live(
     tx: &mut PgConnection,
@@ -800,6 +1020,13 @@ async fn take_live(
     .bind(reason)
     .bind(actor)
     .fetch_one(&mut *tx)
+    .await?;
+    sqlx::query(
+        "delete from snapshots where project_id = $1 and id not in \
+         (select id from snapshots where project_id = $1 order by id desc limit 10)",
+    )
+    .bind(project_id)
+    .execute(&mut *tx)
     .await?;
     sqlx::query("delete from entries where project_id = $1 and version = 'live'")
         .bind(project_id)

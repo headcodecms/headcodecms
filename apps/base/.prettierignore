@@ -8,5 +8,6 @@ pnpm-lock.yaml
 dist
 data
 components/ui/
+components/kibo-ui/
 headcode.schema.json
 headcode.seed.json

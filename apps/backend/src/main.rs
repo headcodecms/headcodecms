@@ -131,7 +131,8 @@ async fn seed(db: &Db, project_id: Uuid, entries: Vec<Seed>) -> Result<usize> {
     let mut tx = db.begin().await?;
     kit::members::lock(&mut tx, project_id).await?;
     let mut added = 0;
-    for entry in entries {
+    for mut entry in entries {
+        headcode::cms::schema::assign_ids(&mut entry.sections);
         let problems = schema.check(&entry.slug, &entry.sections);
         if !problems.is_empty() {
             bail!(

@@ -23,9 +23,6 @@ const url = (path: string, { modificationTime }: ServiceEntry) => ({
   priority: path === '/' ? 1 : 0.8,
 })
 
-// Read per request, so the build does not need a running backend.
-export const dynamic = 'force-dynamic'
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { globals, collections } = await getHeadcodeSitemapEntries('live')
   return [

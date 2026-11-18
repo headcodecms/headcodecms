@@ -38,6 +38,10 @@ pub struct EntryType {
 
 #[derive(Clone, Deserialize, Serialize, JsonSchema)]
 pub struct Section {
+    /// Stable id of this section in its entry. Keep it when you change a
+    /// section; leave it out for a new one, and the backend assigns one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
     /// A section name from the schema.
     pub name: String,
     /// The section's data; must match its JSON Schema.
@@ -154,6 +158,15 @@ impl Compiled {
                 .find(|c| c.slug == collection),
             Some(_) => None,
         }
+    }
+}
+
+/// Gives every section without an id a new one.
+pub fn assign_ids(sections: &mut [Section]) {
+    for section in sections {
+        section
+            .id
+            .get_or_insert_with(|| uuid::Uuid::new_v4().to_string());
     }
 }
 

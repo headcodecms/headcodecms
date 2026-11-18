@@ -11,7 +11,8 @@ export type HeadcodeSectionConfig = {
   fields: Fields
 }
 
-export type HeadcodeVersion = 'live' | 'draft'
+// `live`, or the draft through the project's preview token (/preview/<token>).
+export type HeadcodeVersion = 'live' | `preview-${string}`
 
 // An entry as the site renders it: a global (`home`, name null) or a
 // collection item (`blog/hello`: slug `blog`, name `hello`).

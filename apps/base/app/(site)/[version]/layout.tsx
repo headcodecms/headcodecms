@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
-import { siteVersion } from '@/app/(site)/_lib/version'
 import { Geist_Mono, Inter } from 'next/font/google'
+import { Suspense } from 'react'
+
+import { previewToken, siteVersion } from '@/app/(site)/_lib/version'
+import { PreviewBar } from '@/app/(site)/_components/preview-bar'
 
 import { SiteFooter, SiteHeader } from '@/app/(site)/_components/chrome'
 import {
@@ -31,7 +34,7 @@ export const generateMetadata = async (): Promise<Metadata> => {
     metadataBase: new URL(siteUrl),
     ...pageMetadata({ ...meta, path: '/' }),
     // Draft content must not end up in search results.
-    robots: version === 'draft' ? { index: false, follow: false } : undefined,
+    robots: version === 'live' ? undefined : { index: false, follow: false },
   }
 }
 
@@ -45,17 +48,31 @@ const chromeProps = <TData,>(bundle: EntryBundle | null, name: string) => {
     : null
 }
 
-// Pages render per request from the content cache (_lib/headcode.ts), so the
-// build does not need a running backend.
-export const dynamic = 'force-dynamic'
+// Live is prerendered; preview pages render per request.
+export const generateStaticParams = () => [{ version: 'live' }]
 
-export default async function RootLayout({
+// The version is known per request only for preview links, so everything
+// that reads it sits in Suspense: live stays in the static shell.
+const Header = async () => {
+  const { header } = await getHeadcodeSiteChrome(await siteVersion())
+  const props = chromeProps<HeaderData>(header, 'header')
+  return props ? <SiteHeader {...props} /> : null
+}
+
+const Footer = async () => {
+  const { footer } = await getHeadcodeSiteChrome(await siteVersion())
+  const props = chromeProps<FooterData>(footer, 'footer')
+  return props ? <SiteFooter {...props} /> : null
+}
+
+const Preview = async () => {
+  const token = previewToken(await siteVersion())
+  return token ? <PreviewBar token={token} /> : null
+}
+
+export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { header, footer } = await getHeadcodeSiteChrome(await siteVersion())
-  const headerProps = chromeProps<HeaderData>(header, 'header')
-  const footerProps = chromeProps<FooterData>(footer, 'footer')
-
   return (
     <html
       lang="en"
@@ -67,9 +84,16 @@ export default async function RootLayout({
       )}
     >
       <body className="flex min-h-full flex-col">
-        {headerProps ? <SiteHeader {...headerProps} /> : null}
+        <Suspense>
+          <Preview />
+        </Suspense>
+        <Suspense>
+          <Header />
+        </Suspense>
         <main className="flex-1">{children}</main>
-        {footerProps ? <SiteFooter {...footerProps} /> : null}
+        <Suspense>
+          <Footer />
+        </Suspense>
       </body>
     </html>
   )

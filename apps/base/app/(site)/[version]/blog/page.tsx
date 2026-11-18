@@ -1,5 +1,6 @@
 import { ArrowRight, ImageIcon } from 'lucide-react'
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { siteVersion } from '@/app/(site)/_lib/version'
 import Link from 'next/link'
 
@@ -59,7 +60,16 @@ const PostRow = ({ meta, href, headcode }: Post) =>
     </Link>
   ) : null
 
-export default async function BlogIndexPage() {
+// Preview links read the draft per request; it streams in, as on navigation.
+export default function Page() {
+  return (
+    <Suspense>
+      <BlogIndexPage />
+    </Suspense>
+  )
+}
+
+async function BlogIndexPage() {
   const posts = (
     await getHeadcodeCollectionEntries(await siteVersion(), 'blog')
   ).map((post): Post => {

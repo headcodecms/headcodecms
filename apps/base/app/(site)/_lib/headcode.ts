@@ -1,4 +1,5 @@
-import { revalidateTag } from 'next/cache'
+import { cacheLife, cacheTag, revalidateTag } from 'next/cache'
+import { connection } from 'next/server'
 
 import { headcodeConfig } from '@/headcode/config'
 import type { BlogMetaData } from '@/headcode/sections'
@@ -29,16 +30,17 @@ export const expireSite = () => revalidateTag(headcodeTag, { expire: 0 })
 
 type BackendEntry = {
   slug: string
-  sections: { name: string; data: unknown }[]
+  sections: { id?: string; name: string; data: unknown }[]
   updated_at: string
 }
 
-// The open live endpoints of the backend, cached for an hour or until a
-// publish expires the tag. Draft follows with sign-in.
+// The open live endpoints of the backend. Cached until a publish expires the
+// tag, and prerendered at build time, so the build needs the backend.
 const fetchLive = async (path: string) => {
-  const res = await fetch(`${backendUrl}/p/${project}/live${path}`, {
-    next: { revalidate: 3600, tags: [headcodeTag] },
-  })
+  'use cache'
+  cacheLife('max')
+  cacheTag(headcodeTag)
+  const res = await fetch(`${backendUrl}/p/${project}/live${path}`)
   if (res.status === 404) return null
   if (!res.ok) throw new Error(`Headcode backend: ${res.status} for ${path}`)
   return res.json()
@@ -83,7 +85,7 @@ const toBundle = ({
       modificationTime: Date.parse(updated_at),
     },
     sections: sections.map((section, pos) => ({
-      _id: `${slug}#${pos}`,
+      _id: section.id ?? `${slug}#${pos}`,
       name: section.name,
       pos,
       data: parseData(section.name, section.data),
@@ -91,18 +93,37 @@ const toBundle = ({
   }
 }
 
+// The draft for a preview link: never cached. A wrong token reads nothing.
+const fetchDraft = async (token: string, path: string) => {
+  // Request time only, never prerendered.
+  await connection()
+  const res = await fetch(`${backendUrl}/p/${project}/draft${path}`, {
+    headers: { 'x-headcode-preview': token },
+    cache: 'no-store',
+  })
+  if (res.status === 404 || res.status === 401) return null
+  if (!res.ok) throw new Error(`Headcode backend: ${res.status} for ${path}`)
+  return res.json()
+}
+
+const read = (version: HeadcodeVersion, path: string) =>
+  version === 'live'
+    ? fetchLive(path)
+    : fetchDraft(version.slice('preview-'.length), path)
+
 const getEntry = async (version: HeadcodeVersion, slug: string) => {
-  if (version !== 'live') throw new Error('Draft preview is not available yet.')
-  const entry = (await fetchLive(`/${slug}`)) as BackendEntry | null
+  const entry = (await read(version, `/${slug}`)) as BackendEntry | null
   return entry && toBundle(entry)
 }
 
 const getEntries = async (version: HeadcodeVersion, prefix = '') => {
-  if (version !== 'live') throw new Error('Draft preview is not available yet.')
-  const { entries } = (await fetchLive(
+  const list = (await read(
+    version,
     `?prefix=${encodeURIComponent(prefix)}`,
-  )) as { entries: BackendEntry[] }
-  return entries.map(toBundle)
+  )) as {
+    entries: BackendEntry[]
+  } | null
+  return (list?.entries ?? []).map(toBundle)
 }
 
 export const getHeadcodeGlobal = (version: HeadcodeVersion, slug: string) =>

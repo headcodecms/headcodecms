@@ -207,7 +207,7 @@ const tools = await step("tools/list", () =>
   rpc(admin, mcpUrl, "tools/list", {}).then((r) => r.json()),
 );
 check(
-  tools.result?.tools?.length === 12,
+  tools.result?.tools?.length === 16,
   `tools: ${tools.result?.tools?.map((t) => t.name).join(", ")}`,
 );
 // 5. Schema and entries. The smoke test brings its own schema and restores
@@ -264,6 +264,21 @@ try {
   check(
     draft.sections?.[0]?.data?.stamp === stamp,
     "draft write and read back",
+  );
+  const changes = await call(admin, "changes_list");
+  check(
+    changes.changes?.some((c) => c.slug === "smoke" && c.status === "new"),
+    "changes list the new draft entry",
+  );
+  const { token } = await call(admin, "preview_link");
+  const draftUrl = mcpUrl.replace(/\/mcp$/, "/draft/smoke");
+  const preview = await fetch(draftUrl, {
+    headers: { "x-headcode-preview": token },
+  }).then((r) => r.json());
+  const noToken = await fetch(draftUrl);
+  check(
+    preview.sections?.[0]?.data?.stamp === stamp && noToken.status === 401,
+    "preview token reads the draft, without it 401",
   );
   check(
     refused(
@@ -381,6 +396,17 @@ try {
       "Only members of this project can publish",
     ),
     "guest cannot publish",
+  );
+  check(
+    refused(
+      await call(guest, "preview_link"),
+      "Only members of this project can see the preview link",
+    ) &&
+      refused(
+        await call(guest, "draft_reset"),
+        "Only members of this project can reset the draft",
+      ),
+    "guest cannot see the preview link or reset the draft",
   );
   check(
     refused(

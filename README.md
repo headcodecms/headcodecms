@@ -6,11 +6,11 @@ Turn a vibe-coded website into a real CMS: agents edit content through MCP, peop
 
 ## Apps
 
-| App                            | What it is                                                                                            |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| [`apps/backend`](apps/backend) | Rust (axum, rmcp, sqlx): the MCP server per project, Postgres; embedded Postgres locally              |
-| [`apps/auth`](apps/auth)       | Next.js with Better Auth: sign-in and the OAuth 2.1 server for MCP clients, shared by all sites       |
-| [`apps/base`](apps/base)       | Next.js: the first site, its sections in Zod (admin follows); `www`, `blog`, `docs`, `shopify` follow |
+| App                            | What it is                                                                                                   |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| [`apps/backend`](apps/backend) | Rust (axum, rmcp, sqlx): the MCP server per project, Postgres; embedded Postgres locally                     |
+| [`apps/auth`](apps/auth)       | Next.js with Better Auth: sign-in and the OAuth 2.1 server for MCP clients, shared by all sites              |
+| [`apps/base`](apps/base)       | Next.js: the first site with its admin at `/admin`; sections in Zod; `www`, `blog`, `docs`, `shopify` follow |
 
 ## Run it locally
 
@@ -30,6 +30,12 @@ cargo run -- seed demo ../base/headcode.seed.json
 ```
 
 Agents push a schema with the MCP tool `schema_push`.
+
+The admin at http://localhost:3082/admin signs in at the auth app. Register the site there once and put the printed id into `apps/base/.env.local` as `HEADCODE_CLIENT_ID`:
+
+```bash
+pnpm --dir apps/auth client base http://localhost:3082/admin/callback
+```
 
 Locally `dev@headcode.local` is admin of the `demo` project; sign up with that address in the auth app.
 

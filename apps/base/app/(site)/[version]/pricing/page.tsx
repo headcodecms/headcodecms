@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { siteVersion } from '@/app/(site)/_lib/version'
 import { notFound } from 'next/navigation'
 
@@ -17,7 +18,16 @@ export const generateMetadata = async (): Promise<Metadata> => {
   })
 }
 
-export default async function PricingPage() {
+// Preview links read the draft per request; it streams in, as on navigation.
+export default function Page() {
+  return (
+    <Suspense>
+      <PricingPage />
+    </Suspense>
+  )
+}
+
+async function PricingPage() {
   const pricing = await getHeadcodeGlobal(await siteVersion(), 'pricing')
   if (!pricing) notFound()
   return <RenderSections entry={pricing.entry} sections={pricing.sections} />

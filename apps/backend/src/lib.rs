@@ -29,6 +29,8 @@ pub fn router(db: Db, base_url: &str, issuer: &str) -> Result<Router> {
     let live = Router::new()
         .route("/p/{project}/live", get(cms::live_list))
         .route("/p/{project}/live/{*slug}", get(cms::live_get))
+        .route("/p/{project}/draft", get(cms::draft_list))
+        .route("/p/{project}/draft/{*slug}", get(cms::draft_get))
         .with_state(db.clone());
     let auth = Auth::new(base_url, issuer);
     let tools_auth = auth.clone();
