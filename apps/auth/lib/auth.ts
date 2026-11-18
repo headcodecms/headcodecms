@@ -10,6 +10,8 @@ import { jwt } from 'better-auth/plugins'
 import { attachDatabasePool } from '@vercel/functions'
 import { Pool } from 'pg'
 
+import { sendEmail } from './email'
+
 export const authUrl = (
   process.env.AUTH_URL ?? 'http://localhost:3081'
 ).replace(/\/$/, '')
@@ -50,6 +52,23 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     disableSignUp: process.env.AUTH_DISABLE_SIGN_UP === 'true',
+    sendResetPassword: ({ user, url }) =>
+      sendEmail({
+        to: user.email,
+        subject: 'Reset your Headcode password',
+        text: `Open this link to choose a new password:\n\n${url}\n\nIf you did not ask for it, ignore this email.`,
+      }),
+  },
+  // A confirmed address redeems project invitations (the backend checks it).
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: ({ user, url }) =>
+      sendEmail({
+        to: user.email,
+        subject: 'Confirm your email for Headcode',
+        text: `Open this link to confirm your email address:\n\n${url}\n\nIf you did not create a Headcode account, ignore this email.`,
+      }),
   },
   // Serverless instances share no memory, so count requests in the database.
   rateLimit: { storage: 'database' },

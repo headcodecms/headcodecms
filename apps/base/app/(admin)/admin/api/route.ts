@@ -48,7 +48,7 @@ export const POST = async (req: NextRequest) => {
     // The backend's hint is for agents; people ask an admin.
     const message = error.message.replace(
       'A project admin can add you with member_grant.',
-      'Ask a project admin to add you.',
+      'Ask a project admin to add you. If you were invited, confirm your email address first (the link is in your inbox), then reload.',
     )
     return Response.json({ error: message }, { status: 400 })
   }
