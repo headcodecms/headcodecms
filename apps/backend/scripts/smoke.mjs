@@ -483,13 +483,20 @@ try {
     ),
     "revoked guest cannot read draft",
   );
-  check(
-    refused(
-      await call(admin, "member_revoke", { email }),
-      "A project needs at least one admin",
-    ),
-    "last admin cannot be removed",
+  // Only safe when this account is the project's only admin: otherwise the
+  // revoke would succeed and lock the smoke test out of its cleanup.
+  const admins = (await call(admin, "members_list")).members?.filter(
+    (m) => m.role === "admin" && m.joined,
   );
+  if (admins?.length === 1)
+    check(
+      refused(
+        await call(admin, "member_revoke", { email }),
+        "A project needs at least one admin",
+      ),
+      "last admin cannot be removed",
+    );
+  else console.log(`--  last-admin check skipped (${admins?.length} admins)`);
 } finally {
   // Cleanup also after a failed check, which then stays the reported error.
   await call(admin, "entry_delete", { slug: "smoke", version: "draft" });
