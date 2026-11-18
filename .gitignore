@@ -7,3 +7,5 @@ node_modules
 next-env.d.ts
 .DS_Store
 .vercel
+# 1Password shell plugin settings for this folder (local)
+.op/
