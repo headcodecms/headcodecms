@@ -207,7 +207,7 @@ const tools = await step("tools/list", () =>
   rpc(admin, mcpUrl, "tools/list", {}).then((r) => r.json()),
 );
 check(
-  tools.result?.tools?.length === 9,
+  tools.result?.tools?.length === 12,
   `tools: ${tools.result?.tools?.map((t) => t.name).join(", ")}`,
 );
 // 5. Schema and entries. The smoke test brings its own schema and restores
@@ -222,11 +222,16 @@ const smokeSection = {
   required: ["title", "stamp"],
   additionalProperties: false,
 };
-const smokeSchema = {
-  sections: { smoke: smokeSection },
-  globals: [{ slug: "smoke", description: "Smoke test", sections: ["smoke"] }],
-  collections: [],
-};
+// Added to the project's schema, so its other entries stay valid for publish.
+const withSmoke = (section) => ({
+  sections: { ...saved.sections, smoke: section },
+  globals: [
+    ...(saved.globals ?? []).filter((g) => g.slug !== "smoke"),
+    { slug: "smoke", description: "Smoke test", sections: ["smoke"] },
+  ],
+  collections: saved.collections ?? [],
+});
+const smokeSchema = withSmoke(smokeSection);
 const smokeEntry = (data) => ({
   slug: "smoke",
   sections: [{ name: "smoke", data }],
@@ -243,7 +248,7 @@ try {
   );
   const pushed = await call(admin, "schema_push", { schema: smokeSchema });
   check(
-    pushed.globals === 1,
+    pushed.globals >= 1,
     `schema pushed (${pushed.invalid?.length} invalid)`,
   );
 
@@ -298,22 +303,48 @@ try {
     `live lists ${live.entries?.length} entries without sections`,
   );
   const stricter = await call(admin, "schema_push", {
-    schema: {
-      ...smokeSchema,
-      sections: {
-        smoke: {
-          ...smokeSection,
-          properties: { ...smokeSection.properties, lead: { type: "string" } },
-          required: [...smokeSection.required, "lead"],
-        },
-      },
-    },
+    schema: withSmoke({
+      ...smokeSection,
+      properties: { ...smokeSection.properties, lead: { type: "string" } },
+      required: [...smokeSection.required, "lead"],
+    }),
   });
   check(
     stricter.invalid?.filter((i) => i.slug === "smoke").length === 2,
     "stricter schema is saved and reports the entries to fix",
   );
+  check(
+    refused(await call(admin, "publish"), "Not published"),
+    "publish refused while a draft entry does not match",
+  );
   await call(admin, "schema_push", { schema: smokeSchema });
+
+  const published = await call(admin, "publish");
+  const afterPublish = await call(admin, "entry_get", {
+    slug: "smoke",
+    version: "live",
+  });
+  check(
+    published.snapshot && afterPublish.sections?.[0]?.data?.title === "Smoke",
+    `publish copies draft to live (${published.entries} entries)`,
+  );
+  const snapshots = await call(admin, "snapshots_list");
+  check(
+    snapshots.snapshots?.[0]?.id === published.snapshot,
+    "snapshot of live before publish",
+  );
+  const rolledBack = await call(admin, "rollback", {
+    snapshot: published.snapshot,
+  });
+  const afterRollback = await call(admin, "entry_get", {
+    slug: "smoke",
+    version: "live",
+  });
+  check(
+    rolledBack.snapshot > published.snapshot &&
+      afterRollback.sections?.[0]?.data?.title === "Smoke live",
+    "rollback restores live and saves a snapshot to undo it",
+  );
 
   // 6. Member rules with a second account.
   await call(admin, "member_revoke", { email: guestEmail }); // left over from a failed run
@@ -342,6 +373,13 @@ try {
       "Only members of this project can change entries",
     ),
     "guest cannot write",
+  );
+  check(
+    refused(
+      await call(guest, "publish"),
+      "Only members of this project can publish",
+    ),
+    "guest cannot publish",
   );
   check(
     refused(

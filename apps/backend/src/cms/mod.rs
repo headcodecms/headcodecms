@@ -11,7 +11,7 @@ use rmcp::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use sqlx::{Postgres, Transaction};
+use sqlx::{PgConnection, Postgres, Transaction};
 use uuid::Uuid;
 
 use crate::cms::schema::{Compiled, Schema, Section};
@@ -88,6 +88,12 @@ pub struct DeleteParams {
 }
 
 #[derive(Deserialize, JsonSchema)]
+pub struct RollbackParams {
+    /// A snapshot id from snapshots_list.
+    snapshot: i64,
+}
+
+#[derive(Deserialize, JsonSchema)]
 pub struct PushParams {
     /// The schema, as written by the site's `pnpm schema`.
     schema: Schema,
@@ -140,6 +146,38 @@ pub struct Pushed {
 }
 
 #[derive(Serialize, JsonSchema)]
+pub struct Published {
+    /// Entries now live.
+    entries: usize,
+    /// The snapshot of live before, for rollback.
+    snapshot: i64,
+}
+
+#[derive(Serialize, JsonSchema)]
+pub struct RolledBack {
+    /// Entries now live.
+    entries: u64,
+    /// The snapshot of live before the rollback, to undo it.
+    snapshot: i64,
+}
+
+#[derive(Serialize, JsonSchema, sqlx::FromRow)]
+pub struct Snapshot {
+    id: i64,
+    /// "publish" or "rollback": the change that replaced this live state.
+    reason: String,
+    #[schemars(with = "String")]
+    created_at: DateTime<Utc>,
+    created_by: String,
+    entries: i32,
+}
+
+#[derive(Serialize, JsonSchema)]
+pub struct Snapshots {
+    snapshots: Vec<Snapshot>,
+}
+
+#[derive(Serialize, JsonSchema)]
 pub struct Invalid {
     slug: String,
     version: String,
@@ -183,7 +221,7 @@ impl Access<'_> {
 
 #[tool_handler(
     name = "headcode",
-    instructions = "Headcode CMS. Call schema_get first: it lists the globals (single entries like \"home\"), the collections (items like \"blog/hello\") and the JSON Schema of each section. An entry is an ordered list of sections. Entries exist in draft and live. Write to draft unless the user asks for live; a live write changes only live, so ask whether to apply it to draft too. Everyone signed in can read live; draft and writes are for project members, managed by admins with member_grant and member_revoke."
+    instructions = "Headcode CMS. Call schema_get first: it lists the globals (single entries like \"home\"), the collections (items like \"blog/hello\") and the JSON Schema of each section. An entry is an ordered list of sections. Entries exist in draft and live. Write to draft unless the user asks for live; a live write changes only live, so ask whether to apply it to draft too. Everyone signed in can read live; draft and writes are for project members, managed by admins with member_grant and member_revoke. publish replaces live with the whole draft; live is saved as a snapshot first, and rollback brings a snapshot back."
 )]
 impl ServerHandler for Cms {}
 
@@ -246,20 +284,7 @@ impl Cms {
         .fetch_all(&self.db)
         .await
         .map_err(internal)?;
-        let invalid = entries
-            .into_iter()
-            .filter_map(|(slug, version, sections)| {
-                let problems = match serde_json::from_value::<Vec<Section>>(sections) {
-                    Ok(sections) => schema.check(&slug, &sections),
-                    Err(error) => vec![error.to_string()],
-                };
-                (!problems.is_empty()).then_some(Invalid {
-                    slug,
-                    version,
-                    problems,
-                })
-            })
-            .collect();
+        let invalid = invalid(&schema, entries);
         Ok(Json(Pushed {
             sections: pushed.sections.len(),
             globals: pushed.globals.len(),
@@ -391,6 +416,152 @@ impl Cms {
             }),
         )
         .await
+    }
+
+    #[tool(
+        description = "Publish: replace live with the whole draft. Refused if a draft entry does not match the schema. Live before is saved as a snapshot for rollback.",
+        annotations(destructive_hint = true)
+    )]
+    async fn publish(
+        &self,
+        Extension(parts): Extension<Parts>,
+    ) -> Result<Json<Published>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "publish")?;
+        let schema = self.schema(access.project_id).await?;
+        let mut tx = self.db.begin().await.map_err(internal)?;
+        members::lock(&mut tx, access.project_id)
+            .await
+            .map_err(internal)?;
+        let draft: Vec<(String, String, Value)> = sqlx::query_as(
+            "select slug, version, sections from entries \
+             where project_id = $1 and version = 'draft' order by slug",
+        )
+        .bind(access.project_id)
+        .fetch_all(&mut *tx)
+        .await
+        .map_err(internal)?;
+        if draft.is_empty() {
+            return Err(refused(
+                "The draft is empty; there is nothing to publish.".into(),
+            ));
+        }
+        let entries = draft.len();
+        let invalid = invalid(&schema, draft);
+        if !invalid.is_empty() {
+            let lines: Vec<_> = invalid
+                .iter()
+                .map(|i| format!("{}: {}", i.slug, i.problems.join("; ")))
+                .collect();
+            return Err(refused(format!(
+                "Not published; these draft entries do not match the schema:\n{}",
+                lines.join("\n")
+            )));
+        }
+        let snapshot = take_live(&mut tx, access.project_id, "publish", &access.caller.sub)
+            .await
+            .map_err(internal)?;
+        sqlx::query(
+            "insert into entries (project_id, version, slug, sections, updated_at, updated_by) \
+             select project_id, 'live', slug, sections, updated_at, updated_by from entries \
+             where project_id = $1 and version = 'draft'",
+        )
+        .bind(access.project_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(internal)?;
+        members::audit(
+            &mut tx,
+            access.project_id,
+            &access.caller.sub,
+            "publish",
+            json!({ "entries": entries, "snapshot": snapshot }),
+        )
+        .await
+        .map_err(internal)?;
+        tx.commit().await.map_err(internal)?;
+        Ok(Json(Published { entries, snapshot }))
+    }
+
+    #[tool(
+        description = "List the 50 latest snapshots of live, newest first.",
+        annotations(read_only_hint = true)
+    )]
+    async fn snapshots_list(
+        &self,
+        Extension(parts): Extension<Parts>,
+    ) -> Result<Json<Snapshots>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "see the snapshots")?;
+        let snapshots = sqlx::query_as::<_, Snapshot>(
+            "select id, reason, created_at, created_by, jsonb_array_length(entries) as entries \
+             from snapshots where project_id = $1 order by id desc limit 50",
+        )
+        .bind(access.project_id)
+        .fetch_all(&self.db)
+        .await
+        .map_err(internal)?;
+        Ok(Json(Snapshots { snapshots }))
+    }
+
+    #[tool(
+        description = "Roll back: replace live with a snapshot. Draft is not changed. Live before is saved as a new snapshot, so a rollback can be undone.",
+        annotations(destructive_hint = true)
+    )]
+    async fn rollback(
+        &self,
+        Extension(parts): Extension<Parts>,
+        Parameters(params): Parameters<RollbackParams>,
+    ) -> Result<Json<RolledBack>, ErrorData> {
+        let access = self.access(&parts).await?;
+        access.require(Role::Editor, "roll back")?;
+        let mut tx = self.db.begin().await.map_err(internal)?;
+        members::lock(&mut tx, access.project_id)
+            .await
+            .map_err(internal)?;
+        let exists: bool = sqlx::query_scalar(
+            "select exists (select 1 from snapshots where project_id = $1 and id = $2)",
+        )
+        .bind(access.project_id)
+        .bind(params.snapshot)
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(internal)?;
+        if !exists {
+            return Err(refused(format!(
+                "No snapshot {} in this project.",
+                params.snapshot
+            )));
+        }
+        let snapshot = take_live(&mut tx, access.project_id, "rollback", &access.caller.sub)
+            .await
+            .map_err(internal)?;
+        let restored = sqlx::query(
+            "insert into entries (project_id, version, slug, sections, updated_at, updated_by) \
+             select $1, 'live', e.slug, e.sections, e.updated_at, e.updated_by \
+             from snapshots s, jsonb_to_recordset(s.entries) \
+             as e (slug text, sections jsonb, updated_at timestamptz, updated_by text) \
+             where s.project_id = $1 and s.id = $2",
+        )
+        .bind(access.project_id)
+        .bind(params.snapshot)
+        .execute(&mut *tx)
+        .await
+        .map_err(internal)?;
+        members::audit(
+            &mut tx,
+            access.project_id,
+            &access.caller.sub,
+            "rollback",
+            json!({ "to": params.snapshot, "snapshot": snapshot }),
+        )
+        .await
+        .map_err(internal)?;
+        tx.commit().await.map_err(internal)?;
+        Ok(Json(RolledBack {
+            entries: restored.rows_affected(),
+            snapshot,
+        }))
     }
 
     #[tool(
@@ -539,6 +710,51 @@ impl Cms {
             .map_err(internal)?;
         Ok(Json(Members { members }))
     }
+}
+
+/// Saves live as a snapshot and empties it, for publish and rollback.
+/// Run it in a transaction that starts with `members::lock`.
+async fn take_live(
+    tx: &mut PgConnection,
+    project_id: Uuid,
+    reason: &str,
+    actor: &str,
+) -> anyhow::Result<i64> {
+    let id = sqlx::query_scalar(
+        "insert into snapshots (project_id, reason, entries, created_by) \
+         select $1, $2, coalesce(jsonb_agg(jsonb_build_object( \
+           'slug', slug, 'sections', sections, 'updated_at', updated_at, 'updated_by', updated_by \
+         ) order by slug), '[]'), $3 \
+         from entries where project_id = $1 and version = 'live' returning id",
+    )
+    .bind(project_id)
+    .bind(reason)
+    .bind(actor)
+    .fetch_one(&mut *tx)
+    .await?;
+    sqlx::query("delete from entries where project_id = $1 and version = 'live'")
+        .bind(project_id)
+        .execute(&mut *tx)
+        .await?;
+    Ok(id)
+}
+
+/// The entries that do not match the schema, from (slug, version, sections) rows.
+fn invalid(schema: &Compiled, entries: Vec<(String, String, Value)>) -> Vec<Invalid> {
+    entries
+        .into_iter()
+        .filter_map(|(slug, version, sections)| {
+            let problems = match serde_json::from_value::<Vec<Section>>(sections) {
+                Ok(sections) => schema.check(&slug, &sections),
+                Err(error) => vec![error.to_string()],
+            };
+            (!problems.is_empty()).then_some(Invalid {
+                slug,
+                version,
+                problems,
+            })
+        })
+        .collect()
 }
 
 fn internal(error: impl std::fmt::Display) -> ErrorData {

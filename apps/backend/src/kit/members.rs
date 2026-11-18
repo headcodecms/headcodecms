@@ -165,7 +165,8 @@ pub async fn revoke(
     Ok(true)
 }
 
-/// Serializes member changes per project, so two admins cannot remove each other at once.
+/// Serializes member changes, publish and rollback per project, so two admins
+/// cannot remove each other at once and two publishes do not interleave.
 pub async fn lock(tx: &mut PgConnection, project_id: Uuid) -> Result<()> {
     sqlx::query("select 1 from projects where id = $1 for update")
         .bind(project_id)

@@ -10,7 +10,7 @@ Turn a vibe-coded website into a real CMS: agents edit content through MCP, peop
 | ------------------------------ | ----------------------------------------------------------------------------------------------- |
 | [`apps/backend`](apps/backend) | Rust (axum, rmcp, sqlx): the MCP server per project, Postgres; embedded Postgres locally        |
 | [`apps/auth`](apps/auth)       | Next.js with Better Auth: sign-in and the OAuth 2.1 server for MCP clients, shared by all sites |
-| `apps/base`                    | planned: the first site with admin (Next.js on vinext); `www`, `blog`, `docs`, `shopify` follow |
+| `apps/base`                    | planned: the first site with admin (Next.js); `www`, `blog`, `docs`, `shopify` follow |
 
 ## Run it locally
 
