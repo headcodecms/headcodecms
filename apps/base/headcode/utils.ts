@@ -22,5 +22,8 @@ export const requestOrigin = (req: Request) => {
   const url = new URL(req.url)
   url.host =
     req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? url.host
+  // Behind a TLS proxy (Coolify's Traefik) the app itself sees http.
+  const proto = req.headers.get('x-forwarded-proto')?.split(',')[0].trim()
+  if (proto === 'http' || proto === 'https') url.protocol = proto
   return url.origin
 }

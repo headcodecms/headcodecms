@@ -2,6 +2,7 @@ import { createHash, randomBytes } from 'node:crypto'
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { clientId, cookie, issuer, mcpUrl, scope } from '@/headcode/admin'
+import { requestOrigin } from '@/headcode/utils'
 
 // Starts the sign-in at apps/auth with PKCE; /admin/callback finishes it.
 export const GET = (req: NextRequest) => {
@@ -12,7 +13,7 @@ export const GET = (req: NextRequest) => {
   url.search = new URLSearchParams({
     response_type: 'code',
     client_id: clientId,
-    redirect_uri: `${req.nextUrl.origin}/admin/callback`,
+    redirect_uri: `${requestOrigin(req)}/admin/callback`,
     scope,
     state,
     code_challenge: createHash('sha256').update(verifier).digest('base64url'),

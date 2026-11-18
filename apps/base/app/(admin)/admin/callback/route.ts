@@ -1,9 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { cookie, requestTokens, setTokens } from '@/headcode/admin'
+import { requestOrigin } from '@/headcode/utils'
 
 export const GET = async (req: NextRequest) => {
-  const { searchParams, origin } = req.nextUrl
+  const { searchParams } = req.nextUrl
+  const origin = requestOrigin(req)
   const saved = req.cookies.get(cookie.oauth)?.value
   const { verifier, state, returnTo } = saved
     ? (JSON.parse(saved) as {

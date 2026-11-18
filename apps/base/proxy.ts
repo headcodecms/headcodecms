@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { cookie, expiresIn, requestTokens, setTokens } from '@/headcode/admin'
+import { requestOrigin } from '@/headcode/utils'
 
 const wantsMarkdown = (req: NextRequest) =>
   req.nextUrl.searchParams.has('md') ||
@@ -11,7 +12,8 @@ const wantsMarkdown = (req: NextRequest) =>
 // The admin needs a valid access token; an expired one is refreshed here,
 // where cookies can still be set for this request and the response.
 const admin = async (req: NextRequest) => {
-  const { pathname, origin } = req.nextUrl
+  const { pathname } = req.nextUrl
+  const origin = requestOrigin(req)
   if (['/admin/login', '/admin/callback', '/admin/logout'].includes(pathname))
     return NextResponse.next()
   const access = req.cookies.get(cookie.access)?.value
