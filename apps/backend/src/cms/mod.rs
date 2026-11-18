@@ -24,6 +24,7 @@ use crate::kit::{
     auth::{Auth, Caller, Project},
     db::Db,
     members::{self, Member, Role},
+    site,
 };
 
 pub mod schema;
@@ -156,6 +157,9 @@ pub struct Published {
     entries: usize,
     /// The snapshot of live before, for rollback.
     snapshot: i64,
+    /// Whether the site confirmed it shows the new live state. If false, the
+    /// site shows it once its cache expires (or has no revalidate URL set).
+    site_refreshed: bool,
 }
 
 #[derive(Serialize, JsonSchema)]
@@ -164,6 +168,8 @@ pub struct RolledBack {
     entries: u64,
     /// The snapshot of live before the rollback, to undo it.
     snapshot: i64,
+    /// Whether the site confirmed it shows the new live state.
+    site_refreshed: bool,
 }
 
 #[derive(Serialize, JsonSchema, sqlx::FromRow)]
@@ -490,7 +496,12 @@ impl Cms {
         .await
         .map_err(internal)?;
         tx.commit().await.map_err(internal)?;
-        Ok(Json(Published { entries, snapshot }))
+        let site_refreshed = site::notify(&self.db, access.project_id, "publish", snapshot).await;
+        Ok(Json(Published {
+            entries,
+            snapshot,
+            site_refreshed,
+        }))
     }
 
     #[tool(
@@ -568,9 +579,11 @@ impl Cms {
         .await
         .map_err(internal)?;
         tx.commit().await.map_err(internal)?;
+        let site_refreshed = site::notify(&self.db, access.project_id, "rollback", snapshot).await;
         Ok(Json(RolledBack {
             entries: restored.rows_affected(),
             snapshot,
+            site_refreshed,
         }))
     }
 

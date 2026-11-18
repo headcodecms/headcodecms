@@ -37,6 +37,15 @@ The admin at http://localhost:3082/admin signs in at the auth app. Register the 
 pnpm --dir apps/auth client base http://localhost:3082/admin/callback
 ```
 
+After a publish or rollback, the backend tells the site to refresh its cache, with a signed request. Give both the same secret once:
+
+```bash
+echo "HEADCODE_REVALIDATE_SECRET=$(openssl rand -hex 32)" >> apps/base/.env.local
+cd apps/backend
+REVALIDATE_SECRET="$(grep ^HEADCODE_REVALIDATE_SECRET= ../base/.env.local | cut -d= -f2)" \
+  cargo run -- site demo http://localhost:3082/api/revalidate
+```
+
 Locally `dev@headcode.local` is admin of the `demo` project; sign up with that address in the auth app.
 
 ## License

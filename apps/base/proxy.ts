@@ -61,12 +61,12 @@ export default async function proxy(req: NextRequest) {
   return res
 }
 
-// Every site page, the preview, and the admin. Not: Next.js internals and
-// files with an extension (public assets, robots.txt, sitemap.xml) except
-// /llms.txt.
+// Every site page, the preview, and the admin. Not: Next.js internals, API
+// routes (revalidate), and files with an extension (public assets,
+// robots.txt, sitemap.xml) except /llms.txt.
 export const config = {
   matcher: [
-    '/((?!_next/|.*\\.[a-z0-9]+$).*)',
+    '/((?!_next/|api/|.*\\.[a-z0-9]+$).*)',
     '/llms.txt',
     '/preview/:token/llms.txt',
   ],

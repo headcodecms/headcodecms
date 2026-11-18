@@ -342,7 +342,7 @@ try {
   });
   check(
     published.snapshot && afterPublish.sections?.[0]?.data?.title === "Smoke",
-    `publish copies draft to live (${published.entries} entries)`,
+    `publish copies draft to live (${published.entries} entries, site refreshed: ${published.site_refreshed})`,
   );
   const snapshots = await call(admin, "snapshots_list");
   check(

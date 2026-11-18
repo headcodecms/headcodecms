@@ -15,7 +15,8 @@ use uuid::Uuid;
 const DEV_ADMIN: &str = "dev@headcode.local";
 
 const USAGE: &str = "usage: headcode [serve | migrate | member add <project> <email> <editor|admin>
-                 | schema <project> <schema.json> | seed <project> <entries.json>]";
+                 | schema <project> <schema.json> | seed <project> <entries.json>
+                 | site <project> <revalidate-url>   (secret from REVALIDATE_SECRET)]";
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -69,6 +70,20 @@ async fn main() -> Result<()> {
             let entries: Vec<Seed> = serde_json::from_str(&std::fs::read_to_string(file)?)?;
             let added = seed(&db, project_id(&db, project).await?, entries).await?;
             println!("{added} entries added to draft and live of {project}");
+            Ok(())
+        }
+        ["site", project, url] => {
+            let secret = std::env::var("REVALIDATE_SECRET")
+                .context("set REVALIDATE_SECRET, the same value as in the site's env")?;
+            sqlx::query(
+                "update projects set revalidate_url = $2, revalidate_secret = $3 where slug = $1",
+            )
+            .bind(project)
+            .bind(url)
+            .bind(secret)
+            .execute(&db)
+            .await?;
+            println!("{project} tells {url} about publish and rollback");
             Ok(())
         }
         _ => bail!(USAGE),
