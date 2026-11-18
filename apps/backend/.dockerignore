@@ -1,0 +1,7 @@
+target
+storage
+node_modules
+.smoke
+.neon
+.vercel
+.env*

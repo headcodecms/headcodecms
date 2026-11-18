@@ -96,7 +96,9 @@ async fn serve(db: Db) -> Result<()> {
     let app = router(db, &base_url, &issuer)?;
 
     let port = env("PORT", "3080");
-    let listener = tokio::net::TcpListener::bind(format!("127.0.0.1:{port}")).await?;
+    // Local only by default; a container sets HOST=0.0.0.0.
+    let host = env("HOST", "127.0.0.1");
+    let listener = tokio::net::TcpListener::bind(format!("{host}:{port}")).await?;
     tracing::info!("headcode on {base_url}, MCP at {base_url}/p/demo/mcp");
     axum::serve(listener, app)
         .with_graceful_shutdown(async {
